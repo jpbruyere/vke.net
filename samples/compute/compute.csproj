@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RootDirectory)netfx.props" />
+  <PropertyGroup>    
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+              
+  <ItemGroup>    
+    <Compile Include="delaunay.cs" /> 
+  </ItemGroup>     
+</Project>

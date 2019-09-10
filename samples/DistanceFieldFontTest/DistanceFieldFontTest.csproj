@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RootDirectory)netfx.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\addons\DistanceFieldFont\DistanceFieldFont.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="shaders\" />
+  </ItemGroup>
+</Project>

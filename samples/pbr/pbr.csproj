@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RootDirectory)netfx.props" />
+  <PropertyGroup>    
+    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>    
+  </PropertyGroup>
+                
+  <ItemGroup>
+    <GLSLShader Update="shaders/simpletexture.frag">
+		<LogicalName>CVKL.simpletexture.frag.spv</LogicalName>		
+	</GLSLShader>
+  </ItemGroup>    
+	
+  <ItemGroup>
+    <ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
+    <ProjectReference Include="..\..\addons\VkvgPipeline\VkvgPipeline.csproj" />
+  </ItemGroup>    
+  
+  <ItemGroup>    
+    <EmbeddedResource Include="ui\**\*.*">
+      <LogicalName>deferred.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>                
+  </ItemGroup>     
+
+</Project>
