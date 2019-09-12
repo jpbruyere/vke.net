@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+//
+// This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
-using CVKL.glTF;
+using vke;
+using vke.glTF;
 using VK;
 
-namespace ModelSample {
+namespace ModelSample
+{
 	class Program : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
@@ -38,7 +41,7 @@ namespace ModelSample {
 		DescriptorSetLayout descLayoutMatrix;
 		DescriptorSetLayout descLayoutTextures;
 
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 
 		GraphicPipeline pipeline;
 
@@ -48,10 +51,10 @@ namespace ModelSample {
 		float rotX, rotY, rotZ = 0f, zoom = 2f;
 
 		SimpleModel helmet;
-		CVKL.DebugUtils.Messenger dbgmsg;
+		vke.DebugUtils.Messenger dbgmsg;
 
 		Program () : base () {
-
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
 			descriptorPool = new DescriptorPool (dev, 2,
 				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
@@ -90,15 +93,11 @@ namespace ModelSample {
 			pipeline = new GraphicPipeline (cfg);
 
 			helmet = new SimpleModel (presentQueue, Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf");
-			//helmet = new SimpleModel (presentQueue, Utils.DataDirectory + "models/Hubble.glb");
-
-			//helmet = new SimpleModel (presentQueue, "/mnt/devel/vulkan/Lugdunum/resources/models/Box.gltf");
 
 			dsMatrices = descriptorPool.Allocate (descLayoutMatrix);
 			dsTextures = descriptorPool.Allocate (descLayoutTextures);
 
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
-			//matrices.lightPos = new Vector4 (0.0f, 0.0f, -2.0f, 1.0f);
 
 			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (dsMatrices, descLayoutMatrix);
 			uboUpdate.Write (dev, uboMats.Descriptor);
@@ -138,10 +137,9 @@ namespace ModelSample {
 		}
 		void buildCommandBuffers () {
 			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
-			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				Framebuffer fb = frameBuffers[i];
+				FrameBuffer fb = frameBuffers[i];
 				cmds[i].Start ();
 
 				pipeline.RenderPass.Begin (cmds[i], fb);
@@ -168,21 +166,8 @@ namespace ModelSample {
 		protected override void OnResize () {
 			base.OnResize();
 
-			if (frameBuffers != null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i)
-				frameBuffers[i] = new Framebuffer (pipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-						null
-					} : new Image[] {
-						null,
-						null,
-						swapChain.images[i]
-					});
+			frameBuffers?.Dispose();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
 		}
@@ -205,7 +190,7 @@ namespace ModelSample {
 				dev = transferQ.Dev;
 
 				using (CommandPool cmdPool = new CommandPool (dev, transferQ.index)) {
-					using (CVKL.glTF.glTFLoader ctx = new CVKL.glTF.glTFLoader(path, transferQ, cmdPool)) {
+					using (vke.glTF.glTFLoader ctx = new vke.glTF.glTFLoader(path, transferQ, cmdPool)) {
 						loadSolids<Vertex> (ctx);
 						textures = ctx.LoadImages ();
 					}
@@ -244,8 +229,7 @@ namespace ModelSample {
 					pipeline.Dispose ();
 					descLayoutMatrix.Dispose ();
 					descLayoutTextures.Dispose ();
-					for (int i = 0; i < swapChain.ImageCount; i++)
-						frameBuffers[i]?.Dispose ();
+					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					uboMats.Dispose ();
 					dbgmsg?.Dispose ();

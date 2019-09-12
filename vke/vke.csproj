@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+		
 		<ReleaseVersion>0.1.7</ReleaseVersion>		
 		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
 		<Description>C# vulkan library with IDispose model and references counting</Description>		
+		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<PackageTags>vulkan game engine compute glfw c#</PackageTags>
-		<PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
+		<PackageVersion>$(AssemblyVersion)</PackageVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
 		<License>MIT</License>
-		<PackageReleaseNotes>
-			
+		<Authors>Jean-Philippe Bruyère</Authors>
+		<PackageReleaseNotes>			
 		</PackageReleaseNotes>
 		<!--<PackageIconUrl>https://github.com/KhronosGroup/glTF/blob/master/specification/figures/gltf.png</PackageIconUrl>-->
 		<SynchReleaseVersion>false</SynchReleaseVersion>
@@ -22,6 +25,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>		
+    <LangVersion>7.2</LangVersion>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -49,6 +53,6 @@
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
 			<ResourceId>testRsID</ResourceId>
 		</GLSLShader>
-		<Compile Remove="Properties\AssemblyInfo.cs;src\Renderer.cs;src\QueueFamily.cs" />
+		<Compile Remove="build\**\*.cs;Properties\AssemblyInfo.cs;src\Renderer.cs;src\QueueFamily.cs" />
 	</ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 #if MEMORY_POOLS
 	public enum MemoryPoolType {
 		Random,
@@ -57,7 +57,11 @@ namespace CVKL {
 			if (previous != null) {
 				do {
 					offset = previous.poolOffset + previous.AllocatedDeviceMemorySize;
-					offset += resource.MemoryAlignment - (offset % resource.MemoryAlignment);
+
+					if (previous.IsLinar != resource.IsLinar && offset % dev.BufferImageGranularity > 0)
+						offset += dev.BufferImageGranularity - (offset % dev.BufferImageGranularity);
+					if (offset % resource.MemoryAlignment > 0)
+						offset += resource.MemoryAlignment - (offset % resource.MemoryAlignment);
 
 					if (previous.next == null) {
 						if (offset + resource.AllocatedDeviceMemorySize >= limit) {

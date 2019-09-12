@@ -14,9 +14,9 @@ using System.IO;
 
 
 
-namespace CVKL.glTF {
+namespace vke.glTF {
 	using static VK.Utils;
-	using static CVKL.Model;
+	using static vke.Model;
 
 	/// <summary>
 	/// Loading context with I as the vertex index type (uint16,uint32)

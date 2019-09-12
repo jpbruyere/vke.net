@@ -1,7 +1,7 @@
 ﻿using System;
 using VK;
 
-namespace CVKL {
+namespace vke {
 #if MEMORY_POOLS
 	/// <summary>
 	/// Resource manager is responsible for the memory allocations. It holds one pool for each memory type

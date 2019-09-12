@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public class GraphicPipeline : Pipeline {
 
 		public readonly RenderPass RenderPass;
@@ -64,6 +64,15 @@ namespace CVKL {
 					shaderStages.Add (shader.GetStageCreateInfo (Dev));
 
 				VkPipelineColorBlendStateCreateInfo colorBlendInfo = VkPipelineColorBlendStateCreateInfo.New ();
+				colorBlendInfo.logicOpEnable = cfg.ColorBlendLogicOpEnable;
+				colorBlendInfo.logicOp = cfg.ColorBlendLogicOp;
+				unsafe
+				{
+					colorBlendInfo.blendConstants[0] = cfg.ColorBlendConstants.X;
+					colorBlendInfo.blendConstants[1] = cfg.ColorBlendConstants.Y;
+					colorBlendInfo.blendConstants[2] = cfg.ColorBlendConstants.Z;
+					colorBlendInfo.blendConstants[3] = cfg.ColorBlendConstants.W;
+				}
 				colorBlendInfo.attachmentCount = (uint)cfg.blendAttachments.Count;
 				colorBlendInfo.pAttachments = cfg.blendAttachments.Pin ();
 

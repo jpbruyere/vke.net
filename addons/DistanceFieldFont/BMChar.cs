@@ -2,7 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-namespace CVKL.DistanceFieldFont {
+namespace vke.DistanceFieldFont {
 	public struct BMChar {
 		public enum Channel {
 			Blue = 0x01,

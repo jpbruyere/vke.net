@@ -27,7 +27,7 @@ using System;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL {
+namespace vke {
 
     /// <summary>
     /// Device local Buffer

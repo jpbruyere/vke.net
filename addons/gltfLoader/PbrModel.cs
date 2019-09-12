@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using VK;
 using System.Collections.Generic;
 
-namespace CVKL.glTF {
+namespace vke.glTF {
 	//TODO:stride in buffer views?
 	public abstract class PbrModel : Model {        
 		//public new struct Vertex {

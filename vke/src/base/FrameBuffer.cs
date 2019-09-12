@@ -30,9 +30,9 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 
-    public class Framebuffer : Activable {
+    public class FrameBuffer : Activable {
         internal VkFramebuffer handle;
         RenderPass renderPass;
         
@@ -47,15 +47,21 @@ namespace CVKL {
 			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.FramebufferEXT, handle.Handle);
 
 		#region CTORS
-		public Framebuffer (RenderPass _renderPass, uint _width, uint _height, uint _layers = 1) : base(_renderPass.Dev) {
+		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, uint _layers = 1) : base(_renderPass.Dev) {
             renderPass = _renderPass;
             createInfo.width = _width;
             createInfo.height = _height;
             createInfo.layers = _layers;
             createInfo.renderPass = renderPass.handle;
         }
-
-		public Framebuffer (RenderPass _renderPass, uint _width, uint _height, params Image[] views)
+		/// <summary>
+		/// Create and Activate a new frabuffer for the supplied RenderPass.
+		/// </summary>
+		/// <param name="_renderPass">Render pass.</param>
+		/// <param name="_width">Width.</param>
+		/// <param name="_height">Height.</param>
+		/// <param name="views">Views.</param>
+		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, params Image[] views)
         : this (_renderPass, _width, _height) {
 			for (int i = 0; i < views.Length; i++) {
 				Image v = views[i];

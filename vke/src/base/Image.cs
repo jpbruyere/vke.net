@@ -29,7 +29,7 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Combined Image/Descriptor class. Optional Sampler and View are disposed with the vkImage. If multiple view/sampler have to be
 	/// created for the same vkImage, you may call the constructor accepting a vkImage as parameter to import an existing one. vkImage handle of
@@ -53,6 +53,9 @@ namespace CVKL {
 		public VkImage Handle => handle;
 		public uint Width => CreateInfo.extent.width;
 		public uint Height => CreateInfo.extent.height;
+		public override bool IsLinar => CreateInfo.tiling == VkImageTiling.Linear;
+
+		VkImageLayout lastKnownLayout;
 
 		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
 			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.ImageEXT, handle.Handle);
@@ -78,6 +81,8 @@ namespace CVKL {
             info.initialLayout = (tiling == VkImageTiling.Optimal) ? VkImageLayout.Undefined : VkImageLayout.Preinitialized;
             info.sharingMode = VkSharingMode.Exclusive;
 			info.flags = createFlags;
+
+			lastKnownLayout = info.initialLayout;
 
             Activate ();//DONT OVERRIDE Activate in derived classes!!!!
         }
@@ -397,13 +402,24 @@ namespace CVKL {
             Descriptor.sampler = sampler;
         }
 
-        public void SetLayout (
+		public void SetLayout (CommandBuffer cmdbuffer,
+			VkImageAspectFlags aspectMask,
+			VkImageLayout newImageLayout) {
+			SetLayout (cmdbuffer, aspectMask, lastKnownLayout, newImageLayout, lastKnownLayout.GetDefaultStage (), newImageLayout.GetDefaultStage ());
+		}
+		public void SetLayout (CommandBuffer cmdbuffer,
+			VkImageAspectFlags aspectMask,
+            VkImageLayout oldImageLayout,
+			VkImageLayout newImageLayout) {
+			SetLayout (cmdbuffer, aspectMask, oldImageLayout, newImageLayout, oldImageLayout.GetDefaultStage (), newImageLayout.GetDefaultStage ());
+		}
+		public void SetLayout (
             CommandBuffer cmdbuffer,
             VkImageAspectFlags aspectMask,
             VkImageLayout oldImageLayout,
             VkImageLayout newImageLayout,
-            VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-            VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+            VkPipelineStageFlags srcStageMask,
+            VkPipelineStageFlags dstStageMask) {
             VkImageSubresourceRange subresourceRange = new VkImageSubresourceRange {
                 aspectMask = aspectMask,
                 baseMipLevel = 0,
@@ -539,7 +555,7 @@ namespace CVKL {
                 case VkImageLayout.TransferSrcOptimal:
                     // Image will be used as a transfer source
                     // Make sure any reads from and writes to the image have been finished
-                    imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VkAccessFlags.TransferRead;
+                    imageMemoryBarrier.srcAccessMask |= VkAccessFlags.TransferRead;
                     imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferRead;
                     break;
 
@@ -575,6 +591,8 @@ namespace CVKL {
                 0,IntPtr.Zero,
                 0, IntPtr.Zero,
                 1, ref imageMemoryBarrier);
+
+			lastKnownLayout = newImageLayout;
         }
 
 		public void BuildMipmaps (Queue copyQ, CommandPool copyCmdPool) {
@@ -594,7 +612,9 @@ namespace CVKL {
 			cmd.Free ();
 		}
 		public void BuildMipmaps (CommandBuffer cmd) {
+
 			VkImageSubresourceRange mipSubRange = new VkImageSubresourceRange (VkImageAspectFlags.Color, 0, 1, 0, info.arrayLayers);
+			SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.TransferDstOptimal);
 
 			for (int i = 1; i < info.mipLevels; i++) {
 				VkImageBlit imageBlit = new VkImageBlit {
@@ -609,6 +629,8 @@ namespace CVKL {
 				vkCmdBlitImage (cmd.Handle, handle, VkImageLayout.TransferSrcOptimal, handle, VkImageLayout.TransferDstOptimal, 1, ref imageBlit, VkFilter.Linear);
 				mipSubRange.baseMipLevel = (uint)i;
 			}
+			SetLayout (cmd, VkImageLayout.TransferDstOptimal, VkImageLayout.TransferSrcOptimal, mipSubRange,
+					VkPipelineStageFlags.Transfer, VkPipelineStageFlags.Transfer);
 			SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
 					VkPipelineStageFlags.Transfer, VkPipelineStageFlags.FragmentShader);
 		}

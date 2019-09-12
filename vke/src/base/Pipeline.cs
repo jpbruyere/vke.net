@@ -27,7 +27,7 @@ using System;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	public abstract class Pipeline : Activable {
         protected VkPipeline handle;
 		protected PipelineLayout layout;

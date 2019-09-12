@@ -26,7 +26,7 @@
 // THE SOFTWARE.
 using System.Numerics;
 /* code derived from https://github.com/mellinoe*/
-namespace CVKL {
+namespace vke {
 	public struct BoundingBox {
 		public Vector3 min;
 		public Vector3 max;

@@ -6,8 +6,8 @@
                 
   <ItemGroup>
     <GLSLShader Update="shaders/simpletexture.frag">
-		<LogicalName>vke.simpletexture.frag.spv</LogicalName>		
-	</GLSLShader>
+		   <LogicalName>vke.simpletexture.frag.spv</LogicalName>		
+	   </GLSLShader>
   </ItemGroup>    
 	
   <ItemGroup>

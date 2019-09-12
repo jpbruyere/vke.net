@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	class EnvironmentCube : GraphicPipeline {
 
 		GPUBuffer vboSkybox;
@@ -138,7 +138,7 @@ namespace CVKL {
 			cfg.AddShader (VkShaderStageFlags.Fragment, "#pbr.genbrdflut.frag.spv");
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
-				using (Framebuffer fb = new Framebuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
+				using (FrameBuffer fb = new FrameBuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
 					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 					pl.RenderPass.Begin (cmd, fb);
@@ -237,7 +237,7 @@ namespace CVKL {
 				DescriptorSetWrites dsUpdate = new DescriptorSetWrites (dsLayout);
 				dsUpdate.Write (Dev, dset, cubemap.Descriptor);
 
-				using (Framebuffer fb = new Framebuffer (pl.RenderPass, dim, dim, imgFbOffscreen)) {
+				using (FrameBuffer fb = new FrameBuffer (pl.RenderPass, dim, dim, imgFbOffscreen)) {
 					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 

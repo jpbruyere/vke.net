@@ -5,7 +5,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CVKL {
+namespace vke {
     public class StbImage : IDisposable {
         const string stblib = "stb";
 

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	public class TimestampQueryPool : QueryPool {
 		public readonly float Period;
 

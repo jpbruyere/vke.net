@@ -8,7 +8,7 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Command buffers are objects used to record commands which can be subsequently submitted to a device queue for execution.
 	/// There are two levels of command buffers 
@@ -92,7 +92,13 @@ namespace CVKL {
             VkRect2D scissor = new VkRect2D (offsetX, offsetY, width, height);
             vkCmdSetScissor (handle, 0, 1, ref scissor);
         }
-        public void BindPipeline (Pipeline pipeline, VkPipelineBindPoint bindPoint) {
+		//TODO:update generator to handle float array in this command
+		public void SetBlendConstants (float r, float g, float b, float a)
+		{
+			throw new NotImplementedException();
+			//vkCmdSetBlendConstants(handle, );
+		}
+		public void BindPipeline (Pipeline pipeline, VkPipelineBindPoint bindPoint) {
             vkCmdBindPipeline (handle, bindPoint, pipeline.Handle);
         }
 		public void Dispatch (uint groupCountX, uint groupCountY = 1, uint groupCountZ = 1) {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
-using CVKL.glTF;
+using vke;
+using vke.glTF;
 using Glfw;
 using VK;
 
@@ -71,7 +71,7 @@ namespace deferred {
 
 
 		GraphicPipeline plToneMap;
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;
 
@@ -203,8 +203,8 @@ namespace deferred {
 		}
 
 
-		CommandBuffer cmdPbr;
-		CommandBuffer cmdBlur;
+		//CommandBuffer cmdPbr;
+		//CommandBuffer cmdBlur;
 		VkSemaphore blurComplete;
 		const uint downSizing = 1;
 		float finalDebug = -1.0f;
@@ -322,21 +322,8 @@ namespace deferred {
 			pcBloom.texSize.X = downSamp.Width;
 			pcBloom.texSize.Y = downSamp.Height;
 
-			if (frameBuffers != null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (plToneMap.RenderPass, swapChain.Width, swapChain.Height,
-					(plToneMap.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-					} : new Image[] {
-						null,
-						swapChain.images[i]
-					});
-			}
+			frameBuffers?.Dispose();
+			frameBuffers = plToneMap.RenderPass.CreateFrameBuffers(swapChain);
 
 			DescriptorSetWrites dsUpdate = new DescriptorSetWrites (plToneMap.Layout.DescriptorSetLayouts[0]);
 			dsUpdate.Write (dev, descriptorSet, renderer.hdrImgResolved.Descriptor, downSamp.Descriptor);
@@ -530,9 +517,7 @@ namespace deferred {
 					computeCmdPool.Dispose ();
 					downSamp?.Dispose ();
 					downSamp2?.Dispose ();
-					if (frameBuffers != null)
-						foreach (Framebuffer fb in frameBuffers)
-							fb.Dispose ();
+					frameBuffers?.Dispose();
 					renderer.Dispose ();
 					plBlur.Dispose ();
 					plToneMap.Dispose ();

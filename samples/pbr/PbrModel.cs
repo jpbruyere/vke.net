@@ -6,8 +6,8 @@ using System.Runtime.InteropServices;
 
 using VK;
 
-namespace CVKL {
-	using CVKL.glTF;
+namespace vke {
+	using vke.glTF;
 
 
 	//TODO:stride in buffer views?

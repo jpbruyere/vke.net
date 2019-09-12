@@ -29,7 +29,7 @@ using System.Linq;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	public sealed class PipelineLayout : Activable {
         internal VkPipelineLayout handle;
 		public VkPipelineLayout Handle => handle;

@@ -3,7 +3,7 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System.Numerics;
 
-namespace CVKL {
+namespace vke {
 	public class Camera {
 		/// <summary>Corection matrix for vulkan projection</summary>
 		public static readonly Matrix4x4 VKProjectionCorrection =

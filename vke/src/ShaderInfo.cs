@@ -4,7 +4,7 @@
 using System;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// This class is a helper class for VkPipelineShaderStageCreateInfo creation.
 	/// </summary>

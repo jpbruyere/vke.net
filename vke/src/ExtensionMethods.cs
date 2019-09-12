@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	public static class ExtensionMethods {
 		/// <summary>
 		/// Extensions method to check byte array equality.

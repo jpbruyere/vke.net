@@ -27,7 +27,7 @@ using System;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public sealed class ComputePipeline : Pipeline {
 
 		public string SpirVPath;

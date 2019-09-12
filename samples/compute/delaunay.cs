@@ -1,7 +1,7 @@
 ﻿using System;
 using Glfw;
 using VK;
-using CVKL;
+using vke;
 
 namespace delaunay {
 	class Program : VkWindow {
@@ -16,7 +16,7 @@ namespace delaunay {
 			}
 		}
 
-		Framebuffer[] frameBuffers;
+		FrameBuffer[] frameBuffers;
 		GraphicPipeline grPipeline;
 
 		Image imgResult;
@@ -136,10 +136,10 @@ namespace delaunay {
 			if (frameBuffers != null)
 				for (int i = 0; i < swapChain.ImageCount; ++i)
 					frameBuffers[i]?.Dispose ();
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
+			frameBuffers = new FrameBuffer[swapChain.ImageCount];
 
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (grPipeline.RenderPass, swapChain.Width, swapChain.Height,
+				frameBuffers[i] = new FrameBuffer (grPipeline.RenderPass, swapChain.Width, swapChain.Height,
 					(grPipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
 						swapChain.images[i],
 						null

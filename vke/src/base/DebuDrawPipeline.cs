@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	public class DebugDrawPipeline : GraphicPipeline {
 		public HostBuffer Vertices;
 		uint vertexCount;
@@ -54,7 +54,7 @@ namespace CVKL {
 			Vertices.Update (data, 12 * sizeof (float), (lineNum-1) * 2 * 6 * sizeof (float));
 		}
 
-		public void RecordDraw (CommandBuffer cmd, Framebuffer fb, Matrix4x4 projection, Matrix4x4 view) {
+		public void RecordDraw (CommandBuffer cmd, FrameBuffer fb, Matrix4x4 projection, Matrix4x4 view) {
 
             //cmd.SetViewport (fb.Width/ratio, fb.Height/ratio, (ratio-1) * (int)fb.Width / ratio, (ratio-1) * (int)fb.Height / ratio);
             //cmd.SetViewport (200, 200,100,100,-10,10);//, 4 * (int)fb.Width / 5, 4 * (int)fb.Height / 5);

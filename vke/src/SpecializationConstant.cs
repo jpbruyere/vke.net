@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Hold shader specialization constant value and type
 	/// </summary>

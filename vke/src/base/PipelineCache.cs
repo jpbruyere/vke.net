@@ -32,7 +32,7 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Activable holding the pipeline cache handle. Activation is triggered by usage, so disposing pipelines that use this
 	/// cache is enough to have the cache disposed correctly. 

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	public class DescriptorSet {
         internal VkDescriptorSet handle;
 		public VkDescriptorSet Handle => handle;

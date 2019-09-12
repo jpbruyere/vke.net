@@ -9,7 +9,7 @@ using Glfw;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Base class to build vulkan application.
 	/// Provide default swapchain with its command pool and buffers per image and the main present queue

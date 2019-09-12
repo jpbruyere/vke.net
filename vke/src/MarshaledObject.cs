@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CVKL {
+namespace vke {
 	public class MarshaledObject<T> : IDisposable where T : struct {
 
         GCHandle handle;

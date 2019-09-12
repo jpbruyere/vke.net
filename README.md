@@ -3,6 +3,12 @@ vke.net
   <br>  
 <p align="center">
   <a href="https://www.nuget.org/packages/vke"><img src="https://buildstats.info/nuget/vke"></a>
+  <a href="https://travis-ci.org/jpbruyere/vke.net">
+      <img src="https://travis-ci.org/jpbruyere/vke.net.svg?branch=master">
+  </a>
+  <a href="https://ci.appveyor.com/project/jpbruyere/vke-net">
+    <img src="https://ci.appveyor.com/api/projects/status/j387lo59vnov8jbc?svg=true">
+  </a>
   <a href="https://www.paypal.me/GrandTetraSoftware">
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
   </a>
@@ -19,8 +25,8 @@ vke.net
 **vke.net** (_vulkan engine for .net_) is composed of high level classes encapsulating vulkan objects with `IDispose` model and **reference counting**. [GLFW](https://www.glfw.org/)  handles the windowing system.
 
 ### Requirements
-- [GLFW](https://www.glfw.org/)
-- [libstb](https://github.com/nothings/stb), on debian install **libstb-dev**.
+- [GLFW](https://www.glfw.org/) if you use the `VkWindow` class.
+- If you want to use `jpg`, `jpeg`, `png` image [libstb](https://github.com/nothings/stb) (on debian install **libstb-dev**). Note that `ktx` image loading has no dependencies.
 - [Vulkan Sdk](https://www.lunarg.com/vulkan-sdk/), **glslc** has to be in the path.
 - optionaly for ui, you will need [vkvg](https://github.com/jpbruyere/vkvg).
 

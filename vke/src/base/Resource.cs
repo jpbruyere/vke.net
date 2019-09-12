@@ -6,7 +6,7 @@ using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	[DebuggerDisplay ("{previous.name} <- {name} -> {next.name}")]
 	public abstract class Resource : Activable {
 		protected VkMemoryRequirements memReqs;
@@ -24,6 +24,7 @@ namespace CVKL {
 		public ulong AllocatedDeviceMemorySize => memReqs.size;
 		public uint TypeBits => memReqs.memoryTypeBits;
 		public ulong MemoryAlignment => memReqs.alignment;
+		public abstract bool IsLinar { get; }
 
 		protected IntPtr mappedData;
 		public IntPtr MappedData => mappedData;

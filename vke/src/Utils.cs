@@ -285,5 +285,58 @@ namespace VK {
 					break;
 			}
 		}
-    }
+		public static bool TryGetCompressedFormatBlockSize (this VkFormat format, out uint width, out uint height)
+		{
+			width = height = 1;
+			if (format < VkFormat.Bc1RgbUnormBlock || format > (VkFormat)1000066013) //VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK_EXT)
+				return false;
+			if (format < VkFormat.Astc5x4UnormBlock)
+				width = height = 4;
+			else {
+				string str = format.ToString ();
+				if (str.StartsWith ("Astc", StringComparison.OrdinalIgnoreCase)) {
+					width = uint.Parse (str.Substring (4, 1));
+					height = uint.Parse (str.Substring (6, 1));
+				}
+			}
+
+			return true;
+		}
+		//TODO:quick done list, refine needed
+		public static VkPipelineStageFlags GetDefaultStage (this VkImageLayout layout) {
+			switch (layout) {
+			case VkImageLayout.Preinitialized:
+			case VkImageLayout.Undefined:
+				return VkPipelineStageFlags.AllCommands;
+
+			case VkImageLayout.General:
+				return VkPipelineStageFlags.ComputeShader;
+
+			case VkImageLayout.ColorAttachmentOptimal:
+			case VkImageLayout.DepthStencilAttachmentOptimal:
+				return VkPipelineStageFlags.ColorAttachmentOutput;
+
+			case VkImageLayout.DepthStencilReadOnlyOptimal:
+			case VkImageLayout.DepthReadOnlyStencilAttachmentOptimalKHR:
+			case VkImageLayout.DepthAttachmentStencilReadOnlyOptimalKHR:
+				return VkPipelineStageFlags.EarlyFragmentTests;
+
+			case VkImageLayout.ShaderReadOnlyOptimal:
+				return VkPipelineStageFlags.FragmentShader;
+
+			case VkImageLayout.TransferSrcOptimal:
+			case VkImageLayout.TransferDstOptimal:
+				return VkPipelineStageFlags.Transfer;
+
+			case VkImageLayout.PresentSrcKHR:
+			case VkImageLayout.SharedPresentKHR:
+				return VkPipelineStageFlags.ColorAttachmentOutput;
+
+			//case VkImageLayout.ShadingRateOptimalNV:
+			//case VkImageLayout.FragmentDensityMapOptimalEXT:
+			default:
+				return VkPipelineStageFlags.AllCommands;
+			}
+		}
+	}
 }

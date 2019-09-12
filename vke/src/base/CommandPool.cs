@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Command pools are opaque objects that command buffer memory is allocated from, and which allow the implementation
 	/// to amortize the cost of resource creation across multiple command buffers.

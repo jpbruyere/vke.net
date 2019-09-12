@@ -6,8 +6,8 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
-using CVKL.glTF;
+using vke;
+using vke.glTF;
 using VK;
 using static deferred.DeferredPbrRenderer;
 
@@ -29,7 +29,7 @@ namespace deferred {
 
 
 		RenderPass shadowPass;
-		Framebuffer fbShadowMap;
+		FrameBuffer fbShadowMap;
 		public Image shadowMap { get; private set; }
 		Pipeline shadowPipeline;
 		DescriptorPool descriptorPool;
@@ -99,7 +99,7 @@ namespace deferred {
 			shadowMap.CreateSampler (VkSamplerAddressMode.ClampToBorder);
 			shadowMap.Descriptor.imageLayout = VkImageLayout.DepthStencilReadOnlyOptimal;
 
-			fbShadowMap = new Framebuffer (shadowPass, SHADOWMAP_SIZE, SHADOWMAP_SIZE, (uint)renderer.lights.Length);
+			fbShadowMap = new FrameBuffer (shadowPass, SHADOWMAP_SIZE, SHADOWMAP_SIZE, (uint)renderer.lights.Length);
 			fbShadowMap.attachments.Add (shadowMap);
 			fbShadowMap.Activate ();
 

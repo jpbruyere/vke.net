@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	class PBRPipeline : GraphicPipeline {
 
 		public struct Matrices {

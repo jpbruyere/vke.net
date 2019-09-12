@@ -27,7 +27,7 @@ using System;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public class SwapChain : Activable {
 		/// <summary>
 		/// Set the default swapchain image format.
@@ -158,7 +158,7 @@ namespace CVKL {
             return (int)currentImageIndex;
         }
 
-        void _destroy () {
+		void _destroy () {
             for (int i = 0; i < ImageCount; i++) 
                 images[i].Dispose ();
 

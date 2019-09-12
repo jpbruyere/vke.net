@@ -25,12 +25,13 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public class GraphicPipelineConfig {
 		public uint SubpassIndex;
         public PipelineLayout Layout;
@@ -47,7 +48,10 @@ namespace CVKL {
         public List<VkVertexInputBindingDescription> vertexBindings = new List<VkVertexInputBindingDescription> ();
         public List<VkVertexInputAttributeDescription> vertexAttributes = new List<VkVertexInputAttributeDescription> ();
         public readonly List<ShaderInfo> shaders = new List<ShaderInfo>();
-        
+		public VkBool32 ColorBlendLogicOpEnable = false;
+		public VkLogicOp ColorBlendLogicOp;
+		public Vector4 ColorBlendConstants;
+
 		public VkSampleCountFlags Samples {
 			get { return multisampleState.rasterizationSamples; }
 		}

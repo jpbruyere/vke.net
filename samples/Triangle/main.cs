@@ -3,7 +3,7 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
+using vke;
 using VK;
 
 namespace Triangle {
@@ -48,7 +48,7 @@ namespace Triangle {
 		DescriptorSetLayout dsLayout;
 		DescriptorSet descriptorSet;
 
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 		GraphicPipeline pipeline;
 
 		Vertex[] vertices = {
@@ -59,6 +59,9 @@ namespace Triangle {
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
 		Program () : base () {
+
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
+
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
@@ -115,10 +118,9 @@ namespace Triangle {
 		}
 		void buildCommandBuffers() {
 			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
-			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				Framebuffer fb = frameBuffers[i];
+				FrameBuffer fb = frameBuffers[i];
 				cmds[i].Start ();
 
 				pipeline.RenderPass.Begin (cmds[i], fb);
@@ -143,19 +145,8 @@ namespace Triangle {
 		protected override void OnResize () {
 			base.OnResize ();
 
-			if (frameBuffers != null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) 
-				frameBuffers[i] = new Framebuffer (pipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-					} : new Image[] {
-						null,
-						swapChain.images[i]
-					});
+			frameBuffers?.Dispose();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
 		}
@@ -165,8 +156,8 @@ namespace Triangle {
 			if (disposing) {
 				if (!isDisposed) {
 					pipeline.Dispose ();
-					for (int i = 0; i < swapChain.ImageCount; i++)
-						frameBuffers[i].Dispose ();
+
+					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					vbo.Dispose ();
 					ibo.Dispose ();

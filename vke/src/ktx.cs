@@ -5,7 +5,7 @@ using System;
 using System.IO;
 
 using VK;
-using CVKL;
+using vke;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
@@ -93,9 +93,13 @@ namespace KTX {
 						
 					byte[] keyValueDatas = br.ReadBytes ((int)bytesOfKeyValueData);
 
+					uint blockW, blockH;
+					bool isCompressed = vkFormat.TryGetCompressedFormatBlockSize (out blockW, out blockH);
+					uint blockSize = blockW * blockH;
 
 					if (memoryProperty.HasFlag (VkMemoryPropertyFlags.DeviceLocal)) {
-						ulong staggingSize = (ulong)ktxStream.Length;//img.AllocatedDeviceMemorySize;
+						ulong staggingSize = (ulong)ktxStream.Length + 256;//img.AllocatedDeviceMemorySize;
+						Console.WriteLine ($"KtxStream size = {ktxStream.Length}, img Allocation = {img.AllocatedDeviceMemorySize}");
 
 						using (HostBuffer stagging = new HostBuffer (staggingQ.Dev, VkBufferUsageFlags.TransferSrc, staggingSize)) {
 							stagging.Map ();
@@ -119,14 +123,20 @@ namespace KTX {
 							for (int mips = 0; mips < numberOfMipmapLevels; mips++) {
 								UInt32 imgSize = br.ReadUInt32 ();
 
-								bufferCopyRegion.bufferImageHeight = imgHeight;
 								bufferCopyRegion.bufferRowLength = imgWidth;
+								bufferCopyRegion.bufferImageHeight = imgHeight;
+
+								if (isCompressed && (imgWidth % blockW > 0 || imgHeight % blockH > 0)) {
+									bufferCopyRegion.bufferRowLength += blockW -  imgWidth % blockW;
+									bufferCopyRegion.bufferImageHeight += blockH - imgHeight % blockH;
+								}
 								bufferCopyRegion.bufferOffset = bufferOffset;
 								bufferCopyRegion.imageSubresource.mipLevel = (uint)mips;
 								bufferCopyRegion.imageExtent.width = imgWidth;
 								bufferCopyRegion.imageExtent.height = imgHeight;
 
 								if (createFlags.HasFlag (VkImageCreateFlags.CubeCompatible)) {
+									//TODO:handle compressed formats
 									for (uint face = 0; face < numberOfFaces; face++) {
 										Marshal.Copy (br.ReadBytes ((int)imgSize), 0, stagging.MappedData + (int)bufferOffset, (int)imgSize);
 										uint faceOffset = imgSize + (imgSize % 4);//cube padding																				  
@@ -134,11 +144,21 @@ namespace KTX {
 									}
 									buffCopies.Add (bufferCopyRegion);
 									bufferCopyRegion.bufferOffset = bufferOffset;
+								} else if (isCompressed && (imgWidth % blockW > 0 || imgHeight % blockH > 0)) {
+									for (int line = 0; line < imgHeight; line++) {
+										Marshal.Copy (br.ReadBytes ((int)imgWidth), 0, stagging.MappedData + (int)bufferOffset, (int)imgWidth);
+										bufferOffset += bufferCopyRegion.bufferRowLength;
+									}
+									buffCopies.Add (bufferCopyRegion);
 								} else {
+
 									Marshal.Copy (br.ReadBytes ((int)imgSize), 0, stagging.MappedData + (int)bufferOffset, (int)imgSize);
 									buffCopies.Add (bufferCopyRegion);
 									bufferOffset += imgSize;
 								}
+
+								if (isCompressed && bufferOffset % blockSize > 0) 
+									bufferOffset += blockSize - bufferOffset % blockSize;
 
 								imgWidth /= 2;
 								imgHeight /= 2;

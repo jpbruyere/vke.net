@@ -3,7 +3,7 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
 using System.Numerics;
-using CVKL;
+using vke;
 using VK;
 
 namespace VkvgPipeline {
@@ -104,7 +104,7 @@ namespace VkvgPipeline {
 						if (img.CreateInfo.usage.HasFlag (VkImageUsageFlags.Sampled))
 							c.X += 0.3f;
 					} else {
-						CVKL.Buffer buff = r as CVKL.Buffer;
+						vke.Buffer buff = r as vke.Buffer;
 						c.X = 1f;
 						if (buff.Infos.usage.HasFlag (VkBufferUsageFlags.IndexBuffer))
 							c.Y += 0.2f;

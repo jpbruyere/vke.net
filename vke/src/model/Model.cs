@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using VK;
 
-namespace CVKL {
+namespace vke {
 
 	public enum AlphaMode : UInt32 {
 		Opaque,

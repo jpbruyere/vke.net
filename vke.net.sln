@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexturedCube", "samples\Tex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "samples\Triangle\Triangle.csproj", "{A30AEC45-54A3-4120-B341-B3299CC1B00E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpirVTasks", "SpirVTasks\SpirVTasks.csproj", "{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +110,12 @@ Global
 		{A30AEC45-54A3-4120-B341-B3299CC1B00E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A30AEC45-54A3-4120-B341-B3299CC1B00E}.DebugCrow|Any CPU.ActiveCfg = Debug|Any CPU
 		{A30AEC45-54A3-4120-B341-B3299CC1B00E}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.DebugCrow|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FEF3AF30-5B88-4D3C-8BD7-8734200E0D1E} = {4AA67AB0-C331-4CB2-9C00-B74F5DE31658}
@@ -121,5 +129,11 @@ Global
 		{1B2DF710-E500-49E5-8802-EBA71A05E827} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{8185163E-A67C-4C0E-8548-67E2A9F16309} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{A30AEC45-54A3-4120-B341-B3299CC1B00E} = {16439374-B8DB-4643-8116-EB3358B49A12}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.FileWidth = 80
+		$1.scope = text/x-cgsrc
 	EndGlobalSection
 EndGlobal

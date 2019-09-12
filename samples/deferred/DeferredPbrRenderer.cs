@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
-using CVKL.glTF;
+using vke;
+using vke.glTF;
 using VK;
 
 namespace deferred {
@@ -66,7 +66,7 @@ namespace deferred {
 			}*/
 		};
 
-		Framebuffer frameBuffer;
+		FrameBuffer frameBuffer;
 		public Image gbColorRough, gbEmitMetal, gbN_AO, gbPos, hdrImgResolved, hdrImgMS;
 
 		DescriptorPool descriptorPool;
@@ -484,9 +484,9 @@ namespace deferred {
 			createGBuff ();
 
 			frameBuffer = (NUM_SAMPLES == VkSampleCountFlags.SampleCount1) ?
-				new Framebuffer (renderPass, width, height, new Image[] {
+				new FrameBuffer (renderPass, width, height, new Image[] {
 					hdrImgResolved, null, gbColorRough, gbEmitMetal, gbN_AO, gbPos}) :
-				new Framebuffer (renderPass, width, height, new Image[] {
+				new FrameBuffer (renderPass, width, height, new Image[] {
 					hdrImgResolved, null, gbColorRough, gbEmitMetal, gbN_AO, gbPos, hdrImgMS});
 		}
 

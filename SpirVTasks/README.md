@@ -11,8 +11,8 @@
 </p>
 </h1>
 
-**SpirVTasks** package add **SpirV** compilation support to msbuild project. Error and warning
-are routed to the **IDE**.
+`SpirVTasks` package add `SpirV` compilation support to msbuild project. Error and warning
+are routed to the `IDE`.
 
 
 #### Usage
@@ -21,7 +21,7 @@ are routed to the **IDE**.
   <GLSLShader Include="shaders\*.frag;shaders\*.vert;shaders\*.comp;shaders\*.geom" />
 </ItemGroup> 
 ```
-Resulting `.spv` files are embedded with resource ID = **ProjectName.file.ext.spv**. You can override the default resource id by adding a custom LogicalName.
+Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv`. You can override the default resource id by adding a custom LogicalName.
 ```xml
 <ItemGroup>    
   <GLSLShader Include="shaders\skybox.vert">
@@ -29,13 +29,12 @@ Resulting `.spv` files are embedded with resource ID = **ProjectName.file.ext.sp
   </GLSLShader>
 </ItemGroup> 
 ```
-**VULKAN_SDK**/bin then **PATH** are searched for the **glslc** executable. You can also use **`SpirVglslcPath`** property.
+`VULKAN_SDK`/bin then `PATH` are searched for the `glslc` executable. You can also use the `SpirVglslcPath` property.
 ```xml
 <PropertyGroup>
   <SpirVglslcPath>bin\glslc.exe</SpirVglslcPath>
 </PropertyGroup>
 ```
-
 
 #### Include in glsl
 ```glsl
@@ -49,9 +48,7 @@ void main()
     outFragColor = vec4(inColor, 1.0);
 }
 ```
-
-Included files are searched from the location of the current parsed file, then in the **`<SpirVAdditionalIncludeDirectories>`** directories if present.
-
+Included files are searched from the location of the current parsed file, then in the `SpirVAdditionalIncludeDirectories`directories if present.
 ```xml
 <PropertyGroup>
   <SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common;testdir;../anotherdir</SpirVAdditionalIncludeDirectories>
@@ -59,4 +56,5 @@ Included files are searched from the location of the current parsed file, then i
 ```
 
 #### todo
+
 - Error source file and line with included files.

@@ -33,7 +33,7 @@ using VK;
 using static VK.Vk;
 
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Logical device encapsulating vulkan logical device handle. Implements only IDisposable an do not derive from
 	/// Activable, so it may be activated only once and no reference counting on it is handled, and no reactivation is posible
@@ -45,6 +45,7 @@ namespace CVKL {
 		VkDevice dev;
 		public VkDevice VkDev => dev;
 		public IntPtr Handle => dev.Handle;
+		public readonly ulong BufferImageGranularity;
 
 		internal List<Queue> queues = new List<Queue> ();
 		internal bool debugMarkersEnabled;
@@ -55,6 +56,7 @@ namespace CVKL {
 
 		public Device (PhysicalDevice _phy) {
 			phy = _phy;
+			BufferImageGranularity = phy.Limits.bufferImageGranularity;
 		}
 
 		public void Activate (VkPhysicalDeviceFeatures enabledFeatures, params string[] extensions) {

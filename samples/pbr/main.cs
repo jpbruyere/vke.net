@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
 using VK;
-using CVKL;
+using vke;
 
 namespace pbrSample {
 	class Program : VkWindow{
@@ -35,7 +35,7 @@ namespace pbrSample {
 
 		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
 
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 		PBRPipeline pbrPipeline;
 
 		enum DebugView {
@@ -193,7 +193,7 @@ namespace pbrSample {
 				cmds[i].End ();
 			}
 		}
-		void recordDraw (CommandBuffer cmd, Framebuffer fb) {
+		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
 			pbrPipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -257,23 +257,8 @@ namespace pbrSample {
 
 			UpdateView ();
 
-			if (frameBuffers != null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (pbrPipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pbrPipeline.RenderPass.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-						null
-					} : new Image[] {
-						null,
-						null,
-						swapChain.images[i]
-					});
-			}
+			frameBuffers?.Dispose();
+			frameBuffers = pbrPipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
 			dev.WaitIdle ();
@@ -411,9 +396,7 @@ namespace pbrSample {
 			if (disposing) {
 				if (!isDisposed) {
 					dev.WaitIdle ();
-					for (int i = 0; i < swapChain.ImageCount; ++i)
-						frameBuffers[i]?.Dispose ();
-
+					frameBuffers?.Dispose();
 					pbrPipeline.Dispose ();
 #if WITH_VKVG
 					vkvgPipeline.Dispose ();

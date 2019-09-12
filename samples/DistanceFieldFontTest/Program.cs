@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 using Glfw;
 
 using VK;
-using CVKL;
-using CVKL.DistanceFieldFont;
+using vke;
+using vke.DistanceFieldFont;
 
 namespace DistanceFieldFontTest {
 
@@ -46,7 +46,7 @@ namespace DistanceFieldFontTest {
 		DescriptorSet descriptorSet;
 
 		GraphicPipeline pipeline;
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 
 		Image fontTexture;
 
@@ -64,11 +64,12 @@ namespace DistanceFieldFontTest {
 		Vector4 outlineColor = new Vector4 (1.0f, 0.0f, 0.0f, 0.6f);//alpha => 0:disabled 1:enabled
 
 		Program () : base () {
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
-			font = new BMFont ("../data/font.fnt");
+			font = new BMFont (Utils.DataDirectory + "font.fnt");
 
-			vbo = new GPUBuffer<float> (dev, VkBufferUsageFlags.VertexBuffer, 1024);
-			ibo = new GPUBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, 2048);
+			vbo = new GPUBuffer<float> (dev, VkBufferUsageFlags.VertexBuffer | VkBufferUsageFlags.TransferDst, 1024);
+			ibo = new GPUBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer | VkBufferUsageFlags.TransferDst, 2048);
 
 			descriptorPool = new DescriptorPool (dev, 1,
 				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
@@ -132,6 +133,8 @@ namespace DistanceFieldFontTest {
 			List<ushort> indices = new List<ushort> ();
 			ushort indexOffset = 0;
 
+			float charSize = 1.0f;
+			
 			float w = fontTexture.Width;
 
 			float posx = 0.0f;
@@ -145,10 +148,10 @@ namespace DistanceFieldFontTest {
 					charInfo.width = 36;
 
 				float charw = ((float)(charInfo.width) / 36.0f);
-				float dimx = 1.0f * charw;
+				float dimx = charSize * charw;
 				float charh = ((float)(charInfo.height) / 36.0f);
-				float dimy = 1.0f * charh;
-				posy = 1.0f - charh;
+				float dimy = charSize * charh;
+				posy = 1.0f - charh * charSize;
 
 				float us = charInfo.x / w;
 				float ue = (charInfo.x + charInfo.width) / w;
@@ -166,7 +169,7 @@ namespace DistanceFieldFontTest {
 				indices.AddRange (new ushort[] { indexOffset, (ushort)(indexOffset + 1), (ushort)(indexOffset + 2), (ushort)(indexOffset + 2), (ushort)(indexOffset + 3), indexOffset });
 				indexOffset += 4;
 
-				float advance = charInfo.xadvance / 36.0f;
+				float advance = charSize * charInfo.xadvance / 36.0f;
 				posx += advance;
 			}
 
@@ -197,9 +200,11 @@ namespace DistanceFieldFontTest {
 		}
 
 		void buildCommandBuffers () {
+
+			cmdPool.Reset();
+
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				cmds[i]?.Free ();
-				cmds[i] = cmdPool.AllocateAndStart ();
+				cmds[i].Start();
 
 				recordDraw (cmds[i], frameBuffers[i]);
 
@@ -207,7 +212,7 @@ namespace DistanceFieldFontTest {
 			}
 		}
 
-		void recordDraw (CommandBuffer cmd, Framebuffer fb) {
+		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -274,21 +279,8 @@ namespace DistanceFieldFontTest {
 
 			updateViewRequested = true;
 
-			if (frameBuffers != null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (pipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-					} : new Image[] {
-						null,
-						swapChain.images[i]
-					});
-			}
+			frameBuffers?.Dispose();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
 		}
@@ -299,8 +291,7 @@ namespace DistanceFieldFontTest {
 					dev.WaitIdle ();
 					pipeline.Dispose ();
 					dsLayout.Dispose ();
-					for (int i = 0; i < swapChain.ImageCount; i++)
-						frameBuffers[i].Dispose ();
+					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					fontTexture?.Dispose ();
 					vbo.Dispose ();

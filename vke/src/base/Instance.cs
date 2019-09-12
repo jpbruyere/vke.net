@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Vulkan Instance disposable class
 	/// </summary>

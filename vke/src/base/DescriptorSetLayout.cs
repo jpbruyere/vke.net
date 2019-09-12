@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 	/// <summary>
 	/// Descriptor set layout, automatically activated when used in pipeline creation, so don't allocate descriptor sets using
 	/// this layout unless it has been activated.

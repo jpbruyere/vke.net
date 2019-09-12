@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 
     public class DebugReport : IDisposable {        
         VkDebugReportCallbackEXT handle;

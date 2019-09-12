@@ -5,7 +5,7 @@ using System;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
 
     /// <summary>
     /// Base class for HostBuffer and GPUBuffer
@@ -17,7 +17,8 @@ namespace CVKL {
 		public VkDescriptorBufferInfo Descriptor;
 		public VkBuffer Handle => handle;
 		public VkBufferCreateInfo Infos => createInfo;
-        
+		public override bool IsLinar => true;
+
 		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
 			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.BufferEXT, handle.Handle);
 
@@ -67,9 +68,7 @@ namespace CVKL {
         }
 
         public void CopyTo (CommandBuffer cmd, Image img, VkImageLayout finalLayout = VkImageLayout.ShaderReadOnlyOptimal) {
-            img.SetLayout (cmd, VkImageAspectFlags.Color,
-                VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
-                VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.Transfer);
+            img.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.TransferDstOptimal);
 
             VkBufferImageCopy bufferCopyRegion = new VkBufferImageCopy {
                 imageExtent = img.CreateInfo.extent,
@@ -78,10 +77,8 @@ namespace CVKL {
 
             vkCmdCopyBufferToImage (cmd.Handle, handle, img.handle, VkImageLayout.TransferDstOptimal, 1, ref bufferCopyRegion);
 
-            img.SetLayout (cmd, VkImageAspectFlags.Color,
-                VkImageLayout.TransferDstOptimal, finalLayout,
-                VkPipelineStageFlags.Transfer, VkPipelineStageFlags.Transfer);
-        }
+			img.SetLayout (cmd, VkImageAspectFlags.Color, finalLayout);
+		}
         public void CopyTo (CommandBuffer cmd, Buffer buff, ulong size = 0, ulong srcOffset = 0, ulong dstOffset = 0) {
             VkBufferCopy bufferCopy = new VkBufferCopy {
                 size = (size == 0) ? AllocatedDeviceMemorySize : size,

@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
-using CVKL;
+using vke;
 using VK;
 
 namespace Textured {
@@ -47,7 +47,7 @@ namespace Textured {
 		DescriptorSet descriptorSet;
 
 		GraphicPipeline pipeline;
-		Framebuffer[] frameBuffers;
+		FrameBuffers frameBuffers;
 
 		Image texture;
 		Image nextTexture;
@@ -70,7 +70,8 @@ namespace Textured {
 			Utils.DataDirectory + "textures/tex256.jpg",
 		};
 
-		Program () : base () {		
+		Program () : base () {
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 				
 			loadTexture (imgPathes[currentImgIndex]);
 
@@ -112,16 +113,14 @@ namespace Textured {
 		}
 
 		void buildCommandBuffers () {
+			cmdPool.Reset();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				cmds[i]?.Free ();
-				cmds[i] = cmdPool.AllocateAndStart ();
-
+				cmds[i].Start();
 				recordDraw (cmds[i], frameBuffers[i]);
-
 				cmds[i].End ();				 
 			}
 		}
-		void recordDraw (CommandBuffer cmd, Framebuffer fb) {
+		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -149,7 +148,7 @@ namespace Textured {
 					nextTexture = KTX.KTX.Load (presentQueue, cmdPool, path,
 						VkImageUsageFlags.Sampled, imgProp, genMipMaps, tiling);
 				else
-					nextTexture = Image.Load (dev, presentQueue, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
+ 					nextTexture = Image.Load (dev, presentQueue, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
 				updateViewRequested = true;
 			} catch (Exception ex) {
 				Console.WriteLine (ex);
@@ -223,23 +222,8 @@ namespace Textured {
 
 			updateMatrices ();
 
-			if (frameBuffers!=null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
-
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (pipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-						null
-					} : new Image[] {
-						null,
-						null,
-						swapChain.images[i]
-					});	
-			}
+			frameBuffers?.Dispose();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
 		}	
@@ -250,8 +234,7 @@ namespace Textured {
 					dev.WaitIdle ();
 					pipeline.Dispose ();
 					dsLayout.Dispose ();
-					for (int i = 0; i < swapChain.ImageCount; i++)
-						frameBuffers[i].Dispose ();
+					frameBuffers.Dispose();
 					descriptorPool.Dispose ();
 					texture?.Dispose ();
 					nextTexture?.Dispose ();

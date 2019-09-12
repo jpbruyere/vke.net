@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using VK;
 
-namespace CVKL.DistanceFieldFont {
+namespace vke.DistanceFieldFont {
 	/// <summary>
 	/// BMF font. (http://www.angelcode.com/products/bmfont/doc/file_format.html)
 	/// </summary>

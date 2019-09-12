@@ -25,11 +25,12 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using VK;
 
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public class RenderPass : Activable {
         internal VkRenderPass handle;        
 
@@ -208,13 +209,13 @@ namespace CVKL {
         /// <summary>
         /// Begin Render pass with framebuffer extent dimensions
         /// </summary>
-        public void Begin (CommandBuffer cmd, Framebuffer frameBuffer) {
+        public void Begin (CommandBuffer cmd, FrameBuffer frameBuffer) {
             Begin (cmd, frameBuffer, frameBuffer.Width, frameBuffer.Height);
         }
         /// <summary>
         /// Begin Render pass with custom render area
         /// </summary>
-        public void Begin (CommandBuffer cmd, Framebuffer frameBuffer, uint width, uint height) {
+        public void Begin (CommandBuffer cmd, FrameBuffer frameBuffer, uint width, uint height) {
 
             VkRenderPassBeginInfo info = VkRenderPassBeginInfo.New();
             info.renderPass = handle;
@@ -237,6 +238,24 @@ namespace CVKL {
         public void End (CommandBuffer cmd) {
             vkCmdEndRenderPass (cmd.Handle);
         }
+
+		public FrameBuffers CreateFrameBuffers (SwapChain swapChain) {
+			FrameBuffers fbs = new FrameBuffers();
+			Image[] images = new Image[attachments.Count];
+
+			int presentableImgIdx = attachments.IndexOf(attachments.FirstOrDefault(a => a.finalLayout == VkImageLayout.PresentSrcKHR || a.finalLayout == VkImageLayout.SharedPresentKHR));
+
+			if (presentableImgIdx<0)
+				throw new Exception("RenderPass used in Pipeline has no presentable attachment");
+
+			for (int i = 0; i < swapChain.ImageCount; ++i)
+			{
+				images[presentableImgIdx] = swapChain.images[i];
+				fbs.Add(new FrameBuffer(this, swapChain.Width, swapChain.Height, images));
+			}
+			return fbs;
+		}
+	
 
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");

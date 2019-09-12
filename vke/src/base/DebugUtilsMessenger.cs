@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using VK;
 using static VK.Vk;
 
-namespace CVKL.DebugUtils {
+namespace vke.DebugUtils {
 
     public class Messenger : IDisposable {
 		Instance inst;

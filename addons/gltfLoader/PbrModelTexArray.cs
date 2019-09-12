@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using VK;
 
-namespace CVKL.glTF {
+namespace vke.glTF {
 	/// <summary>
 	/// Indexed pbr model whith one descriptorSet per material with separate textures attachments
 	/// </summary>

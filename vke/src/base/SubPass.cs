@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using VK;
 
-namespace CVKL {
+namespace vke {
 	public class SubPass {
 		public uint Index { get; internal set; }
 		List<VkAttachmentReference> colorRefs = new List<VkAttachmentReference>();

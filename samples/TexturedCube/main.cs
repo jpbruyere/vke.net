@@ -5,9 +5,9 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
-using CVKL;
+using vke;
 using VK;
-using Buffer = CVKL.Buffer;
+using Buffer = vke.Buffer;
 
 namespace TextureCube {
 	class Program : VkWindow {
@@ -38,7 +38,7 @@ namespace TextureCube {
 		DescriptorSetLayout dsLayout;
 		DescriptorSet 		descriptorSet, dsVkvg;
 		GraphicPipeline 	pipeline;
-		Framebuffer[] 		frameBuffers;
+		FrameBuffers 		frameBuffers;
 
 		Image texture;
 		Image nextTexture;
@@ -112,9 +112,9 @@ namespace TextureCube {
 
 #endif
 
-
-
 		Program () : base () {
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
+
 			vbo = new GPUBuffer<float> (presentQueue, cmdPool, VkBufferUsageFlags.VertexBuffer, g_vertex_buffer_data);
 
 			descriptorPool = new DescriptorPool (dev, 2,
@@ -162,17 +162,14 @@ namespace TextureCube {
 		}
 
 		void buildCommandBuffers () {
+			cmdPool.Reset();
 			for (int i = 0; i < swapChain.ImageCount; ++i) { 								
-                  	cmds[i]?.Free ();
-				cmds[i] = cmdPool.AllocateCommandBuffer ();
 				cmds[i].Start ();
-
 				recordDraw (cmds[i], frameBuffers[i]);
-
 				cmds[i].End ();				 
 			}
 		} 
-		void recordDraw (CommandBuffer cmd, Framebuffer fb) { 
+		void recordDraw (CommandBuffer cmd, FrameBuffer fb) { 
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -277,33 +274,18 @@ namespace TextureCube {
 		protected override void OnResize () {
 			base.OnResize ();
 
+			dev.WaitIdle();
+
 #if WITH_VKVG
 			vkvgPipeline.Resize ((int)Width, (int)Height, new DescriptorSetWrites (dsVkvg, dsLayout.Bindings[1]));
 #endif
 
 			updateMatrices ();
 
-			if (frameBuffers!=null)
-				for (int i = 0; i < swapChain.ImageCount; ++i)
-					frameBuffers[i]?.Dispose ();
+			frameBuffers?.Dispose();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
-			frameBuffers = new Framebuffer[swapChain.ImageCount];
-
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				frameBuffers[i] = new Framebuffer (pipeline.RenderPass, swapChain.Width, swapChain.Height,
-					(pipeline.Samples == VkSampleCountFlags.SampleCount1) ? new Image[] {
-						swapChain.images[i],
-						null
-					} : new Image[] {
-						null,
-						null,
-						swapChain.images[i]
-					});	
-			}
-
-			buildCommandBuffers ();
-
-			dev.WaitIdle ();
+			buildCommandBuffers();
 		}
 			
 		protected override void Dispose (bool disposing) {
@@ -311,8 +293,7 @@ namespace TextureCube {
 				if (!isDisposed) {
 					dev.WaitIdle ();
 					pipeline.Dispose ();
-					for (int i = 0; i < swapChain.ImageCount; i++)
-						frameBuffers[i].Dispose ();
+					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					texture.Dispose ();
 					uboMats.Dispose ();

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using VK;
 using static VK.Vk;
 
-namespace CVKL {
+namespace vke {
     public sealed class DescriptorPool : Activable {
         internal VkDescriptorPool handle;        
         public readonly uint MaxSets;
