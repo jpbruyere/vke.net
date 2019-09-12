@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
 using vke.glTF;
-using VK;
+using Vulkan;
 
 namespace deferred {
 	public class DeferredPbrRenderer : IDisposable {

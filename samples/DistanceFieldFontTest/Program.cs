@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
 
-using VK;
+using Vulkan;
 using vke;
 using vke.DistanceFieldFont;
 

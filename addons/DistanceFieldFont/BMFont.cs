@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using VK;
+using Vulkan;
 
 namespace vke.DistanceFieldFont {
 	/// <summary>

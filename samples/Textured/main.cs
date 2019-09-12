@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
 using vke;
-using VK;
+using Vulkan;
 
 namespace Textured {
 	class Program : VkWindow {

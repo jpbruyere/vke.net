@@ -26,9 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using VK;
+using Vulkan;
 
-using static VK.Vk;
+using static Vulkan.Vk;
 
 namespace vke {
 

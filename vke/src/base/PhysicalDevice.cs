@@ -24,12 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using VK;
-using static VK.Vk;
-using static VK.Utils;
+using Vulkan;
+using static Vulkan.Vk;
+using static Vulkan.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
+using System.Linq;
 
 namespace vke {
     public class PhysicalDeviceCollection : IEnumerable<PhysicalDevice> {

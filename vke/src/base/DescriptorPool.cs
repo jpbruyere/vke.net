@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using VK;
-using static VK.Vk;
+using Vulkan;
+using static Vulkan.Vk;
 
 namespace vke {
     public sealed class DescriptorPool : Activable {

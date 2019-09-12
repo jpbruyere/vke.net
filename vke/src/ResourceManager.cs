@@ -1,5 +1,5 @@
 ﻿using System;
-using VK;
+using Vulkan;
 
 namespace vke {
 #if MEMORY_POOLS

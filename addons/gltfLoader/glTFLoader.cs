@@ -8,14 +8,14 @@ using System.Runtime.InteropServices;
 using glTFLoader;
 using GL = glTFLoader.Schema;
 
-using VK;
+using Vulkan;
 using System.Collections.Generic;
 using System.IO;
 
 
 
 namespace vke.glTF {
-	using static VK.Utils;
+	using static Vulkan.Utils;
 	using static vke.Model;
 
 	/// <summary>

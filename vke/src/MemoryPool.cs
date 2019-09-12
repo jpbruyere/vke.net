@@ -2,9 +2,9 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using VK;
+using Vulkan;
 
-using static VK.Vk;
+using static Vulkan.Vk;
 
 namespace vke {
 #if MEMORY_POOLS

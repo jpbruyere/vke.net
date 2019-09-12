@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using VK;
+using Vulkan;
 
 namespace vke {
 

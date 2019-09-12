@@ -24,8 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using VK;
-using static VK.Vk;
+using Vulkan;
+using static Vulkan.Vk;
 
 namespace vke {
     public sealed class ComputePipeline : Pipeline {

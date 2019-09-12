@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(RootDirectory)netfx.props" />     
   <ItemGroup>
     <ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
   </ItemGroup>
-
 </Project>

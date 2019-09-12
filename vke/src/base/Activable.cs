@@ -2,8 +2,8 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using VK;
-using static VK.Vk;
+using Vulkan;
+using static Vulkan.Vk;
 
 namespace vke {
 	/// <summary>

@@ -4,7 +4,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-using VK;
+using Vulkan;
 
 namespace vke {
 	using vke.glTF;

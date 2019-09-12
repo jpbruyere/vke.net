@@ -4,7 +4,7 @@
 using System;
 using System.Numerics;
 
-namespace VK {
+namespace Vulkan {
 	public static partial class Utils {
 		public static string DataDirectory => "../../../datas/";
 		/// <summary>Throw an erro if VkResult != Success.</summary>

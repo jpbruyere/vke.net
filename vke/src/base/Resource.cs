@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using VK;
+using Vulkan;
 
-using static VK.Vk;
+using static Vulkan.Vk;
 
 namespace vke {
 	[DebuggerDisplay ("{previous.name} <- {name} -> {next.name}")]

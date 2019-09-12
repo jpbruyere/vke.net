@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(RootDirectory)netfx.props" />
+  
   <PropertyGroup>
     <AssemblyName>CVKL.gltfLoader</AssemblyName>
     <PackageId>CVKL.gltfLoader</PackageId>

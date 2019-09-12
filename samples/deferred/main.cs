@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using vke;
 using vke.glTF;
 using Glfw;
-using VK;
+using Vulkan;
 
 namespace deferred {
 	class Deferred : VkWindow {

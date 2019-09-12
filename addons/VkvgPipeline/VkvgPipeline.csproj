@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="$(RootDirectory)netfx.props" />
+  
   <PropertyGroup>
     <AssemblyName>CVKL.vkvgPipeline</AssemblyName>
     <PackageId>CVKL.vkvgPipeline</PackageId>

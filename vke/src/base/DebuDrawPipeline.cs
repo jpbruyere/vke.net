@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using VK;
+using Vulkan;
 
 namespace vke {
 	public class DebugDrawPipeline : GraphicPipeline {

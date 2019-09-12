@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
-        <AssemblyVersion>0.1.9</AssemblyVersion>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <AssemblyVersion>0.1.10</AssemblyVersion>
         <Description>MSBuild addon to compile and embed spirV shaders</Description>
 
         <PackageId>SpirVTasks</PackageId>

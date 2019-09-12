@@ -28,8 +28,8 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using VK;
-using static VK.Vk;
+using Vulkan;
+using static Vulkan.Vk;
 
 namespace vke {
     public class GraphicPipelineConfig {

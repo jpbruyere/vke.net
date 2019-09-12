@@ -2,14 +2,14 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace VK
+namespace Vulkan
 {
-    public unsafe class FixedUtf8String : IDisposable
+    public class FixedUtf8String : IDisposable
     {
         GCHandle _handle;
         uint _numBytes;
 
-        public byte* StringPtr => (byte*)_handle.AddrOfPinnedObject().ToPointer();
+        public IntPtr Ptr => _handle.AddrOfPinnedObject();
 
         public FixedUtf8String(string s)
         {
@@ -38,16 +38,10 @@ namespace VK
 
         private string GetString()
         {
-            return Encoding.UTF8.GetString(StringPtr, (int)_numBytes);
+            return Marshal.PtrToStringUni(Ptr);
         }
-
-        //public void Dispose()
-        //{
-        //    _handle.Free();
-        //}
-
-        public static implicit operator byte* (FixedUtf8String utf8String) => utf8String.StringPtr;
-        public static implicit operator IntPtr (FixedUtf8String utf8String) => utf8String._handle.AddrOfPinnedObject ();
+        
+        public static implicit operator IntPtr (FixedUtf8String utf8String) => utf8String.Ptr;
         public static implicit operator FixedUtf8String(string s) => new FixedUtf8String(s);
         public static implicit operator string(FixedUtf8String utf8String) => utf8String.GetString();
 

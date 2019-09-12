@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
 using vke;
-using VK;
+using Vulkan;
 using Buffer = vke.Buffer;
 
 namespace TextureCube {

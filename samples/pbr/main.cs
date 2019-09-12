@@ -9,7 +9,7 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Glfw;
-using VK;
+using Vulkan;
 using vke;
 
 namespace pbrSample {

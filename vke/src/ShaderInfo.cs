@@ -2,7 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using VK;
+using Vulkan;
 
 namespace vke {
 	/// <summary>

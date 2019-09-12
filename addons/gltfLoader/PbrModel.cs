@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-using VK;
+using Vulkan;
 using System.Collections.Generic;
 
 namespace vke.glTF {

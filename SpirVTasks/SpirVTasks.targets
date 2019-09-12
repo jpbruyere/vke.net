@@ -1,5 +1,5 @@
 <Project>
-  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\lib\$(TargetFramework)\SpirVTasks_$(TargetFramework).dll" TaskName="SpirVTasks.CompileGLSLTask" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\lib\netstandard2.0\SpirVTasks_netstandard2.0.dll" TaskName="SpirVTasks.CompileGLSLTask" />
   <ItemGroup>
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)spirv.xml" />
     <AvailableItemName Include="GLSLShader">

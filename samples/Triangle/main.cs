@@ -4,7 +4,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
-using VK;
+using Vulkan;
 
 namespace Triangle {
 	class Program : VkWindow {

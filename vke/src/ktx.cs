@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-using VK;
+using Vulkan;
 using vke;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
