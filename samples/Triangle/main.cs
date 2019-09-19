@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
@@ -11,7 +12,6 @@ namespace Triangle {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.DEBUG_UTILS = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 
@@ -59,7 +59,6 @@ namespace Triangle {
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
 		Program () : base () {
-
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);

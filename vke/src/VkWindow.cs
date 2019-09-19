@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Glfw;
 using Vulkan;
 using static Vulkan.Vk;
@@ -18,18 +19,18 @@ namespace vke {
 		static Dictionary<IntPtr,VkWindow> windows = new Dictionary<IntPtr, VkWindow>();
 
 		IntPtr hWin;
-
+		/**Vulkan Surface */
 		protected VkSurfaceKHR hSurf;
-		protected Instance instance;
-		protected PhysicalDevice phy;
+		/**vke Instance encapsulating a VkInstance. */
+		protected Instance instance;	
+		/**vke Physical device associated with this window*/
+		protected PhysicalDevice phy;	
 		protected Device dev;
 		protected PresentQueue presentQueue;
 		protected SwapChain swapChain;
 		protected CommandPool cmdPool;
 		protected CommandBuffer[] cmds;
 		protected VkSemaphore[] drawComplete;
-
-		DebugReport dbgRepport;
 
 		protected uint fps;
 		protected bool updateViewRequested = true;
@@ -48,7 +49,12 @@ namespace vke {
 		Stopwatch frameChrono;
 
 		/// <summary>
-		/// Override this property to change the list of enabled extensions
+		/// Override this property to change the list of enabled instance extensions
+		/// </summary>
+		public virtual string[] EnabledInstanceExtensions => null;
+
+		/// <summary>
+		/// Override this property to change the list of enabled device extensions
 		/// </summary>
 		public virtual string[] EnabledDeviceExtensions => new string[] { Ext.D.VK_KHR_swapchain };
 
@@ -100,22 +106,17 @@ namespace vke {
 		}
 
 		void initVulkan (bool vSync) {
-			instance = new Instance ();
+			List<string> instExts = new List<string> (Glfw3.GetRequiredInstanceExtensions ());
+			if (EnabledInstanceExtensions != null)
+				instExts.AddRange (EnabledInstanceExtensions);
 
-			if (Instance.DEBUG_UTILS) {
-				//dbgmsg = new CVKL.DebugUtils.Messenger (instance);
-				dbgRepport = new DebugReport (instance,
-					VkDebugReportFlagsEXT.ErrorEXT
-					| VkDebugReportFlagsEXT.WarningEXT
-					| VkDebugReportFlagsEXT.PerformanceWarningEXT
-				);
-			}
+			instance = new Instance (instExts.ToArray());
 
 			hSurf = instance.CreateSurface (hWin);
 
-			phy = instance.GetAvailablePhysicalDevice ().Where (p => p.HasSwapChainSupport).FirstOrDefault ();
+			phy = instance.GetAvailablePhysicalDevice ().FirstOrDefault (p => p.HasSwapChainSupport);
 
-			VkPhysicalDeviceFeatures enabledFeatures = default (VkPhysicalDeviceFeatures);
+			VkPhysicalDeviceFeatures enabledFeatures = default;
 			configureEnabledFeatures (phy.Features, ref enabledFeatures);
 
 			//First create the c# device class
@@ -146,13 +147,14 @@ namespace vke {
 			cmdPool.SetName ("main CmdPool");
 		}
 		/// <summary>
-		/// override this method to modify enabled features before device creation
+		/// Override this method to modify enabled features before device creation. Feature availability is given by the first argument.
 		/// </summary>
-		/// <param name="enabled_features">Features.</param>
+		/// <param name="available_features">Available features for the selected vulkan physical device associated with this window</param>
+		/// <param name="enabled_features">Set boolean fileds of this structure to true to enable features.</param>
 		protected virtual void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features) {
 		}
 		/// <summary>
-		/// override this method to create additional queue. Dedicated queue of the requested type will be selected first, created queues may excess
+		/// Override this method to create additional queue. Dedicated queue of the requested type will be selected first, created queues may excess
 		/// available physical queues.
 		/// </summary>
 		protected virtual void createQueues () {
@@ -333,7 +335,6 @@ namespace vke {
 				if (disposing) {
 					cmdPool.Dispose ();
 					dev.Dispose ();
-					dbgRepport?.Dispose ();
 					instance.Dispose ();
 				} else
 					Debug.WriteLine ("a VkWindow has not been correctly disposed");

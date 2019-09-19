@@ -555,7 +555,7 @@ namespace vke {
                 case VkImageLayout.TransferSrcOptimal:
                     // Image will be used as a transfer source
                     // Make sure any reads from and writes to the image have been finished
-                    imageMemoryBarrier.srcAccessMask |= VkAccessFlags.TransferRead;
+                    //imageMemoryBarrier.srcAccessMask |= VkAccessFlags.TransferRead;
                     imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferRead;
                     break;
 

@@ -1,28 +1,6 @@
-﻿//
-// PhysicalDevice.cs
+﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
-// Author:
-//       Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
-//
-// Copyright (c) 2019 jp
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
 using Vulkan;
 using static Vulkan.Vk;
@@ -30,66 +8,58 @@ using static Vulkan.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
 using System.Linq;
 
 namespace vke {
-    public class PhysicalDeviceCollection : IEnumerable<PhysicalDevice> {
-        VkInstance inst;
-        PhysicalDevice[] phys;
+	/// <summary>
+	/// Collection of physical devices returned by the vulkan instance.
+	/// </summary>
+	public class PhysicalDeviceCollection : IEnumerable<PhysicalDevice> {
+        readonly VkInstance inst;
+        readonly PhysicalDevice[] phys;
 
+		/// <summary>
+		/// Retrieve the physical devices available for the provided vulkan instance
+		/// </summary>
+		/// <param name="instance">The vulkan instance to retrieve the physical devices from.</param>
         public PhysicalDeviceCollection (VkInstance instance) {
             inst = instance;
-            init ();
-        }
+			CheckResult (vkEnumeratePhysicalDevices (inst, out uint gpuCount, IntPtr.Zero));
+			if (gpuCount <= 0)
+				throw new Exception ("No GPU found");
 
-        public PhysicalDevice this[int i] {
-            get {
-                return phys[i];
-            }
-        }
+			IntPtr gpus = Marshal.AllocHGlobal (Marshal.SizeOf<IntPtr> () * (int)gpuCount);
+			CheckResult (vkEnumeratePhysicalDevices (inst, out gpuCount, gpus), "Could not enumerate physical devices.");
 
-        public IEnumerator<PhysicalDevice> GetEnumerator () {
-            return ((IEnumerable<PhysicalDevice>)phys).GetEnumerator ();
-        }
+			phys = new PhysicalDevice[gpuCount];
 
-        IEnumerator IEnumerable.GetEnumerator () {
-            return ((IEnumerable<PhysicalDevice>)phys).GetEnumerator ();
-        }
-
-        void init () {
-            uint gpuCount = 0;
-            CheckResult (vkEnumeratePhysicalDevices (inst, out gpuCount, IntPtr.Zero));
-            if (gpuCount <= 0)
-                throw new Exception ("No GPU found");
-
-			IntPtr gpus = Marshal.AllocHGlobal (Marshal.SizeOf<IntPtr> ()* (int)gpuCount); 
-            CheckResult (vkEnumeratePhysicalDevices (inst, out gpuCount, gpus), "Could not enumerate physical devices.");
-            
-            phys = new PhysicalDevice[gpuCount];
-
-            for (int i = 0; i < gpuCount; i++)
-                phys[i] = new PhysicalDevice (Marshal.ReadIntPtr(gpus + i * Marshal.SizeOf<IntPtr>()));
+			for (int i = 0; i < gpuCount; i++)
+				phys[i] = new PhysicalDevice (Marshal.ReadIntPtr (gpus + i * Marshal.SizeOf<IntPtr> ()));
 
 			Marshal.FreeHGlobal (gpus);
-        }
+		}
+
+        public PhysicalDevice this[int i] => phys[i];
+        public IEnumerator<PhysicalDevice> GetEnumerator () => ((IEnumerable<PhysicalDevice>)phys).GetEnumerator ();
+        IEnumerator IEnumerable.GetEnumerator () => ((IEnumerable<PhysicalDevice>)phys).GetEnumerator ();
     }
+	/// <summary>
+	/// Vke class that encapsulate a physical device.
+	/// </summary>
     public class PhysicalDevice {
-        IntPtr phy;
+        readonly IntPtr phy;
 
         public VkPhysicalDeviceMemoryProperties memoryProperties { get; private set; }
         public VkQueueFamilyProperties[] QueueFamilies { get; private set; }
 		public VkPhysicalDeviceProperties Properties {
 			get {
-				VkPhysicalDeviceProperties pdp;
-				vkGetPhysicalDeviceProperties (phy, out pdp);
+				vkGetPhysicalDeviceProperties (phy, out VkPhysicalDeviceProperties pdp);
 				return pdp;
 			}
 		}
 		public VkPhysicalDeviceFeatures Features {
 			get {
-				VkPhysicalDeviceFeatures df;
-				vkGetPhysicalDeviceFeatures (phy, out df);
+				vkGetPhysicalDeviceFeatures (phy, out VkPhysicalDeviceFeatures df);
 				return df;
 			}
 		}
@@ -97,88 +67,60 @@ namespace vke {
 
         public bool HasSwapChainSupport { get; private set; }
         public IntPtr Handle => phy;
+		public bool GetDeviceExtensionSupported (string extName) => SupportedExtensions (IntPtr.Zero).Contains (extName);
 
-        public PhysicalDevice (IntPtr vkPhy) {
+		#region CTOR
+		internal PhysicalDevice (IntPtr vkPhy) {
             phy = vkPhy;
-            init ();
-        }
 
-        unsafe void init () {
-            // Gather physical Device memory properties
-            IntPtr tmp = Marshal.AllocHGlobal (Marshal.SizeOf<VkPhysicalDeviceMemoryProperties>());
-            vkGetPhysicalDeviceMemoryProperties (phy, tmp);
-            memoryProperties = Marshal.PtrToStructure<VkPhysicalDeviceMemoryProperties> (tmp);
+			// Gather physical Device memory properties
+			IntPtr tmp = Marshal.AllocHGlobal (Marshal.SizeOf<VkPhysicalDeviceMemoryProperties> ());
+			vkGetPhysicalDeviceMemoryProperties (phy, tmp);
+			memoryProperties = Marshal.PtrToStructure<VkPhysicalDeviceMemoryProperties> (tmp);
 
-            uint queueFamilyCount = 0;
-            vkGetPhysicalDeviceQueueFamilyProperties (phy, out queueFamilyCount, IntPtr.Zero);
-            QueueFamilies = new VkQueueFamilyProperties[queueFamilyCount];
+			vkGetPhysicalDeviceQueueFamilyProperties (phy, out uint queueFamilyCount, IntPtr.Zero);
+			QueueFamilies = new VkQueueFamilyProperties[queueFamilyCount];
 
-            if (queueFamilyCount <= 0)
-                throw new Exception ("No queues found for physical device");
+			if (queueFamilyCount <= 0)
+				throw new Exception ("No queues found for physical device");
 
 			vkGetPhysicalDeviceQueueFamilyProperties (phy, out queueFamilyCount, QueueFamilies.Pin ());
 			QueueFamilies.Unpin ();
 
-            uint propCount = 0;
+			HasSwapChainSupport = GetDeviceExtensionSupported (Ext.D.VK_KHR_swapchain);
+		}
+		#endregion
 
-            vkEnumerateDeviceExtensionProperties (phy, IntPtr.Zero, out propCount, IntPtr.Zero);
+		public string[] SupportedExtensions (IntPtr layer) {
+			CheckResult (vkEnumerateDeviceExtensionProperties (phy, layer, out uint count, IntPtr.Zero));
 
-            VkExtensionProperties[] extProps = new VkExtensionProperties[propCount];
+			int sizeStruct = Marshal.SizeOf<VkExtensionProperties> ();
+			IntPtr ptrSupExts = Marshal.AllocHGlobal (sizeStruct * (int)count);
+			CheckResult (vkEnumerateDeviceExtensionProperties (phy, layer, out count, ptrSupExts));
 
-			vkEnumerateDeviceExtensionProperties (phy, IntPtr.Zero, out propCount, extProps.Pin ());
-			extProps.Unpin ();
-
-            for (int i = 0; i < extProps.Length; i++)
-            {
-                fixed (VkExtensionProperties* ep = extProps) {
-                    IntPtr n = (IntPtr)ep[i].extensionName;
-                    switch (Marshal.PtrToStringAnsi(n))
-                    {
-                        case "VK_KHR_swapchain":
-                            HasSwapChainSupport = true;
-                            break;
-                    }
-                }
-			}		
-        }
-
-		public unsafe bool GetDeviceExtensionSupported (string extName) {
-			uint propCount = 0;
-
-			vkEnumerateDeviceExtensionProperties (phy, IntPtr.Zero, out propCount, IntPtr.Zero);
-
-			VkExtensionProperties[] extProps = new VkExtensionProperties[propCount];
-
-			vkEnumerateDeviceExtensionProperties (phy, IntPtr.Zero, out propCount, extProps.Pin ());
-			extProps.Unpin ();
-
-			for (int i = 0; i < extProps.Length; i++) {
-				fixed (VkExtensionProperties* ep = extProps) {
-					IntPtr n = (IntPtr)ep[i].extensionName;
-					if (Marshal.PtrToStringAnsi (n) == extName)
-							return true;
-				}
+			string[] result = new string[count];
+			IntPtr tmp = ptrSupExts;
+			for (int i = 0; i < count; i++) {
+				result[i] = Marshal.PtrToStringAnsi (tmp);
+				tmp += sizeStruct;
 			}
-			Console.WriteLine ($"INFO: unsuported device extension: {extName}");
-			return false;
+
+			Marshal.FreeHGlobal (ptrSupExts);
+			return result;
 		}
 
-
-        public bool GetPresentIsSupported (uint qFamilyIndex, VkSurfaceKHR surf) {
-            VkBool32 isSupported = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR (phy, qFamilyIndex, surf, out isSupported);
+        public bool GetPresentIsSupported (uint qFamilyIndex, VkSurfaceKHR surf) {             
+            vkGetPhysicalDeviceSurfaceSupportKHR (phy, qFamilyIndex, surf, out VkBool32 isSupported);
             return isSupported;
         }
 
-        public VkSurfaceCapabilitiesKHR GetSurfaceCapabilities (VkSurfaceKHR surf) {
-            VkSurfaceCapabilitiesKHR caps;
-            vkGetPhysicalDeviceSurfaceCapabilitiesKHR (phy, surf, out caps);
+        public VkSurfaceCapabilitiesKHR GetSurfaceCapabilities (VkSurfaceKHR surf) {            
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR (phy, surf, out VkSurfaceCapabilitiesKHR caps);
             return caps;
         }
 
-        unsafe public VkSurfaceFormatKHR[] GetSurfaceFormats (VkSurfaceKHR surf) {
-            uint count = 0;
-            vkGetPhysicalDeviceSurfaceFormatsKHR (phy, surf, out count, IntPtr.Zero);
+        public VkSurfaceFormatKHR[] GetSurfaceFormats (VkSurfaceKHR surf) {            
+            vkGetPhysicalDeviceSurfaceFormatsKHR (phy, surf, out uint count, IntPtr.Zero);
             VkSurfaceFormatKHR[] formats = new VkSurfaceFormatKHR[count];
             
             vkGetPhysicalDeviceSurfaceFormatsKHR (phy, surf, out count, formats.Pin());
@@ -186,9 +128,8 @@ namespace vke {
             
             return formats;
         }
-        unsafe public VkPresentModeKHR[] GetSurfacePresentModes (VkSurfaceKHR surf) {
-            uint count = 0;
-            vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, IntPtr.Zero);
+        public VkPresentModeKHR[] GetSurfacePresentModes (VkSurfaceKHR surf) {            
+            vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out uint count, IntPtr.Zero);
             VkPresentModeKHR[] modes = new VkPresentModeKHR[count];
             
             vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin());
@@ -196,9 +137,8 @@ namespace vke {
             
             return modes;
         }
-        public VkFormatProperties GetFormatProperties (VkFormat format) {
-            VkFormatProperties properties;
-            vkGetPhysicalDeviceFormatProperties (phy, format, out properties);
+        public VkFormatProperties GetFormatProperties (VkFormat format) {            
+            vkGetPhysicalDeviceFormatProperties (phy, format, out VkFormatProperties properties);
             return properties;
         }
     }

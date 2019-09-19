@@ -4,68 +4,80 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke.DebugUtils {
-
-    public class Messenger : IDisposable {
+	/// <summary>
+	/// Dispoable vke class that encapsulate a VkDebugUtilsMessengerEXT object
+	/// </summary>
+	public class Messenger : IDisposable {
 		Instance inst;
-		VkDebugUtilsMessengerEXT handle;
-		PFN_vkDebugUtilsMessengerCallbackEXT onMessage = new PFN_vkDebugUtilsMessengerCallbackEXT(HandlePFN_vkDebugUtilsMessengerCallbackEXT);
+		readonly VkDebugUtilsMessengerEXT handle;
+		readonly static PFN_vkDebugUtilsMessengerCallbackEXT onMessage = new PFN_vkDebugUtilsMessengerCallbackEXT(HandlePFN_vkDebugUtilsMessengerCallbackEXT);
 
 		static VkBool32 HandlePFN_vkDebugUtilsMessengerCallbackEXT (VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes, IntPtr pCallbackData, IntPtr pUserData) {
-			//Console.WriteLine ("{0} {1}: {2}",messageSeverity, messageTypes, Marshal.PtrToStringAnsi(pUserData));
-			Console.WriteLine ("MESSAGE RECEIVED");
+			VkDebugUtilsMessengerCallbackDataEXT data = Marshal.PtrToStructure<VkDebugUtilsMessengerCallbackDataEXT> (pCallbackData);
+			ConsoleColor curColor = Console.ForegroundColor;
+
+			switch (messageSeverity) {
+			case VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT:
+				Console.ForegroundColor = ConsoleColor.White;
+				break;
+			case VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT:
+				Console.ForegroundColor = ConsoleColor.DarkCyan;
+				break;
+			case VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT:
+				Console.ForegroundColor = ConsoleColor.DarkYellow;
+				break;
+			case VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT:
+				Console.ForegroundColor = ConsoleColor.Red;
+				break;
+			}
+
+			switch (messageTypes) {
+			case VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT:
+				Console.Write ("GEN:");
+				break;
+			case VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT:
+				Console.Write ("PERF:");
+				break;			
+			}
+
+			Console.WriteLine (Marshal.PtrToStringAnsi (data.pMessage));
+			Console.ForegroundColor = curColor;
 			return false;
 		}
-
-
-
-   //     PFN_vkDebugReportCallbackEXT debugCallbackDelegate = new PFN_vkDebugReportCallbackEXT (debugCallback);
-
-   //     static VkBool32 debugCallback (VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, ulong obj,
-   //         UIntPtr location, int messageCode, IntPtr pLayerPrefix, IntPtr pMessage, IntPtr pUserData) {
-   //         string prefix = "";
-   //         switch (flags) {
-   //             case 0:
-   //                 prefix = "?";
-   //                 break;
-   //             case VkDebugReportFlagsEXT.InformationEXT:
-			//		Console.ForegroundColor = ConsoleColor.Gray;
-			//		prefix = "INFO";
-   //                 break;
-   //             case VkDebugReportFlagsEXT.WarningEXT:
-			//		Console.ForegroundColor = ConsoleColor.DarkYellow;
-			//		prefix = "WARN";
-   //                 break;
-   //             case VkDebugReportFlagsEXT.PerformanceWarningEXT:
-			//		Console.ForegroundColor = ConsoleColor.Yellow;
-			//		prefix = "PERF";
-   //                 break;
-   //             case VkDebugReportFlagsEXT.ErrorEXT:
-			//		Console.ForegroundColor = ConsoleColor.DarkRed;
-			//		prefix = "EROR";
-			//		break;
-   //             case VkDebugReportFlagsEXT.DebugEXT:
-			//		Console.ForegroundColor = ConsoleColor.Red;
-			//		prefix = "DBUG";
-   //                 break;
-   //         }
-
-   //         Console.WriteLine ("{0} {1}: {2}",prefix, messageCode, Marshal.PtrToStringAnsi(pMessage));
-			//Console.ForegroundColor = ConsoleColor.White;
-        //    return VkBool32.False;
-        //}
-        
-        public Messenger (Instance instance,
-        	VkDebugUtilsMessageTypeFlagsEXT typeMask =  VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT,
-			VkDebugUtilsMessageSeverityFlagsEXT severityMask = VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT | VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT) {
-
+		/// <summary>
+		/// Create a new debug utils messenger providing a PFN_vkDebugUtilsMessengerCallbackEXT delegate.
+		/// </summary>
+		/// <param name="instance">Vulkan Instance.</param>
+		/// <param name="onMessageDelegate">Message callback.</param>
+		/// <param name="typeMask">Type mask.</param>
+		/// <param name="severityMask">Severity mask.</param>
+		public Messenger (Instance instance, PFN_vkDebugUtilsMessengerCallbackEXT onMessageDelegate,
+			VkDebugUtilsMessageTypeFlagsEXT typeMask =
+				VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT,
+			VkDebugUtilsMessageSeverityFlagsEXT severityMask =
+				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT) {
 			inst = instance;
 			VkDebugUtilsMessengerCreateInfoEXT info = VkDebugUtilsMessengerCreateInfoEXT.New ();
 			info.messageType = typeMask;
 			info.messageSeverity = severityMask;
-			info.pfnUserCallback = Marshal.GetFunctionPointerForDelegate (onMessage);
+			info.pfnUserCallback = Marshal.GetFunctionPointerForDelegate (onMessageDelegate);
 			info.pUserData = IntPtr.Zero;
 
 			Utils.CheckResult (vkCreateDebugUtilsMessengerEXT (inst.VkInstance, ref info, IntPtr.Zero, out handle));
+		}
+		/// <summary>
+		/// Create a new debug utils messenger with default message callback outputing to Console.
+		/// </summary>
+		/// <param name="instance">Vulkan Instance.</param>
+		/// <param name="typeMask">Type mask.</param>
+		/// <param name="severityMask">Severity mask.</param>
+		public Messenger (Instance instance,
+			VkDebugUtilsMessageTypeFlagsEXT typeMask =
+				VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT,
+			VkDebugUtilsMessageSeverityFlagsEXT severityMask =
+				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT) : this (instance, onMessage, typeMask, severityMask) {
         }
 
 		#region IDisposable Support

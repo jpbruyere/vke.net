@@ -11,7 +11,6 @@ namespace deferred {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.DEBUG_UTILS = true;
 			//Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
@@ -26,6 +25,10 @@ namespace deferred {
 				vke.Run ();
 			}
 		}
+
+		public override string[] EnabledInstanceExtensions => new string[] {
+			Ext.I.VK_EXT_debug_utils
+		};
 
 		public override string[] EnabledDeviceExtensions => new string[] {
 			Ext.D.VK_KHR_swapchain,
@@ -75,9 +78,16 @@ namespace deferred {
 		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;
 
+		vke.DebugUtils.Messenger dbgmsg;
+
+		Deferred () : base("deferred") {
+			dbgmsg = new vke.DebugUtils.Messenger (instance, VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT | VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT | VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT,
+				VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
 
 
-		Deferred () : base("deferred") {		
 			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, 2);
 
@@ -512,6 +522,7 @@ namespace deferred {
 		#endregion
 
 		protected override void Dispose (bool disposing) {
+			dev.WaitIdle ();
 			if (disposing) {
 				if (!isDisposed) {
 					computeCmdPool.Dispose ();
@@ -522,6 +533,7 @@ namespace deferred {
 					plBlur.Dispose ();
 					plToneMap.Dispose ();
 					descriptorPool.Dispose ();
+					dbgmsg.Dispose ();
 				}
 				dev.DestroySemaphore (blurComplete);
 			}

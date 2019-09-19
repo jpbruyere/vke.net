@@ -27,7 +27,7 @@ namespace Glfw
 		/// <returns>
 		/// The character representation of the codepoint.
 		/// </returns>
-		public char ToChar() => Encoding.UTF32.GetChars (new byte[] { byte0, byte0, byte0, byte0 })[0];
+		public char ToChar() => Encoding.UTF32.GetChars (new byte[] { byte0, byte1, byte2, byte3 })[0];
         /// <summary>
         /// Converts the value of this instance to its equivalent string representation.
         /// </summary>

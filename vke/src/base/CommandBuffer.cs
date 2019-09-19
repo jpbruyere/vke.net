@@ -41,27 +41,22 @@ namespace vke {
 			IntPtr dstStageMask = Marshal.AllocHGlobal (sizeof(uint));
 			Marshal.WriteInt32 (dstStageMask, (int)VkPipelineStageFlags.ColorAttachmentOutput);
 
-            submit_info.pWaitDstStageMask = dstStageMask;
-            if (signal != VkSemaphore.Null) {
-                submit_info.signalSemaphoreCount = 1;
-                submit_info.pSignalSemaphores = signal.Pin();
-            }
-            if (wait != VkSemaphore.Null) {
-                submit_info.waitSemaphoreCount = 1;
-                submit_info.pWaitSemaphores = wait.Pin();
-            }
+			using (PinnedObjects pctx = new PinnedObjects ()) {
+				submit_info.pWaitDstStageMask = dstStageMask;
+				if (signal != VkSemaphore.Null) {
+					submit_info.signalSemaphoreCount = 1;
+					submit_info.pSignalSemaphores = signal.Pin (pctx);
+				}
+				if (wait != VkSemaphore.Null) {
+					submit_info.waitSemaphoreCount = 1;
+					submit_info.pWaitSemaphores = wait.Pin (pctx);
+				}
 
-            submit_info.commandBufferCount = 1;
-            submit_info.pCommandBuffers = handle.Pin();
+				submit_info.commandBufferCount = 1;
+				submit_info.pCommandBuffers = handle.Pin (pctx);
 
-            Utils.CheckResult (vkQueueSubmit (queue, 1, ref submit_info, fence));
-
-			if (signal != VkSemaphore.Null)
-				signal.Unpin ();
-			if (wait != VkSemaphore.Null)
-				wait.Unpin ();
-			handle.Unpin ();
-
+				Utils.CheckResult (vkQueueSubmit (queue, 1, ref submit_info, fence));
+			}
 			Marshal.FreeHGlobal (dstStageMask);
         }
         public void Start (VkCommandBufferUsageFlags usage = 0) {

@@ -2,78 +2,46 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Vulkan
-{
-    public class FixedUtf8String : IDisposable
-    {
-        GCHandle _handle;
-        uint _numBytes;
+namespace Vulkan {
+	public class FixedUtf8String : IDisposable {
+		GCHandle handle;
+		readonly uint numBytes;
 
-        public IntPtr Ptr => _handle.AddrOfPinnedObject();
+		public IntPtr Ptr => handle.AddrOfPinnedObject ();
 
-        public FixedUtf8String(string s)
-        {
-            if (s == null)
-            {
-                throw new ArgumentNullException(nameof(s));
-            }
+		public FixedUtf8String (string s) {
+			if (s == null)
+				throw new ArgumentNullException (nameof (s));
 
-            byte[] text = Encoding.UTF8.GetBytes(s + "\0");
-            _handle = GCHandle.Alloc(text, GCHandleType.Pinned);
-            _numBytes = (uint)text.Length;
-        }
+			byte[] text = Encoding.UTF8.GetBytes (s + "\0");
+			handle = GCHandle.Alloc (text, GCHandleType.Pinned);
+			numBytes = (uint)text.Length;
+		}
 
-        public void SetText(string s)
-        {
-            if (s == null)
-            {
-                throw new ArgumentNullException(nameof(s));
-            }
+		private string GetString () {
+			return Marshal.PtrToStringUni (Ptr);
+		}
 
-            _handle.Free();
-            byte[] text = Encoding.UTF8.GetBytes(s);
-            _handle = GCHandle.Alloc(text, GCHandleType.Pinned);
-            _numBytes = (uint)text.Length;
-        }
+		public static implicit operator IntPtr (FixedUtf8String utf8String) => utf8String.Ptr;
+		public static implicit operator FixedUtf8String (string s) => new FixedUtf8String (s);
+		public static implicit operator string (FixedUtf8String utf8String) => utf8String.GetString ();
 
-        private string GetString()
-        {
-            return Marshal.PtrToStringUni(Ptr);
-        }
-        
-        public static implicit operator IntPtr (FixedUtf8String utf8String) => utf8String.Ptr;
-        public static implicit operator FixedUtf8String(string s) => new FixedUtf8String(s);
-        public static implicit operator string(FixedUtf8String utf8String) => utf8String.GetString();
+		#region IDisposable Support
+		private bool disposedValue = false; // Pour détecter les appels redondants
 
-        #region IDisposable Support
-        private bool disposedValue = false; // Pour détecter les appels redondants
-
-        protected virtual void Dispose (bool disposing) {
-            if (!disposedValue) {
-                if (disposing) {
-                    // TODO: supprimer l'état managé (objets managés).
-                }
-
-                // TODO: libérer les ressources non managées (objets non managés) et remplacer un finaliseur ci-dessous.
-                // TODO: définir les champs de grande taille avec la valeur Null.
-                _handle.Free ();
-                disposedValue = true;
-            }
-        }
-
-        // TODO: remplacer un finaliseur seulement si la fonction Dispose(bool disposing) ci-dessus a du code pour libérer les ressources non managées.
-        ~FixedUtf8String() {
-          // Ne modifiez pas ce code. Placez le code de nettoyage dans Dispose(bool disposing) ci-dessus.
-          Dispose(false);
-        }
-
-        // Ce code est ajouté pour implémenter correctement le modèle supprimable.
-        public void Dispose () {
-            // Ne modifiez pas ce code. Placez le code de nettoyage dans Dispose(bool disposing) ci-dessus.
-            Dispose (true);
-            // TODO: supprimer les marques de commentaire pour la ligne suivante si le finaliseur est remplacé ci-dessus.
-             GC.SuppressFinalize(this);
-        }
-        #endregion
-    }
+		protected virtual void Dispose (bool disposing) {
+			if (!disposedValue) {
+				handle.Free ();
+				disposedValue = true;
+			}
+		}
+		~FixedUtf8String () {
+			Dispose (false);
+		}
+		public void Dispose () {
+			Dispose (true);
+			GC.SuppressFinalize (this);
+		}
+		#endregion
+	}
 }

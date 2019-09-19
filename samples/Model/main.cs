@@ -13,7 +13,6 @@ namespace ModelSample
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.DEBUG_UTILS = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			using (Program vke = new Program ()) {
@@ -25,7 +24,6 @@ namespace ModelSample
 			public Matrix4x4 projection;
 			public Matrix4x4 view;
 			public Matrix4x4 model;
-			//public Vector4 lightPos;
 		}
 
 		public struct PushConstants {

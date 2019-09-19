@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
@@ -33,119 +34,99 @@ namespace vke {
 	/// <summary>
 	/// Vulkan Instance disposable class
 	/// </summary>
-    public class Instance : IDisposable {
+	public class Instance : IDisposable {
 		/// <summary>If true, the VK_LAYER_KHRONOS_validation layer is loaded at startup; </summary>
 		public static bool VALIDATION;
-		/// <summary>If true, the VK_EXT_debug_utils and VK_EXT_debug_report instance extensions are enabled</summary>
-		public static bool DEBUG_UTILS;
 		/// <summary>If true, the VK_LAYER_RENDERDOC_Capture layer is loaded at startup; </summary>
 		public static bool RENDER_DOC_CAPTURE;
 
-        VkInstance inst;
+		public static uint VK_MAJOR = 1;
+		public static uint VK_MINOR = 1;
+
+		public static string ENGINE_NAME = "vke.net";
+		public static string APPLICATION_NAME = "vke.net";
+
+		VkInstance inst;
 
 		public IntPtr Handle => inst.Handle;
 		public VkInstance VkInstance => inst;
 
 
 		static class Strings {
-            public static FixedUtf8String Name = "VKENGINE";
-            public static FixedUtf8String VK_KHR_SURFACE_EXTENSION_NAME = "VK_KHR_surface";
-            public static FixedUtf8String VK_KHR_WIN32_SURFACE_EXTENSION_NAME = "VK_KHR_win32_surface";
-            public static FixedUtf8String VK_KHR_XCB_SURFACE_EXTENSION_NAME = "VK_KHR_xcb_surface";
-            public static FixedUtf8String VK_KHR_XLIB_SURFACE_EXTENSION_NAME = "VK_KHR_xlib_surface";
-            public static FixedUtf8String VK_KHR_SWAPCHAIN_EXTENSION_NAME = "VK_KHR_swapchain";
-            public static FixedUtf8String VK_EXT_DEBUG_REPORT_EXTENSION_NAME = "VK_EXT_debug_report";
-			public static FixedUtf8String VK_EXT_DEBUG_UTILS_EXTENSION_NAME = "VK_EXT_debug_utils";
-			public static FixedUtf8String LayerValidation = "VK_LAYER_KHRONOS_validation";
-			public static FixedUtf8String LayerValidation_old = "VK_LAYER_LUNARG_standard_validation"; 
-			public static FixedUtf8String LayerMonitor = "VK_LAYER_LUNARG_monitor";
-			public static FixedUtf8String VkTraceLayeName = "VK_LAYER_LUNARG_vktrace";
-            public static FixedUtf8String RenderdocCaptureLayerName = "VK_LAYER_RENDERDOC_Capture";
-            public static FixedUtf8String main = "main";
-        }        
 
-        public Instance () {
-            init ();
-        }
-
-		unsafe bool ExtensionIsSupported (FixedUtf8String layer, string extName) {
-			uint count;
-			Utils.CheckResult (vkEnumerateInstanceExtensionProperties ((IntPtr)layer, out count, IntPtr.Zero));
-			VkExtensionProperties[] tmp = new VkExtensionProperties[count];
-			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out count, tmp.Pin ()));
-			tmp.Unpin ();
-
-			fixed (VkExtensionProperties* ep = tmp) {
-				for (int i = 0; i < tmp.Length; i++) {
-					IntPtr n = (IntPtr)ep[i].extensionName;
-					if (Marshal.PtrToStringAnsi (n) == extName)
-							return true;
-				}
-			}
-			return false;
+			public static FixedUtf8String main = "main";
 		}
+		const string strValidationLayer = "VK_LAYER_KHRONOS_validation";
+		const string strRenderDocLayer = "VK_LAYER_RENDERDOC_Capture";
 
-
-
-		void init () {
+		/// <summary>
+		/// Create a new vulkan instance with enabled extensions given as argument.
+		/// </summary>
+		/// <param name="extensions">List of extension to enable if supported</param>
+		public Instance (params string[] extensions) {
 			List<IntPtr> instanceExtensions = new List<IntPtr> ();
 			List<IntPtr> enabledLayerNames = new List<IntPtr> ();
 
-			instanceExtensions.Add (Strings.VK_KHR_SURFACE_EXTENSION_NAME);
-			if (RuntimeInformation.IsOSPlatform (OSPlatform.Windows)) {
-				instanceExtensions.Add (Strings.VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-			} else if (RuntimeInformation.IsOSPlatform (OSPlatform.Linux)) {
-				instanceExtensions.Add (Strings.VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-			} else {
-				throw new PlatformNotSupportedException ();
-			}
+			string[] supportedExts = SupportedExtensions (IntPtr.Zero);
 
-			if (VALIDATION) {
-				enabledLayerNames.Add (Strings.LayerValidation);
-				//enabledLayerNames.Add (Strings.LayerValidation_old);
-
-				if (DEBUG_UTILS) {
-					//if (ExtensionIsSupported(Strings.LayerValidation, Strings.VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
-					//instanceExtensions.Add (Strings.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);						
-					instanceExtensions.Add (Strings.VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+			using (PinnedObjects pctx = new PinnedObjects ()) {
+				for (int i = 0; i < extensions.Length; i++) {
+					if (supportedExts.Contains (extensions[i]))
+						instanceExtensions.Add (extensions[i].Pin (pctx));
+					else
+						Console.WriteLine ($"Vulkan initialisation: Unsupported extension: {extensions[i]}");
 				}
 
+
+				if (VALIDATION) 
+					enabledLayerNames.Add (strValidationLayer.Pin (pctx));
+				if (RENDER_DOC_CAPTURE)
+					enabledLayerNames.Add (strRenderDocLayer.Pin (pctx));
+
+
+				VkApplicationInfo appInfo = new VkApplicationInfo () {
+					sType = VkStructureType.ApplicationInfo,
+					apiVersion = new Vulkan.Version (VK_MAJOR, VK_MINOR, 0),
+					pApplicationName = ENGINE_NAME.Pin (pctx),
+					pEngineName = APPLICATION_NAME.Pin (pctx),
+				};
+
+				VkInstanceCreateInfo instanceCreateInfo = VkInstanceCreateInfo.New ();
+				instanceCreateInfo.pApplicationInfo = appInfo.Pin (pctx);
+
+				if (instanceExtensions.Count > 0) {
+					instanceCreateInfo.enabledExtensionCount = (uint)instanceExtensions.Count;
+					instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.Pin (pctx);
+				}
+				if (enabledLayerNames.Count > 0) {
+					instanceCreateInfo.enabledLayerCount = (uint)enabledLayerNames.Count;
+					instanceCreateInfo.ppEnabledLayerNames = enabledLayerNames.Pin (pctx);
+				}
+
+				VkResult result = vkCreateInstance (ref instanceCreateInfo, IntPtr.Zero, out inst);
+				if (result != VkResult.Success)
+					throw new InvalidOperationException ("Could not create Vulkan instance. Error: " + result);
+
+				Vk.LoadInstanceFunctionPointers (inst);
 			}
-			if (RENDER_DOC_CAPTURE)
-				enabledLayerNames.Add (Strings.RenderdocCaptureLayerName);
+		}
 
+		public string[] SupportedExtensions (IntPtr layer) {
+			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out uint count, IntPtr.Zero));
 
-			VkApplicationInfo appInfo = new VkApplicationInfo () {
-				sType = VkStructureType.ApplicationInfo,
-				apiVersion = new Vulkan.Version (1, 0, 0),
-				pApplicationName = Strings.Name,
-				pEngineName = Strings.Name,
-			};
+			int sizeStruct = Marshal.SizeOf<VkExtensionProperties> ();
+			IntPtr ptrSupExts = Marshal.AllocHGlobal (sizeStruct * (int)count);
+			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out count, ptrSupExts));
 
-			VkInstanceCreateInfo instanceCreateInfo = VkInstanceCreateInfo.New ();
-			instanceCreateInfo.pApplicationInfo = appInfo.Pin ();
-
-			if (instanceExtensions.Count > 0) {
-				instanceCreateInfo.enabledExtensionCount = (uint)instanceExtensions.Count;
-				instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.Pin ();
-			}
-			if (enabledLayerNames.Count > 0) {
-				instanceCreateInfo.enabledLayerCount = (uint)enabledLayerNames.Count;
-				instanceCreateInfo.ppEnabledLayerNames = enabledLayerNames.Pin ();
+			string[] result = new string[count];
+			IntPtr tmp = ptrSupExts;
+			for (int i = 0; i < count; i++) {
+				result[i] = Marshal.PtrToStringAnsi (tmp);
+				tmp += sizeStruct;
 			}
 
-			VkResult result = vkCreateInstance (ref instanceCreateInfo, IntPtr.Zero, out inst);
-			if (result != VkResult.Success)
-				throw new InvalidOperationException ("Could not create Vulkan instance. Error: " + result);
-
-			Vk.LoadInstanceFunctionPointers (inst);
-
-			appInfo.Unpin ();
-
-			if (instanceExtensions.Count > 0)
-				instanceExtensions.Unpin ();
-			if (enabledLayerNames.Count > 0)
-				enabledLayerNames.Unpin ();
+			Marshal.FreeHGlobal (ptrSupExts);
+			return result;
 		}
 
 		public PhysicalDeviceCollection GetAvailablePhysicalDevice () => new PhysicalDeviceCollection (inst);
@@ -158,35 +139,35 @@ namespace vke {
 			return surf;
 		}
 		public void GetDelegate<T> (string name, out T del) {
-            using (FixedUtf8String n = new FixedUtf8String (name)) {
-                del = Marshal.GetDelegateForFunctionPointer<T> (vkGetInstanceProcAddr (Handle, (IntPtr)n));
-            }
-        }
+			using (FixedUtf8String n = new FixedUtf8String (name)) {
+				del = Marshal.GetDelegateForFunctionPointer<T> (vkGetInstanceProcAddr (Handle, (IntPtr)n));
+			}
+		}
 
-        #region IDisposable Support
-        private bool disposedValue = false;
+		#region IDisposable Support
+		private bool disposedValue = false;
 
-        protected virtual void Dispose (bool disposing) {
-            if (!disposedValue) {
+		protected virtual void Dispose (bool disposing) {
+			if (!disposedValue) {
 				if (disposing) {
 					// TODO: supprimer l'état managé (objets managés).
 				} else
 					System.Diagnostics.Debug.WriteLine ("Instance disposed by Finalizer");
-                
-                vkDestroyInstance (inst, IntPtr.Zero);
 
-                disposedValue = true;
-            }
-        }
+				vkDestroyInstance (inst, IntPtr.Zero);
 
-        ~Instance () {
-           Dispose(false);
-        }
+				disposedValue = true;
+			}
+		}
 
-        public void Dispose () {
-            Dispose (true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
-    }
+		~Instance () {
+			Dispose (false);
+		}
+
+		public void Dispose () {
+			Dispose (true);
+			GC.SuppressFinalize (this);
+		}
+		#endregion
+	}
 }

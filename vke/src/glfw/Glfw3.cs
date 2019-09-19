@@ -452,11 +452,11 @@ namespace Glfw {
         {
             IntPtr names = GetRequiredInstanceExtensions(out int count);
 
-            var result = new string[count];
+            string[] result = new string[count];
 
             for (int nameIndex = 0; nameIndex < count; nameIndex++)
             {
-				IntPtr name = Marshal.ReadIntPtr (names, nameIndex);
+				IntPtr name = Marshal.ReadIntPtr (names, nameIndex * Marshal.SizeOf<IntPtr>());
                 result[nameIndex] = Marshal.PtrToStringAnsi(name);
             }
 

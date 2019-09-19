@@ -20,24 +20,12 @@ namespace vke {
         public MarshaledObject (T mobj) {
             handle = GCHandle.Alloc (mobj, GCHandleType.Pinned);
         }
-
-        void freeHandle () {
-            if (!disposed) 
-                handle.Free ();
-			disposed = true;
+		~MarshaledObject () {
+			handle.Free ();
 		}
-
-        #region IDisposable Support
-        private bool disposed;
-
-        ~MarshaledObject() {
-            freeHandle ();
-        }
-
-        public void Dispose () {
-            freeHandle ();
-            GC.SuppressFinalize(this);
-        }
-        #endregion
+		public void Dispose () {
+			handle.Free ();
+			GC.SuppressFinalize (this);
+		}        
     }
 }

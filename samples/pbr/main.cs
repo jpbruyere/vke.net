@@ -18,7 +18,6 @@ namespace pbrSample {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.DEBUG_UTILS = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			using (Program vke = new Program ()) {

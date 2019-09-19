@@ -121,47 +121,76 @@ namespace vke {
 		/// execute the descriptors writes targeting descriptorSets setted on AddWriteInfo call
 		/// </summary>
 		public void Write (Device dev, params object[] descriptors) {
-			//if (descriptors.Length != WriteDescriptorSets.Count)
-			//	throw new Exception ("descriptors count must equal the WriteInfo count.");
-			List<object> descriptorsLists = new List<object> ();//strore temp arrays of pDesc for unpinning
-																//if descriptorCount>1
-			int i = 0;
-			int wdsPtr = 0;
-			while (i < descriptors.Length) {
-				int firstDescriptor = i;
-				VkWriteDescriptorSet wds = WriteDescriptorSets[wdsPtr];
-				if (dstSetOverride != null)
-					wds.dstSet = dstSetOverride.Value.Handle;
-				IntPtr pDescriptors = IntPtr.Zero;
+			using (PinnedObjects pinCtx = new PinnedObjects ()) {
+				int i = 0;
+				int wdsPtr = 0;
+				while (i < descriptors.Length) {
+					int firstDescriptor = i;
+					VkWriteDescriptorSet wds = WriteDescriptorSets[wdsPtr];
+					if (dstSetOverride != null)
+						wds.dstSet = dstSetOverride.Value.Handle;
+					IntPtr pDescriptors = IntPtr.Zero;
 
-				if (wds.descriptorCount > 1) {
-					List<IntPtr> descPtrArray = new List<IntPtr> ();
-					for (int d = 0; d < wds.descriptorCount; d++) {
-						descPtrArray.Add (descriptors[i].Pin ());
+					if (wds.descriptorCount > 1) {
+						List<IntPtr> descPtrArray = new List<IntPtr> ();
+						for (int d = 0; d < wds.descriptorCount; d++) {
+							descPtrArray.Add (descriptors[i].Pin (pinCtx));
+							i++;
+						}
+						pDescriptors = descPtrArray.Pin (pinCtx);
+					} else {
+						pDescriptors = descriptors[i].Pin (pinCtx);
 						i++;
 					}
-					descriptorsLists.Add (descPtrArray);
-					pDescriptors = descPtrArray.Pin ();
-				} else {
-					pDescriptors = descriptors[i].Pin ();
-					i++;
-				}
-				if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
-					wds.pBufferInfo = pDescriptors;
-				else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
-					wds.pImageInfo = pDescriptors;
+					if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
+						wds.pBufferInfo = pDescriptors;
+					else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
+						wds.pImageInfo = pDescriptors;
 
-				WriteDescriptorSets[wdsPtr] = wds;
-				wdsPtr++;
+					WriteDescriptorSets[wdsPtr] = wds;
+					wdsPtr++;
+				}
+				vkUpdateDescriptorSets (dev.VkDev, (uint)WriteDescriptorSets.Count, WriteDescriptorSets.Pin (pinCtx), 0, IntPtr.Zero);
+			}			
+		}
+		/// <summary>
+		/// execute the descriptors writes targeting descriptorSets setted on AddWriteInfo call
+		/// </summary>
+		public void Push (CommandBuffer cmd, PipelineLayout plLayout, params object[] descriptors) {
+			using (PinnedObjects pinCtx = new PinnedObjects ()) {
+				int i = 0;
+				int wdsPtr = 0;
+				while (i < descriptors.Length) {
+					int firstDescriptor = i;
+					VkWriteDescriptorSet wds = WriteDescriptorSets[wdsPtr];
+					wds.dstSet = 0;
+					IntPtr pDescriptors = IntPtr.Zero;
+
+					if (wds.descriptorCount > 1) {
+						List<IntPtr> descPtrArray = new List<IntPtr> ();
+						for (int d = 0; d < wds.descriptorCount; d++) {
+							descPtrArray.Add (descriptors[i].Pin (pinCtx));
+							i++;
+						}
+						pDescriptors = descPtrArray.Pin (pinCtx);
+					} else {
+						pDescriptors = descriptors[i].Pin (pinCtx);
+						i++;
+					}
+					if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
+						wds.pBufferInfo = pDescriptors;
+					else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
+						wds.pImageInfo = pDescriptors;
+
+					WriteDescriptorSets[wdsPtr] = wds;
+					wdsPtr++;
+				}
+				vkCmdPushDescriptorSetKHR (cmd.Handle, VkPipelineBindPoint.Graphics, plLayout.handle, 0,
+					 (uint)WriteDescriptorSets.Count, WriteDescriptorSets.Pin (pinCtx));
 			}
-			vkUpdateDescriptorSets (dev.VkDev, (uint)WriteDescriptorSets.Count, WriteDescriptorSets.Pin (), 0, IntPtr.Zero);
-			WriteDescriptorSets.Unpin ();
-			foreach (object descArray in descriptorsLists) 
-				descArray.Unpin ();
-			for (i = 0; i < descriptors.Length; i++) 
-				descriptors[i].Unpin ();			
 		}
 	}
+
 	/// <summary>
 	/// Descriptor set writes include descriptor in write addition with IDisposable model
 	/// </summary>

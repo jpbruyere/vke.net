@@ -285,6 +285,13 @@ namespace Vulkan {
 					break;
 			}
 		}
+		/// <summary>
+		/// Try to get the block width and height of a compressed format
+		/// </summary>
+		/// <returns><c>true</c>return true if format given as first argument is a compressed format.</returns>
+		/// <param name="format">Vulkan format to test.</param>
+		/// <param name="width">Compressed block width.</param>
+		/// <param name="height">Compressed block height.</param>
 		public static bool TryGetCompressedFormatBlockSize (this VkFormat format, out uint width, out uint height)
 		{
 			width = height = 1;

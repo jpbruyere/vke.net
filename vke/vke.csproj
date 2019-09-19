@@ -26,6 +26,8 @@
 		
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>		
     <LangVersion>7.2</LangVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>    
+		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -47,7 +49,7 @@
 		
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="0.1.10-beta" />
-		<PackageReference Include="Vulkan" Version="0.1.6-beta" />
+		<PackageReference Include="Vulkan" Version="0.1.7" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">

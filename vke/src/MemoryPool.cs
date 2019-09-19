@@ -8,9 +8,12 @@ using static Vulkan.Vk;
 
 namespace vke {
 #if MEMORY_POOLS
+	/// Direct how memory is allocated by a MemoryPool.
 	public enum MemoryPoolType {
+		/// Not yet implemented.
 		Random,
-		Linear 
+		/// First free space next to the last added ressource will be choosen.
+		Linear
 	}
 	/// <summary>
 	/// A memory pool is a single chunck of memory of a kind shared among multiple resources.
@@ -19,34 +22,36 @@ namespace vke {
 		Device dev;
 		internal VkDeviceMemory vkMemory;
 		VkMemoryAllocateInfo memInfo = VkMemoryAllocateInfo.New ();
-
-		//Resource firstResource;
+		readonly ulong bufferImageGranularity;
 		Resource lastResource;
 
-		//Resource mappedFrom;
-		//Resource mappedTo;
-
-		//ulong freeMemPointer;
 		IntPtr mappedPointer;
-
+		/// Allocated device size in byte.
 		public ulong Size => memInfo.allocationSize;
+		/// Return true if pool memory is currently mapped.
 		public bool IsMapped => mappedPointer != IntPtr.Zero;
+		/// Return mapped memory pointer or null if not mapped.
 		public IntPtr MappedData => mappedPointer;
-		public Resource Last => lastResource;
+		/// Last added resource, this is the entry element for the double linked list of ressource.
+		public Resource Last => lastResource;									
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="T:CVKL.MemoryPool"/> class.
+		/// Initializes a new instance of the <see cref="T:vke.MemoryPool"/> class.
 		/// </summary>
-		/// <param name="dev">device</param>
+		/// <param name="dev">The vulkan device instance associated with this memory pool.</param>
 		/// <param name="memoryTypeIndex">Memory type index.</param>
 		/// <param name="size">Size</param>
 		public MemoryPool (Device dev, uint memoryTypeIndex, UInt64 size) {
 			this.dev = dev;
+			bufferImageGranularity = dev.phy.Limits.bufferImageGranularity;
 			memInfo.allocationSize = size;
 			memInfo.memoryTypeIndex = memoryTypeIndex;
 			Utils.CheckResult (vkAllocateMemory (dev.VkDev, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
-
+		/// <summary>
+		/// Allocate memory for a new resource in this memory pool.
+		/// </summary>
+		/// <param name="resource">An <see cref="T:vke.Image"/> or a <see cref="T:vke.Buffer"/> ressource.</param>
 		public void Add (Resource resource) {
 			resource.memoryPool = this;
 
@@ -58,8 +63,8 @@ namespace vke {
 				do {
 					offset = previous.poolOffset + previous.AllocatedDeviceMemorySize;
 
-					if (previous.IsLinar != resource.IsLinar && offset % dev.BufferImageGranularity > 0)
-						offset += dev.BufferImageGranularity - (offset % dev.BufferImageGranularity);
+					if (previous.IsLinar != resource.IsLinar && offset % bufferImageGranularity > 0)
+						offset += bufferImageGranularity - (offset % bufferImageGranularity);
 					if (offset % resource.MemoryAlignment > 0)
 						offset += resource.MemoryAlignment - (offset % resource.MemoryAlignment);
 
@@ -107,11 +112,16 @@ namespace vke {
 
 			resource.bindMemory ();
 		}
-
+		/// <summary>
+		/// Try to reorganize ressources in this pool to optimize memory usage.
+		/// </summary>
 		public void Defrag () {
 			throw new NotImplementedException ();
 		}
-
+		/// <summary>
+		/// Remove the specified resource.
+		/// </summary>
+		/// <param name="resource">Resource.</param>
 		public void Remove (Resource resource) {
 			if (resource == lastResource)
 				lastResource = resource.previous;
@@ -124,16 +134,23 @@ namespace vke {
 				}
 			}
  			resource.next = resource.previous = null;
-		}
+		}/// <summary>
+		/// Map the pool's memory at the specified offset.
+		/// </summary>
+		/// <param name="size">Size.</param>
+		/// <param name="offset">Offset.</param>
 		public void Map (ulong size = Vk.WholeSize, ulong offset = 0) {
 			Utils.CheckResult (vkMapMemory (dev.VkDev, vkMemory, offset, size, 0, ref mappedPointer));
 		}
+		/// <summary>
+		/// Unmap previously mapped memory of this pool.
+		/// </summary>
 		public void Unmap () {
 			vkUnmapMemory (dev.VkDev, vkMemory);
 			mappedPointer = IntPtr.Zero;
 		}
 
-#region IDisposable Support
+		#region IDisposable Support
 		private bool disposedValue;
 
 		protected virtual void Dispose (bool disposing) {
@@ -155,7 +172,7 @@ namespace vke {
 			Dispose (true);
 			GC.SuppressFinalize(this);
 		}
-#endregion
+		#endregion
 	}
 #endif
 }

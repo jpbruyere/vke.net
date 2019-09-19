@@ -2,12 +2,11 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using System.IO;
-
-using Vulkan;
-using vke;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using vke;
+using Vulkan;
 
 namespace KTX {
 
