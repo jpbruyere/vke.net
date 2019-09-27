@@ -29,8 +29,7 @@
 	<ItemGroup>
 				<!--<PackageReference Include="vke" Version="0.1.8-beta" />-->
     <ProjectReference Include="..\..\vke\vke.csproj" />
-		<PackageReference Include="SpirVTasks" Version="0.1.10-beta" />        
-		<!--<PackageReference Include="Vulkan" Version="0.1.4" />-->
+		<PackageReference Include="SpirVTasks" Version="0.1.11-beta" />		
 	</ItemGroup>    
 
 	<ItemGroup>

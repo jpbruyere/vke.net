@@ -1,13 +1,21 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Build.Framework;
 
 namespace SpirVTasks {
+	/// <summary>
+	/// Record include position and path in produced glsl file before compilation
+	/// </summary>
+	internal class IncludePosition {
+		public int line;		//include position in final glsl file
+		public string path;		//path to the included file
+	}
 
 	public class IncludeFileNotFound : FileNotFoundException {
 		public string SourceFile;
@@ -37,6 +45,9 @@ namespace SpirVTasks {
 			get;
 			set;
 		}
+		/// <summary>
+		/// Optional, Specify the comple glslc executable path.
+		/// </summary>
 		public ITaskItem SpirVCompilerPath {
 			get;
 			set;
@@ -49,6 +60,10 @@ namespace SpirVTasks {
 		}
 
 		volatile bool success;
+		//due to includes mechanic, file inclusion position has to be recorded
+		int currentCompiledLine = -1;//current line produced of the unified glsl file with all includes
+		List<IncludePosition> includesPositions = new List<IncludePosition>();	//each included file has en entry in this list
+																				//to emit correct error location for logger.
 
 		bool tryFindInclude (string include, out string incFile) {
 			if (!string.IsNullOrEmpty (AdditionalIncludeDirectories?.ItemSpec)) {
@@ -61,8 +76,10 @@ namespace SpirVTasks {
 			incFile = "";
 			return false;
 		}
-
-		void build_source (string src, StreamWriter temp) {
+		/// <summary>
+		/// produce a single glsl file with main glsl and all its includes in the temp directory
+		/// </summary>
+		void concatenate_sources (string src, StreamWriter temp) {
 			using (StreamReader sr = new StreamReader (File.OpenRead (src))) {
 				int srcLine = 0;
 				while (!sr.EndOfStream) {
@@ -74,14 +91,30 @@ namespace SpirVTasks {
 							if (!tryFindInclude(include, out incFile))
 								throw new IncludeFileNotFound (src, srcLine, include);
 						}
-						build_source (incFile, temp);
+						//store position when entering an included file
+						includesPositions.Add(new IncludePosition {
+							line = currentCompiledLine,
+							path = incFile
+						});
+
+						concatenate_sources (incFile, temp);
+
+						//store current position when include parsing is finished
+						includesPositions.Add(new IncludePosition {
+							line = currentCompiledLine,
+							path = src
+						});
 					} else
 						temp.WriteLine (line);
+					currentCompiledLine++;
 					srcLine++;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Use the SpirVCompilerPath element if present. if not search 'VULKAN_SDK' environment, then PATH.
+		/// </summary>
 		bool tryFindGlslcExecutable (out string glslcPath) {
 			if (!string.IsNullOrEmpty (SpirVCompilerPath?.ItemSpec)) {
 				glslcPath = SpirVCompilerPath.ItemSpec;
@@ -114,6 +147,9 @@ namespace SpirVTasks {
 
 			success = true;
 
+			includesPositions.Clear();
+			currentCompiledLine = 0;
+
 			if (!tryFindGlslcExecutable(out string glslcPath)) {
 				BuildErrorEventArgs err = new BuildErrorEventArgs ("execute", "VK001", BuildEngine.ProjectFileOfTaskNode, 0, 0, 0, 0, $"glslc command not found: {glslcPath}", "Set 'VULKAN_SDK' environment variable", "SpirVTasks");
 				BuildEngine.LogErrorEvent (err);
@@ -127,7 +163,7 @@ namespace SpirVTasks {
 				Directory.CreateDirectory (Path.GetDirectoryName (tempFile));
 				using (StreamWriter sw = new StreamWriter (File.OpenWrite(tempFile))) {
 					string src = SourceFile.ItemSpec;
-					build_source (SourceFile.ItemSpec, sw);
+					concatenate_sources (SourceFile.ItemSpec, sw);
 				}
 			} catch (IncludeFileNotFound ex) {
 				BuildErrorEventArgs err = new BuildErrorEventArgs ("include", "VK002", ex.SourceFile, ex.SourceLine, 0, 0, 0, $"include file not found: {ex.FileName}", "", "SpirVTasks");
@@ -180,7 +216,13 @@ namespace SpirVTasks {
 
 			if (tmp.Length == 5) {
 				string srcFile = SourceFile.ItemSpec;
-				int line = Math.Max (0, int.Parse (tmp[1]) - 1);
+				int line = Math.Max (0, int.Parse (tmp[1]));
+
+				IncludePosition ip = includesPositions.LastOrDefault(p => p.line < line);
+				if (ip != null) {
+					line -= ip.line;
+					srcFile = ip.path;
+				}
 
 				BuildErrorEventArgs err = new BuildErrorEventArgs ("compile", tmp[2], srcFile, line, 0, 0, 0, $"{tmp[3]} {tmp[4]}", "no help", "SpirVTasks");
 				BuildEngine.LogErrorEvent (err);

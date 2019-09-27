@@ -70,12 +70,24 @@ namespace vke {
         
         public class Primitive {
 			public string name;
-			public UInt32 indexBase;
-			public Int32 vertexBase;
-			public UInt32 vertexCount;
-			public UInt32 indexCount;
-			public UInt32 material;
+			public uint indexBase;
+			public int vertexBase;
+			public uint vertexCount;
+			public uint indexCount;
+			public uint material;
 			public BoundingBox bb;
+
+			public Primitive () { }
+			public Primitive (uint vertexCount, uint indexCount, int vertexBase = 0, uint indexBase = 0) {
+				this.vertexCount = vertexCount;
+				this.indexCount = indexCount;
+				this.vertexBase = vertexBase;
+				this.indexBase = indexBase;
+			}
+
+			public void Draw (CommandBuffer cmd, uint instanceCount = 1, uint firstInstance = 0) {
+				cmd.DrawIndexed (indexCount, instanceCount, indexBase, vertexBase, firstInstance);
+			}
 		}
 
 		public class Mesh {

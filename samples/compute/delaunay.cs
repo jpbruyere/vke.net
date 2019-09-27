@@ -8,7 +8,6 @@ namespace delaunay {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.DEBUG_UTILS = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			using (Program vke = new Program ()) {
@@ -54,14 +53,6 @@ namespace delaunay {
 
 
 		public Program () : base () {
-			if (Instance.DEBUG_UTILS)
-				dbgReport = new DebugReport (instance,
-					VkDebugReportFlagsEXT.ErrorEXT
-					| VkDebugReportFlagsEXT.DebugEXT
-					| VkDebugReportFlagsEXT.WarningEXT
-					| VkDebugReportFlagsEXT.PerformanceWarningEXT
-				
-				);
 			imgResult = new Image (dev, VkFormat.R32g32b32a32Sfloat, VkImageUsageFlags.TransferDst | VkImageUsageFlags.Sampled, VkMemoryPropertyFlags.DeviceLocal,
 				imgDim, imgDim);
 			imgResult.CreateView ();

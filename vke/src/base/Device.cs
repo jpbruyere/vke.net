@@ -228,7 +228,7 @@ namespace vke {
 
         public VkShaderModule LoadSPIRVShader (string filename) {
 			VkShaderModule shaderModule;
-			using (Stream stream = StaticGetStreamFromPath (filename)) {
+			using (Stream stream = Utils.GetStreamFromPath (filename)) {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
 					ulong shaderSize = (ulong)shaderCode.Length;
@@ -246,32 +246,7 @@ namespace vke {
 			}
 			return shaderModule;            
 
-        }
-
-		public static Stream StaticGetStreamFromPath (string path) {
-			Stream stream = null;
-
-			if (path.StartsWith ("#", StringComparison.Ordinal)) {
-				string resId = path.Substring (1);
-				//first search entry assembly
-				stream = Assembly.GetEntryAssembly ().GetManifestResourceStream (resId);
-				if (stream != null)
-					return stream;
-				//if not found, search assembly named with the 1st element of the resId
-				string assemblyName = resId.Split ('.')[0];
-				Assembly a = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyName);
-				if (a == null)
-					throw new Exception ($"Assembly '{assemblyName}' not found for ressource '{path}'.");
-				stream = a.GetManifestResourceStream (resId);
-				if (stream == null)
-					throw new Exception ("Resource not found: " + path);
-			} else {
-				if (!File.Exists (path))
-					throw new FileNotFoundException ("File not found: ", path);
-				stream = new FileStream (path, FileMode.Open, FileAccess.Read);
-			}
-			return stream;
-		}
+        }        
 
 #region IDisposable Support
 		private bool disposedValue = false; // Pour détecter les appels redondants

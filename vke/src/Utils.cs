@@ -2,7 +2,10 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
+using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 
 namespace Vulkan {
 	public static partial class Utils {
@@ -12,6 +15,35 @@ namespace Vulkan {
             if (result != VkResult.Success)
                 throw new InvalidOperationException (errorString + ": " + result.ToString ());
         }
+		/// <summary>
+		/// Return a file or embedded resource stream.
+		/// </summary>
+		/// <returns>The stream from path.</returns>
+		/// <param name="path">The file or stream path. Embedded resource path starts with '#'.</param>
+		public static Stream GetStreamFromPath (string path) {
+			Stream stream = null;
+
+			if (path.StartsWith ("#", StringComparison.Ordinal)) {
+				string resId = path.Substring (1);
+				//first search entry assembly
+				stream = Assembly.GetEntryAssembly ().GetManifestResourceStream (resId);
+				if (stream != null)
+					return stream;
+				//if not found, search assembly named with the 1st element of the resId
+				string assemblyName = resId.Split ('.')[0];
+				Assembly a = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyName);
+				if (a == null)
+					throw new Exception ($"Assembly '{assemblyName}' not found for ressource '{path}'.");
+				stream = a.GetManifestResourceStream (resId);
+				if (stream == null)
+					throw new Exception ("Resource not found: " + path);
+			} else {
+				if (!File.Exists (path))
+					throw new FileNotFoundException ("File not found: ", path);
+				stream = new FileStream (path, FileMode.Open, FileAccess.Read);
+			}
+			return stream;
+		}
 		/// <summary>Convert angle from degree to radian.</summary>
 		public static float DegreesToRadians (float degrees) {
             return degrees * (float)Math.PI / 180f;

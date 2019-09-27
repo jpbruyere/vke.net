@@ -10,21 +10,7 @@ using System.Collections.Generic;
 
 namespace vke.glTF {
 	//TODO:stride in buffer views?
-	public abstract class PbrModel : Model {        
-		//public new struct Vertex {
-		//	[VertexAttribute (VertexAttributeType.Position, VkFormat.R32g32b32Sfloat)]
-		//	public Vector3 pos;
-		//	[VertexAttribute (VertexAttributeType.Normal, VkFormat.R32g32b32Sfloat)]
-		//	public Vector3 normal;
-		//	[VertexAttribute (VertexAttributeType.UVs, VkFormat.R32g32Sfloat)]
-		//	public Vector2 uv0;
-		//	[VertexAttribute (VertexAttributeType.UVs, VkFormat.R32g32Sfloat)]
-		//	public Vector2 uv1;
-		//	public override string ToString () {
-		//		return pos.ToString () + ";" + normal.ToString () + ";" + uv0.ToString () + ";" + uv1.ToString ();
-		//	}
-		//};
-
+	public abstract class PbrModel : Model {
 		protected DescriptorPool descriptorPool;
 		public GPUBuffer vbo;
 		public GPUBuffer ibo;

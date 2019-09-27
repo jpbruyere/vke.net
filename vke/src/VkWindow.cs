@@ -185,13 +185,14 @@ namespace vke {
 		protected virtual void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (MouseButton[(int)Glfw.MouseButton.Left]) {
 				camera.Rotate ((float)-diffX, (float)-diffY);
-			} else if (MouseButton[1]) {
-				camera.Move (0, 0, (float)diffY);
+				updateViewRequested = true;
+			} else if (MouseButton[(int)Glfw.MouseButton.Right]) {
+				camera.Move ((float)diffX,0,0);
+				camera.Move (0, 0, (float)-diffY);
+				updateViewRequested = true;
 			}
-
-			updateViewRequested = true;
 		}
 		protected virtual void onMouseButtonDown (Glfw.MouseButton button) { }
 		protected virtual void onMouseButtonUp (Glfw.MouseButton button) { }
