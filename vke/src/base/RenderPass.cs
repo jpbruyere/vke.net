@@ -19,6 +19,9 @@ namespace vke {
         internal List<SubPass> subpasses = new List<SubPass> ();
         List<VkSubpassDependency> dependencies = new List<VkSubpassDependency> ();
 
+		public VkAttachmentDescription [] Attachments => attachments.ToArray ();
+		public SubPass [] SubPasses => subpasses.ToArray ();
+
 		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
 			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.RenderPassEXT, handle.Handle);
 
@@ -216,7 +219,13 @@ namespace vke {
         public void End (CommandBuffer cmd) {
             vkCmdEndRenderPass (cmd.Handle);
         }
-
+		/// <summary>
+		/// Create a one framebuffer per swapchain images of the supplied swapChain.
+		/// The presentable attachment of this renderpass is found searching for its final layout that could be
+		/// PresentSrcKHR or SharedPresentKHR.
+		/// </summary>
+		/// <returns>A collection of FrameBuffer</returns>
+		/// <param name="swapChain">Swap chain.</param>
 		public FrameBuffers CreateFrameBuffers (SwapChain swapChain) {
 			FrameBuffers fbs = new FrameBuffers();
 			Image[] images = new Image[attachments.Count];

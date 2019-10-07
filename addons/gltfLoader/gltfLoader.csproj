@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <AssemblyName>CVKL.gltfLoader</AssemblyName>
-    <PackageId>CVKL.gltfLoader</PackageId>
-    <AssemblyVersion>0.1.6</AssemblyVersion>
-    <Description>CVKL gltf addons</Description>
+    <AssemblyName>vke.gltfLoader</AssemblyName>
+    <PackageId>vke.gltfLoader</PackageId>
+    <AssemblyVersion>0.1.7</AssemblyVersion>
+    <Description>vke.net gltf addons</Description>
     <PackageTags>C# vulkan CVKL gltf</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/jpbruyere/vk.net/blob/master/README.md</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
     <License>MIT</License>
     <PackageReleaseNotes></PackageReleaseNotes>
     <SynchReleaseVersion>false</SynchReleaseVersion>

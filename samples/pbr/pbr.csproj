@@ -3,6 +3,9 @@
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>    
   </PropertyGroup>
                 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>NETSTANDARD;NETSTANDARD2_0;_WITH_SHADOWS;WITH_VKVG;TRACE;DEBUG;NETFRAMEWORK;NET471</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <GLSLShader Update="shaders/simpletexture.frag">
 		   <LogicalName>vke.simpletexture.frag.spv</LogicalName>		

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <AssemblyName>CVKL.vkvgPipeline</AssemblyName>
-    <PackageId>CVKL.vkvgPipeline</PackageId>
+    <AssemblyName>vke.vkvgPipeline</AssemblyName>
+    <PackageId>vke.vkvgPipeline</PackageId>
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <Description>CVKL vkvg addons, vectorial drawing with cairo like api.</Description>
-    <PackageTags>C# vulkan CVKL gltf</PackageTags>    
+    <PackageTags>vulkan c# vke.net gltf</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>

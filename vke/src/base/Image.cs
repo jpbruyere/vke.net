@@ -621,6 +621,16 @@ namespace vke {
 			};
 			vkCmdBlitImage (cmd.Handle, handle, VkImageLayout.TransferSrcOptimal, dest.handle, VkImageLayout.TransferDstOptimal, 1, ref imageBlit, VkFilter.Linear);
 		}
+		public VkSubresourceLayout GetSubresourceLayout (VkImageAspectFlags aspectMask = VkImageAspectFlags.Color, uint mipLevel = 0, uint arrayLayer = 0) {
+			VkImageSubresource subresource = new VkImageSubresource {
+				aspectMask = aspectMask,
+				mipLevel = mipLevel,
+				arrayLayer = arrayLayer
+			};
+			vkGetImageSubresourceLayout (Dev.VkDev, this.handle, ref subresource, out VkSubresourceLayout result);
+			return result;
+		}
+
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");
 		}

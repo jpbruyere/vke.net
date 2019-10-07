@@ -25,10 +25,15 @@
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<DefineConstants>NETSTANDARD;NETSTANDARD2_0;WITH_SHADOWS;_WITH_VKVG</DefineConstants>    
 	</PropertyGroup>	
+
+	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    
+		<ProjectReference Include="..\..\vke\vke.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<PackageReference Include="vke" Version="0.1.8-beta" />
+	</ItemGroup>	
 	
 	<ItemGroup>
-				<!--<PackageReference Include="vke" Version="0.1.8-beta" />-->
-    <ProjectReference Include="..\..\vke\vke.csproj" />
 		<PackageReference Include="SpirVTasks" Version="0.1.11-beta" />		
 	</ItemGroup>    
 

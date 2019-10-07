@@ -44,7 +44,7 @@ namespace vke {
 
 		bool[] buttons = new bool[10];
 		public Modifier KeyModifiers = 0;
-
+		IntPtr currentCursor;
 		uint frameCount;
 		Stopwatch frameChrono;
 
@@ -97,12 +97,16 @@ namespace vke {
 
 			initVulkan (vSync);
 		}
-		IntPtr currentCursor;
+
 		public void SetCursor (CursorShape cursor) {
 			if (currentCursor != IntPtr.Zero)
 				Glfw3.DestroyCursor (currentCursor);
 			currentCursor = Glfw3.CreateStandardCursor (cursor);
 			Glfw3.SetCursor (hWin, currentCursor);
+		}
+		public void Close ()
+		{
+			Glfw3.SetWindowShouldClose (hWin, 1);
 		}
 
 		void initVulkan (bool vSync) {
@@ -203,7 +207,7 @@ namespace vke {
 						Glfw3.SetWindowShouldClose (hWin, 1);
 					break;
 				case Key.Escape:
-					Glfw3.SetWindowShouldClose (hWin, 1);
+					Close ();
 					break;
 				case Key.Up:
 					camera.Move (0, 0, 1);

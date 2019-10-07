@@ -3,7 +3,7 @@
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
 
-		<TargetFrameworks>net471</TargetFrameworks>
+		<TargetFrameworks>net472</TargetFrameworks>
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<License>MIT</License>
@@ -25,11 +25,15 @@
 		<DefineConstants>NETSTANDARD;NETSTANDARD2_0;WITH_SHADOWS;_WITH_VKVG</DefineConstants>    
 	</PropertyGroup>
 		
+	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    
+		<ProjectReference Include="..\..\vke\vke.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<PackageReference Include="vke" Version="0.1.8-beta" />
+	</ItemGroup>
+			
 	<ItemGroup>
-		<!--<PackageReference Include="vke" Version="0.1.8-beta" />-->
-    <ProjectReference Include="..\..\vke\vke.csproj" />
-		<PackageReference Include="SpirVTasks" Version="0.1.11-beta" />
-		<!--<PackageReference Include="Vulkan" Version="0.1.4" />        -->
+		<PackageReference Include="SpirVTasks" Version="0.1.11-beta" />		
 	</ItemGroup>    
 
 	<ItemGroup>    

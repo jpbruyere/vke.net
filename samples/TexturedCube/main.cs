@@ -101,9 +101,7 @@ namespace TextureCube {
 
 		void vkvgDraw () {
 			using (vkvg.Context ctx = vkvgPipeline.CreateContext()) {
-				ctx.Operator = vkvg.Operator.Clear;
-				ctx.Paint ();
-				ctx.Operator = vkvg.Operator.Over;
+				ctx.Clear ();
 				vkvgPipeline.DrawResources (ctx, (int)swapChain.Width, (int)swapChain.Height);
 			}
 		}

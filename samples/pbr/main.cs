@@ -69,9 +69,7 @@ namespace pbrSample {
 
 		void vkvgDraw () {
             using (vkvg.Context ctx = vkvgPipeline.CreateContext ()) {
-				ctx.Operator = vkvg.Operator.Clear;
-				ctx.Paint ();
-				ctx.Operator = vkvg.Operator.Over;
+				ctx.Clear ();
 
 				ctx.LineWidth = 1;
 				ctx.SetSource (0.1, 0.1, 0.1, 0.8);
