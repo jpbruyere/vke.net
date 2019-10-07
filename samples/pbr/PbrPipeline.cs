@@ -42,8 +42,14 @@ namespace vke {
 		public DescriptorSet dsMain;
 
 		public PbrModel2 model;
-		public EnvironmentCube envCube;
-
+		public vke.Environment.EnvironmentCube envCube;
+		string[] cubemapPathes = {
+			Utils.DataDirectory + "textures/papermill.ktx",
+			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
+			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
+			Utils.DataDirectory + "textures/pisa_cube.ktx",
+			Utils.DataDirectory + "textures/uffizi_cube.ktx",
+		};
 		public PBRPipeline (Queue staggingQ, RenderPass renderPass, PipelineCache pipelineCache = null) :
 			base (renderPass, pipelineCache, "pbr pipeline") {
 
@@ -87,7 +93,7 @@ namespace vke {
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 
-			envCube = new EnvironmentCube (dsMain, layout, staggingQ, RenderPass);
+			envCube = new Environment.EnvironmentCube (cubemapPathes[0], dsMain, layout, staggingQ, RenderPass);
 
 			matrices.prefilteredCubeMipLevels = envCube.prefilterCube.CreateInfo.mipLevels;
 			uboMats = new HostBuffer (Dev, VkBufferUsageFlags.UniformBuffer, matrices, true);

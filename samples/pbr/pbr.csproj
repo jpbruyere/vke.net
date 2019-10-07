@@ -15,13 +15,14 @@
   <ItemGroup>
     <ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
     <ProjectReference Include="..\..\addons\VkvgPipeline\VkvgPipeline.csproj" />
+		<ProjectReference Include="..\..\addons\EnvironmentPipeline\EnvironmentPipeline.csproj" />
   </ItemGroup>    
   
   <ItemGroup>    
     <EmbeddedResource Include="ui\**\*.*">
       <LogicalName>deferred.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource> 
-		<None Include="shaders\**\*.*"/>
+		<None Include="shaders\**\*.*" />
   </ItemGroup>     
 
 </Project>

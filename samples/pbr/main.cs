@@ -125,13 +125,13 @@ namespace pbrSample {
 				y += dy;
 				ctx.MoveTo (x, y);
 				ctx.ShowText (string.Format ($"{"Debug draw (numpad 0->6)",-30} : {currentDebugView.ToString ()} "));
-				y += dy;
+				/*y += dy;
 				ctx.MoveTo (x, y);
 				ctx.ShowText (string.Format ($"{"Debug Prefil Face: (f)",-30} : {pbrPipeline.envCube.debugFace.ToString ()} "));
 				y += dy;
 				ctx.MoveTo (x, y);
 				ctx.ShowText (string.Format ($"{"Debug Prefil Mip: (m)",-30} : {pbrPipeline.envCube.debugMip.ToString ()} "));
-
+				*/
 				vkvgPipeline.DrawResources (ctx, (int)Width, (int)Height);
 			}
 		}
@@ -277,6 +277,7 @@ namespace pbrSample {
 
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {
+			/*
 				case Key.F:
 					if (modifiers.HasFlag (Modifier.Shift)) {
 						pbrPipeline.envCube.debugFace --;
@@ -300,7 +301,7 @@ namespace pbrSample {
 							pbrPipeline.envCube.debugMip = 0;
 					}
 					queryUpdatePrefilCube = updateViewRequested = true;
-					break;
+					break;*/
 				case Key.P:
 					showDebugImg = !showDebugImg;
 					queryUpdatePrefilCube = updateViewRequested = true;

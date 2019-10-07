@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
+using vke.Environment;
 using vke.glTF;
 using Vulkan;
 
@@ -291,7 +292,7 @@ namespace deferred {
 			cfg.depthStencilState.depthWriteEnable = false;
 			using (SpecializationInfo constants = new SpecializationInfo (
 				new SpecializationConstant<uint> (0, (uint)lights.Length))) {
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#deferred.FullScreenQuad.vert.spv");
+				cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
 #if WITH_SHADOWS
 				cfg.AddShader (VkShaderStageFlags.Fragment, "#deferred.compose_with_shadows.frag.spv", constants);
 #else

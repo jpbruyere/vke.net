@@ -18,7 +18,8 @@ namespace vke {
 		public VkPipelineBindPoint bindPoint = VkPipelineBindPoint.Graphics;
 		public VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = VkPipelineInputAssemblyStateCreateInfo.New ();
 		public VkPipelineRasterizationStateCreateInfo rasterizationState = VkPipelineRasterizationStateCreateInfo.New ();
-		public VkPipelineViewportStateCreateInfo viewportState = VkPipelineViewportStateCreateInfo.New ();
+		public List<VkViewport> Viewports = new List<VkViewport> ();
+		public List<VkRect2D> Scissors = new List<VkRect2D> ();
 		public VkPipelineDepthStencilStateCreateInfo depthStencilState = VkPipelineDepthStencilStateCreateInfo.New ();
 		public VkPipelineMultisampleStateCreateInfo multisampleState = VkPipelineMultisampleStateCreateInfo.New ();
 		public List<VkPipelineColorBlendAttachmentState> blendAttachments = new List<VkPipelineColorBlendAttachmentState> ();
@@ -41,9 +42,11 @@ namespace vke {
 		/// <summary>
 		/// Create a default pipeline configuration with viewport and scissor as dynamic states. One blend attachment is
 		/// added automatically with blending disabled. (cfg.blendAttachments[0])
+		/// If width and height parameter are omitted viewport and scissor dynamic states are automatically added, else
+		/// a viewport and a vkrect2d are added to the viewport and scissor lists.
 		/// </summary>
 		public static GraphicPipelineConfig CreateDefault (VkPrimitiveTopology topology = VkPrimitiveTopology.TriangleList,
-			VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1, bool depthTestEnabled = true) {
+			VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1, bool depthTestEnabled = true, int width = -1, int height = -1) {
 			GraphicPipelineConfig cfg = new GraphicPipelineConfig ();
 
 			cfg.inputAssemblyState.topology = topology;
@@ -57,13 +60,15 @@ namespace vke {
 			cfg.rasterizationState.depthBiasEnable = False;
 			cfg.rasterizationState.lineWidth = 1.0f;
 
-			cfg.viewportState.viewportCount = 1;
-			cfg.viewportState.scissorCount = 1;
-
 			cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
 
-			cfg.dynamicStates.Add (VkDynamicState.Viewport);
-			cfg.dynamicStates.Add (VkDynamicState.Scissor);
+			if (width < 0) {
+				cfg.dynamicStates.Add (VkDynamicState.Viewport);
+				cfg.dynamicStates.Add (VkDynamicState.Scissor);
+			} else {
+				cfg.Viewports.Add (new VkViewport { height = height, width = width, minDepth = 0f, maxDepth = 1f });
+				cfg.Scissors.Add (new VkRect2D ((uint)width, (uint)height));
+			}
 
 			if (depthTestEnabled) {
 				cfg.depthStencilState.depthTestEnable = True;

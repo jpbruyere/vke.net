@@ -116,7 +116,7 @@ namespace deferred {
 
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, DeferredPbrRenderer.NUM_SAMPLES);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#deferred.FullScreenQuad.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
 			cfg.AddShader (VkShaderStageFlags.Fragment, "#deferred.tone_mapping.frag.spv");
 
 			plToneMap = new GraphicPipeline (cfg);

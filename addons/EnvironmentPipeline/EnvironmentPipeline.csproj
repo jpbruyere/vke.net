@@ -1,20 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="$(RootDirectory)netfx.props" />
   <PropertyGroup>
-    <AssemblyName>CVKLEnvironment</AssemblyName>
-    <PackageId>CVKLEnvironmentPipeline</PackageId>
+    <AssemblyName>EnvironmentPipeline</AssemblyName>
+    <PackageId>vke.EnvironmentPipeline</PackageId>
     <AssemblyVersion>0.1.0</AssemblyVersion>
-    <Description>CVKL Environment cube</Description>
-    <PackageTags>vulkan CVKL</PackageTags>    
+    <Description>vke.net Environment cube pipeline</Description>
+    <PackageTags>vulkan c# vke.net</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/jpbruyere/vk.net/blob/master/README.md</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
     <License>MIT</License>
     <PackageReleaseNotes></PackageReleaseNotes>
     <SynchReleaseVersion>false</SynchReleaseVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
   </PropertyGroup>
-
 </Project>

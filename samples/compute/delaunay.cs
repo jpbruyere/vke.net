@@ -88,7 +88,7 @@ namespace delaunay {
 			cfg.RenderPass.ClearValues[0] = new VkClearValue { color = new VkClearColorValue (0.0f, 0.1f, 0.0f) };
 
 			cfg.ResetShadersAndVerticesInfos ();
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#compute.FullScreenQuad.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
 			cfg.AddShader (VkShaderStageFlags.Fragment, "#compute.simpletexture.frag.spv");
 
 			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);

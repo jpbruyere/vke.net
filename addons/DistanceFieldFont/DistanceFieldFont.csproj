@@ -5,7 +5,7 @@
     <PackageId>vke.DistanceFieldFont</PackageId>
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <Description>vke.net signed distance field font addons, BMFont file format</Description>
-    <PackageTags>C# vulkan CVKL gltf</PackageTags>    
+    <PackageTags>vulkan C# vke.net gltf</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>

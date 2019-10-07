@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using VK;
+using Vulkan;
 
-namespace CVKL {
+namespace vke.Environment {
 	public class EnvironmentCube : GraphicPipeline {
 
 		GPUBuffer vboSkybox;
@@ -33,8 +32,8 @@ namespace CVKL {
 				cfg.Layout = plLayout;
 				cfg.AddVertexBinding (0, 3 * sizeof (float));
 				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#CVKLEnvironment.skybox.vert.spv");
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#CVKLEnvironment.skybox.frag.spv");
+				cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv");
+				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.skybox.frag.spv");
 				cfg.multisampleState.rasterizationSamples = Samples;
 
 				layout = cfg.Layout;
@@ -112,23 +111,21 @@ namespace CVKL {
 			lutBrdf.CreateView ();
 			lutBrdf.CreateSampler (VkSamplerAddressMode.ClampToEdge);
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
+			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false, dim, dim);
 
 			cfg.Layout = new PipelineLayout (Dev, new DescriptorSetLayout (Dev));
 			cfg.RenderPass = new RenderPass (Dev);
 			cfg.RenderPass.AddAttachment (format, VkImageLayout.ShaderReadOnlyOptimal);
 			cfg.RenderPass.ClearValues.Add (new VkClearValue { color = new VkClearColorValue (0, 0, 0) });
 			cfg.RenderPass.AddSubpass (new SubPass (VkImageLayout.ColorAttachmentOptimal));
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#CVKLEnvironment.genbrdflut.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#CVKLEnvironment.genbrdflut.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.genbrdflut.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.genbrdflut.frag.spv");
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
-				using (Framebuffer fb = new Framebuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
+				using (FrameBuffer fb = new FrameBuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
 					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 					pl.RenderPass.Begin (cmd, fb);
-					cmd.SetViewport (dim, dim);
-					cmd.SetScissor (dim, dim);
 					pl.Bind (cmd);
 					cmd.Draw (3, 1, 0, 0);
 					pl.RenderPass.End (cmd);
@@ -180,7 +177,7 @@ namespace CVKL {
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));
 
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
+			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false, (int)dim, (int)dim);
 			cfg.Layout = new PipelineLayout (Dev, dsLayout);
 			cfg.Layout.AddPushConstants (
 				new VkPushConstantRange (VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, (uint)Marshal.SizeOf<Matrix4x4> () + 8));
@@ -193,11 +190,11 @@ namespace CVKL {
 			cfg.AddVertexBinding (0, 3 * sizeof (float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#CVKLEnvironment.filtercube.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.filtercube.vert.spv");
 			if (target == CBTarget.PREFILTEREDENV)
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#CVKLEnvironment.prefilterenvmap.frag.spv");
+				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.prefilterenvmap.frag.spv");
 			else
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#CVKLEnvironment.irradiancecube.frag.spv");
+				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.irradiancecube.frag.spv");
 
 			Matrix4x4[] matrices = {
 				// POSITIVE_X
@@ -223,16 +220,13 @@ namespace CVKL {
 				dsUpdate.Write (Dev, dset, cubemap.Descriptor);
 				Dev.WaitIdle ();
 
-				using (Framebuffer fb = new Framebuffer (pl.RenderPass, dim, dim, imgFbOffscreen)) {
+				using (FrameBuffer fb = new FrameBuffer (pl.RenderPass, dim, dim, imgFbOffscreen)) {
 					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 					cmap.SetLayout (cmd, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, subRes);
 
 					float roughness = 0;
-
-					cmd.SetScissor (dim, dim);
-					cmd.SetViewport ((float)(dim), (float)dim);
 
 					for (int m = 0; m < numMips; m++) {
 						roughness = (float)m / ((float)numMips - 1f);
