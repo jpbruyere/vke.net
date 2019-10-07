@@ -8,7 +8,8 @@
   </ItemGroup>
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Condition="'@(GLSLShader)'!=''" Outputs="@(CompiledShaders)">				
 	<CompileGLSLTask SourceFile="%(GLSLShader.Identity)"
-					 AdditionalIncludeDirectories="$(SpirVAdditionalIncludeDirectories)"
+					 AdditionalIncludeDirectories="%(GLSLShader.AdditionalIncludeDirectories);$(SpirVAdditionalIncludeDirectories)"
+					 DefineConstants="%(GLSLShader.DefineConstants);$(DefineConstants)"					 
 					 TempDirectory="$(IntermediateOutputPath)"
 					 DestinationFile="$(IntermediateOutputPath)%(RelativeDir)%(Filename)%(Extension).spv" />		
     <CreateItem  Condition=" '%(GLSLShader.LogicalName)'!='' "
@@ -25,6 +26,6 @@
 					TaskParameter="Include"			
 					ItemName="EmbeddedResource"/>	    
     </CreateItem>		
-	<Message Importance="High" Text="%(GLSLShader.Identity) -> $(AssemblyName).%(Filename)%(Extension).spv (Embedded Resource)" />
+		<Message Importance="High" Text="%(GLSLShader.Identity) -> $(AssemblyName).%(Filename)%(Extension).spv (Embedded Resource)" />
   </Target>
 </Project>

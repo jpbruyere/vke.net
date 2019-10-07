@@ -6,4 +6,6 @@
   <FileExtension Name=".geom" ContentType="GLSLShader" />
   <FileExtension Name=".frag" ContentType="GLSLShader" />
   <FileExtension Name=".vert" ContentType="GLSLShader" />
+	<FileExtension Name=".tesc" ContentType="GLSLShader" />
+	<FileExtension Name=".tese" ContentType="GLSLShader" />
 </ProjectSchemaDefinitions>

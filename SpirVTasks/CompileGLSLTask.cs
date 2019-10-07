@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Build.Framework;
 
 namespace SpirVTasks {
@@ -41,7 +42,25 @@ namespace SpirVTasks {
 			get;
 			set;
 		}
+		[Required]
+		[Output]
+		public ITaskItem DestinationFile {
+			get;
+			set;
+		}
+
 		public ITaskItem AdditionalIncludeDirectories {
+			get;
+			set;
+		}
+		/// <summary>
+		/// Optional, set macros to be passed to the compiler, project 'DefineConstants' item is automatically added
+		/// </summary>
+		public ITaskItem[] DefineConstants {
+			get;
+			set;
+		}
+		public ITaskItem Optimisation {
 			get;
 			set;
 		}
@@ -49,12 +68,6 @@ namespace SpirVTasks {
 		/// Optional, Specify the comple glslc executable path.
 		/// </summary>
 		public ITaskItem SpirVCompilerPath {
-			get;
-			set;
-		}
-		[Required]
-		[Output]
-		public ITaskItem DestinationFile {
 			get;
 			set;
 		}
@@ -113,7 +126,7 @@ namespace SpirVTasks {
 		}
 
 		/// <summary>
-		/// Use the SpirVCompilerPath element if present. if not search 'VULKAN_SDK' environment, then PATH.
+		/// Use the SpirVCompilerPath element if present. if not search 'VULKAN_SDK' environment, then PATH env variable.
 		/// </summary>
 		bool tryFindGlslcExecutable (out string glslcPath) {
 			if (!string.IsNullOrEmpty (SpirVCompilerPath?.ItemSpec)) {
@@ -177,6 +190,27 @@ namespace SpirVTasks {
 
 			Directory.CreateDirectory (Path.GetDirectoryName (DestinationFile.ItemSpec));
 
+			//build macros parameter
+			StringBuilder macros = new StringBuilder ();
+			if (DefineConstants != null) {
+				for (int i = 0; i < DefineConstants.Length; i++) {
+					if (!string.IsNullOrEmpty (DefineConstants[i]?.ItemSpec)) {
+						foreach (string macro in DefineConstants [i].ItemSpec.Split (new char[]{ ';'}, StringSplitOptions.RemoveEmptyEntries))
+							macros.Append ($"-D{macro} ");
+					}
+				}
+			}
+			string optimisationStr = "";
+			if (!string.IsNullOrEmpty (Optimisation?.ItemSpec)) {
+				if (string.Equals (Optimisation.ItemSpec, "perf", StringComparison.OrdinalIgnoreCase))
+					optimisationStr = "-O";
+				else if (string.Equals (Optimisation.ItemSpec, "size", StringComparison.OrdinalIgnoreCase))
+					optimisationStr = "-Os";
+				else if (string.Equals (Optimisation.ItemSpec, "none", StringComparison.OrdinalIgnoreCase))
+					optimisationStr = "-O0";
+			}else
+				optimisationStr = "-O";
+
 			Process glslc = new Process();
 			//glslc.StartInfo.StandardOutputEncoding = System.Text.Encoding.ASCII;
 			//glslc.StartInfo.StandardErrorEncoding = System.Text.Encoding.ASCII;
@@ -184,12 +218,14 @@ namespace SpirVTasks {
 			glslc.StartInfo.RedirectStandardOutput = true;
 			glslc.StartInfo.RedirectStandardError = true;
 			glslc.StartInfo.FileName = glslcPath;
-			glslc.StartInfo.Arguments = $"{tempFile} -o {DestinationFile.ItemSpec}";
+			glslc.StartInfo.Arguments = $"{tempFile} -o {DestinationFile.ItemSpec} {macros.ToString()} {optimisationStr}";
 			glslc.StartInfo.CreateNoWindow = true;
 
 			glslc.EnableRaisingEvents = true;
 			glslc.OutputDataReceived += Glslc_OutputDataReceived;
 			glslc.ErrorDataReceived += Glslc_ErrorDataReceived;
+
+			Log.LogMessage (MessageImportance.High, $"-> glslc {glslc.StartInfo.Arguments}");
 
 			glslc.Start ();
 

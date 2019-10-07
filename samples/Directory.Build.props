@@ -33,7 +33,7 @@
 	</ItemGroup>
 			
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.11-beta" />		
+		<PackageReference Include="SpirVTasks" Version="0.1.15-beta" />		
 	</ItemGroup>    
 
 	<ItemGroup>    

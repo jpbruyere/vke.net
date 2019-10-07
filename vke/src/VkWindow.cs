@@ -198,8 +198,8 @@ namespace vke {
 				updateViewRequested = true;
 			}
 		}
-		protected virtual void onMouseButtonDown (Glfw.MouseButton button) { }
-		protected virtual void onMouseButtonUp (Glfw.MouseButton button) { }
+		protected virtual void onMouseButtonDown (MouseButton button) { }
+		protected virtual void onMouseButtonUp (MouseButton button) { }
 		protected virtual void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {
 				case Key.F4:
@@ -305,15 +305,22 @@ namespace vke {
 				Glfw3.PollEvents ();
 			}
 		}
-		public virtual void UpdateView () { }
 		/// <summary>
-		/// custom update method called at UpdateFrequency
+		/// Suitable for updating the matrices, called at least once before the rendering loop just
+		/// after 'OnResize'. Then, triggered each time 'updateViewRequested' is true in the render loop, don't forget to
+		/// reset 'updateViewRequested' to 'false' or call the 'base.UpdateView()' which will reset this boolean.
+		/// </summary>
+		public virtual void UpdateView () {
+			updateViewRequested = false;
+		}
+		/// <summary>
+		/// custom update method called at UpdateFrequency, base method is empty.
 		/// </summary>
 		public virtual void Update () { }
 
 		/// <summary>
-		/// called when swapchain has been resized, override this method to resize your framebuffers coupled to the swapchain.
-		/// The base method will update Window width and height with new swapchain's dimensions.
+		/// Called when swapchain has been resized, override this method to resize your framebuffers coupled to the swapchain.
+		/// The base method will update Window 'Width' and 'Height' properties with new swapchain's dimensions.
 		/// </summary>
 		protected virtual void OnResize () {
 			Width = swapChain.Width;

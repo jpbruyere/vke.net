@@ -20,7 +20,8 @@
   <ItemGroup>    
     <EmbeddedResource Include="ui\**\*.*">
       <LogicalName>deferred.%(Filename)%(Extension)</LogicalName>
-    </EmbeddedResource>                
+    </EmbeddedResource> 
+		<None Include="shaders\**\*.*"/>
   </ItemGroup>     
 
 </Project>

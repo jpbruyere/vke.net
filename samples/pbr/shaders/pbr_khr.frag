@@ -7,7 +7,6 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 #define MANUAL_SRGB 0
-#define DEBUG 1
 
 struct Material {
     vec4 baseColorFactor;
@@ -47,7 +46,7 @@ layout (set = 0, binding = 0) uniform UBO {
     float gamma;
     float prefilteredCubeMipLevels;
     float scaleIBLAmbient;
-#if DEBUG
+#ifdef DEBUG
     float debugViewInputs;
     float debugViewEquation;
 #endif
@@ -376,7 +375,7 @@ void main()
         color += SRGBtoLINEAR(texture(emissiveMap, inUV1)).rgb * u_EmissiveFactor;             
     
     outColor = vec4(color, baseColor.a);
-#if DEBUG
+#ifdef DEBUG
     // Shader inputs debug visualization
     if (ubo.debugViewInputs > 0.0) {
         int index = int(ubo.debugViewInputs);
