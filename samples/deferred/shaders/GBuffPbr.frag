@@ -3,7 +3,6 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 #define MANUAL_SRGB 0
-#define DEBUG 0
 
 layout (constant_id = 0) const float NEAR_PLANE = 0.1f;
 layout (constant_id = 1) const float FAR_PLANE = 256.0f;

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <AssemblyName>vke.DistanceFieldFont</AssemblyName>
+    <AssemblyName>DistanceFieldFont</AssemblyName>
     <PackageId>vke.DistanceFieldFont</PackageId>
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <Description>vke.net signed distance field font addons, BMFont file format</Description>

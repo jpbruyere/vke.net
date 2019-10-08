@@ -177,7 +177,7 @@ namespace vke.Environment {
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));
 
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false, (int)dim, (int)dim);
+			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
 			cfg.Layout = new PipelineLayout (Dev, dsLayout);
 			cfg.Layout.AddPushConstants (
 				new VkPushConstantRange (VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, (uint)Marshal.SizeOf<Matrix4x4> () + 8));
@@ -227,6 +227,9 @@ namespace vke.Environment {
 					cmap.SetLayout (cmd, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, subRes);
 
 					float roughness = 0;
+
+					cmd.SetScissor (dim, dim);
+					cmd.SetViewport ((float)(dim), (float)dim);
 
 					for (int m = 0; m < numMips; m++) {
 						roughness = (float)m / ((float)numMips - 1f);
