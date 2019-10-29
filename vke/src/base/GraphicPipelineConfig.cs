@@ -26,7 +26,7 @@ namespace vke {
 		public List<VkDynamicState> dynamicStates = new List<VkDynamicState> ();
 		public List<VkVertexInputBindingDescription> vertexBindings = new List<VkVertexInputBindingDescription> ();
 		public List<VkVertexInputAttributeDescription> vertexAttributes = new List<VkVertexInputAttributeDescription> ();
-		public readonly List<ShaderInfo> shaders = new List<ShaderInfo> ();
+		public List<ShaderInfo> shaders = new List<ShaderInfo> ();
 		public VkBool32 ColorBlendLogicOpEnable = false;
 		public VkLogicOp ColorBlendLogicOp;
 		public Vector4 ColorBlendConstants;

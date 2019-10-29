@@ -87,10 +87,10 @@ namespace vke.glTF {
 			this.path = path;
 			transferQ = _transferQ;
 			cmdPool = _cmdPool;
-			baseDirectory = System.IO.Path.GetDirectoryName (path);
-			gltf = Interface.LoadModel (path); ;
-			loadedBuffers = new byte[gltf.Buffers.Length][];
-			bufferHandles = new GCHandle[gltf.Buffers.Length];
+			baseDirectory = Path.GetDirectoryName (path);
+			gltf = Interface.LoadModel (path);
+			loadedBuffers = new byte [gltf.Buffers.Length] [];
+			bufferHandles = new GCHandle [gltf.Buffers.Length];
 		}
 
 		static byte[] loadDataUri (GL.Image img) {
@@ -102,7 +102,7 @@ namespace vke.glTF {
 			return Convert.FromBase64String (buff.Uri.Substring (idxComa + 1));
 		}
 
-		void EnsureBufferIsLoaded (int bufferIdx) {
+		void ensureBufferIsLoaded (int bufferIdx) {
 			if (loadedBuffers[bufferIdx] == null) {
 				//load full buffer
 				string uri = gltf.Buffers[bufferIdx].Uri;
@@ -143,6 +143,7 @@ namespace vke.glTF {
 		public Mesh[] LoadMeshes<TVertex> (VkIndexType indexType, Buffer vbo, ulong vboOffset, Buffer ibo, ulong iboOffset) {
 			ulong vCount, iCount;
 			VkIndexType idxType;
+
 			GetVertexCount (out vCount, out iCount, out idxType);
 
 			int vertexByteSize = Marshal.SizeOf<TVertex> ();
@@ -179,19 +180,19 @@ namespace vke.glTF {
 							int accessorIdx;
 							if (p.Attributes.TryGetValue ("POSITION", out accessorIdx)) {
 								AccPos = gltf.Accessors[accessorIdx];
-								EnsureBufferIsLoaded (gltf.BufferViews[(int)AccPos.BufferView].Buffer);
+								ensureBufferIsLoaded (gltf.BufferViews[(int)AccPos.BufferView].Buffer);
 							}
 							if (p.Attributes.TryGetValue ("NORMAL", out accessorIdx)) {
 								AccNorm = gltf.Accessors[accessorIdx];
-								EnsureBufferIsLoaded (gltf.BufferViews[(int)AccNorm.BufferView].Buffer);
+								ensureBufferIsLoaded (gltf.BufferViews[(int)AccNorm.BufferView].Buffer);
 							}
 							if (p.Attributes.TryGetValue ("TEXCOORD_0", out accessorIdx)) {
 								AccUv = gltf.Accessors[accessorIdx];
-								EnsureBufferIsLoaded (gltf.BufferViews[(int)AccUv.BufferView].Buffer);
+								ensureBufferIsLoaded (gltf.BufferViews[(int)AccUv.BufferView].Buffer);
 							}
 							if (p.Attributes.TryGetValue ("TEXCOORD_1", out accessorIdx)) {
 								AccUv1 = gltf.Accessors[accessorIdx];
-								EnsureBufferIsLoaded (gltf.BufferViews[(int)AccUv1.BufferView].Buffer);
+								ensureBufferIsLoaded (gltf.BufferViews[(int)AccUv1.BufferView].Buffer);
 							}
 
 							Primitive prim = new Primitive {
@@ -228,7 +229,7 @@ namespace vke.glTF {
 								inUv1Ptr += AccUv1.ByteOffset + bv.ByteOffset;
 							}
 
-
+							//TODO: use vertex attributes scan for copying data if they exists
 							for (int j = 0; j < prim.vertexCount; j++) {
 								System.Buffer.MemoryCopy (inPosPtr, stagVertPtr, 12, 12);
 								inPosPtr += 12;
@@ -432,7 +433,7 @@ namespace vke.glTF {
 
 				if (img.BufferView != null) {//load image from gltf buffer view
 					GL.BufferView bv = gltf.BufferViews[(int)img.BufferView];
-					EnsureBufferIsLoaded (bv.Buffer);
+					ensureBufferIsLoaded (bv.Buffer);
 					vkimg = Image.Load (dev, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength, VkImageUsageFlags.TransferSrc);
 				} else if (img.Uri.StartsWith ("data:", StringComparison.Ordinal)) {//load base64 encoded image
 					Debug.WriteLine ("loading embedded image {0} : {1}", img.Name, img.MimeType);
@@ -514,7 +515,7 @@ namespace vke.glTF {
 
 				if (img.BufferView != null) {//load image from gltf buffer view
 					GL.BufferView bv = gltf.BufferViews[(int)img.BufferView];
-					EnsureBufferIsLoaded (bv.Buffer);
+					ensureBufferIsLoaded (bv.Buffer);
 					vkimg = Image.Load (dev, transferQ, cmdPool, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength);
 				} else if (img.Uri.StartsWith ("data:", StringComparison.Ordinal)) {//load base64 encoded image
 					Debug.WriteLine ("loading embedded image {0} : {1}", img.Name, img.MimeType);

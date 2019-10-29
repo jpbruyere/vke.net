@@ -79,10 +79,12 @@ namespace vke {
 		/// <summary>
 		/// End command recording, submit, and wait queue idle
 		/// </summary>
-		public void EndSubmitAndWait (CommandBuffer cmd) {
+		public void EndSubmitAndWait (CommandBuffer cmd, bool freeCommandBuffer = false) {
 			cmd.End ();
 			Submit (cmd);
 			WaitIdle ();
+			if (freeCommandBuffer)
+				cmd.Free ();
 		}
         public void Submit (CommandBuffer cmd, VkSemaphore wait = default(VkSemaphore), VkSemaphore signal = default (VkSemaphore), VkFence fence = default (VkFence)) {
             cmd.Submit (handle, wait, signal, fence);

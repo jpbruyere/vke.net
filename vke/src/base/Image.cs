@@ -33,7 +33,7 @@ namespace vke {
 		public uint Height => CreateInfo.extent.height;
 		public override bool IsLinar => CreateInfo.tiling == VkImageTiling.Linear;
 
-		VkImageLayout lastKnownLayout;
+		public VkImageLayout lastKnownLayout { get; private set; }
 
 		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
 			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.ImageEXT, handle.Handle);
