@@ -1,6 +1,8 @@
 .vs
 build/
 packages/
+datas
+datas.zip
 bin/
 obj/
 *.user

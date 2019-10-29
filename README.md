@@ -24,6 +24,8 @@ vke.net
 
 **vke.net** (_vulkan engine for .net_) is composed of high level classes encapsulating vulkan objects with `IDispose` model and **reference counting**. [GLFW](https://www.glfw.org/)  handles the windowing system.
 
+Use the 'download_datas.sh' script for downloading sample's datas.
+
 ### Requirements
 - [GLFW](https://www.glfw.org/) if you use the `VkWindow` class.
 - If you want to use `jpg`, `jpeg`, `png` image [libstb](https://github.com/nothings/stb) (on debian install **libstb-dev**). Note that `ktx` image loading has no dependencies.
@@ -36,4 +38,5 @@ vke.net
 - glTF 2.0
 - ktx image loading.
 - Memory pools
+
 
