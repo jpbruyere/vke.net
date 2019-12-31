@@ -14,8 +14,8 @@ namespace vke {
 
 		public readonly VkSampleCountFlags Samples;
 
-        List<VkAttachmentDescription> attachments = new List<VkAttachmentDescription> ();
-        List<SubPass> subpasses = new List<SubPass> ();
+        internal List<VkAttachmentDescription> attachments = new List<VkAttachmentDescription> ();
+        internal List<SubPass> subpasses = new List<SubPass> ();
         List<VkSubpassDependency> dependencies = new List<VkSubpassDependency> ();
 		public List<VkClearValue> ClearValues = new List<VkClearValue> ();
 		public VkAttachmentDescription [] Attachments => attachments.ToArray ();
