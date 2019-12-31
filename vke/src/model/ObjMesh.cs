@@ -25,12 +25,12 @@ using System.Threading;
 
 namespace vke
 {
-	public class ObjMesh {
+	public class ObjMesh<T> {
 		public Model.Vertex[] vertices;
-		public ushort[] indices;
+		public T [] indices;
 
 		public ObjMesh(string path) {
-			OBJMeshLoader<ushort> loader = new OBJMeshLoader<ushort> (path);
+			OBJMeshLoader<T> loader = new OBJMeshLoader<T> (path);
 			vertices = new Model.Vertex[loader.VertexCount];
 			for (int i = 0; i < loader.VertexCount; i++) {
 				vertices[i] = new Model.Vertex {

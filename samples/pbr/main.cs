@@ -20,6 +20,8 @@ namespace pbrSample {
 			Instance.VALIDATION = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
+			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Unorm;
+
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}
@@ -32,7 +34,7 @@ namespace pbrSample {
 			enabled_features.samplerAnisotropy = available_features.samplerAnisotropy;
 		}
 
-		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
+		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount4;
 
 		FrameBuffers frameBuffers;
 		PBRPipeline pbrPipeline;
@@ -362,14 +364,20 @@ namespace pbrSample {
 						lightPos -= Vector4.UnitY;
 					else
 						camera.Move (0, -1, 0);
-					break;				
+					break;
+				case Key.S:
+					if (modifiers.HasFlag (Modifier.Shift))
+						pbrPipeline.matrices.scaleIBLAmbient -= 0.1f;
+					else
+						pbrPipeline.matrices.scaleIBLAmbient += 0.1f;
+					break;
 				case Key.F2:
 					if (modifiers.HasFlag (Modifier.Shift))
 						pbrPipeline.matrices.exposure -= 0.3f;
 					else
 						pbrPipeline.matrices.exposure += 0.3f;
 					break;
-				case Key.F3:
+			case Key.F3:
 					if (modifiers.HasFlag (Modifier.Shift))
 						pbrPipeline.matrices.gamma -= 0.1f;
 					else

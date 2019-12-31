@@ -117,6 +117,10 @@ namespace vke {
 		public void BindDescriptorSet (VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, DescriptorSet descriptorSet, uint firstSet = 0) {
 			vkCmdBindDescriptorSets (handle, bindPoint, pipelineLayout.handle, firstSet, 1, ref descriptorSet.handle, 0, IntPtr.Zero);
 		}
+		public void BindDescriptorSets (VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, uint firstSet,params DescriptorSet[] descriptorSets) {
+			vkCmdBindDescriptorSets (handle, bindPoint, pipelineLayout.handle, firstSet, (uint)descriptorSets.Length, descriptorSets.Pin (), 0, IntPtr.Zero);
+			descriptorSets.Unpin ();
+		}
 		public void BindVertexBuffer (Buffer vertices, uint binding = 0, ulong offset = 0) {
             vkCmdBindVertexBuffers (handle, binding, 1, ref vertices.handle, ref offset);
         }

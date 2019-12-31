@@ -214,16 +214,18 @@ namespace ModelSample
 			public override void RenderNode (CommandBuffer cmd, PipelineLayout pipelineLayout, Node node, Matrix4x4 currentTransform, bool shadowPass = false) {
 				throw new System.NotImplementedException ();
 			}
+			protected override void Dispose (bool disposing)
+			{
+				foreach (var t in textures)
+					t.Dispose ();
+				base.Dispose (disposing);
+			}
 		}
 
 		protected override void Dispose (bool disposing) {
 			if (disposing) {
 				if (!isDisposed) {
-					helmet.vbo.Dispose ();
-					helmet.ibo.Dispose ();
-					foreach (var t in helmet.textures) 
-						t.Dispose ();
-
+					helmet.Dispose ();
 					pipeline.Dispose ();
 					descLayoutMatrix.Dispose ();
 					descLayoutTextures.Dispose ();

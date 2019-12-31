@@ -14,11 +14,10 @@ namespace vke {
 
 		public readonly VkSampleCountFlags Samples;
 
-        internal List<VkAttachmentDescription> attachments = new List<VkAttachmentDescription> ();
-        public List<VkClearValue> ClearValues = new List<VkClearValue> ();
-        internal List<SubPass> subpasses = new List<SubPass> ();
+        List<VkAttachmentDescription> attachments = new List<VkAttachmentDescription> ();
+        List<SubPass> subpasses = new List<SubPass> ();
         List<VkSubpassDependency> dependencies = new List<VkSubpassDependency> ();
-
+		public List<VkClearValue> ClearValues = new List<VkClearValue> ();
 		public VkAttachmentDescription [] Attachments => attachments.ToArray ();
 		public SubPass [] SubPasses => subpasses.ToArray ();
 
@@ -62,7 +61,7 @@ namespace vke {
 
 		}
         /// <summary>
-        /// Create default renderpass with one color and one depth attachments.
+        /// Create default renderpass with one color, one depth attachments, and a resolve one if needed.
         /// </summary>
         public RenderPass (Device device, VkFormat colorFormat, VkFormat depthFormat, VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1)
             : this (device){
