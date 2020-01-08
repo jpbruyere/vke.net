@@ -14,7 +14,8 @@ namespace SpirVTasks {
 	/// Record include position and path in produced glsl file before compilation
 	/// </summary>
 	internal class IncludePosition {
-		public int line;		//include position in final glsl file
+		public int globalPos;       //include position in final glsl file
+		public int localPos;	//store local pos for returning from include
 		public string path;		//path to the included file
 	}
 
@@ -94,7 +95,7 @@ namespace SpirVTasks {
 		/// </summary>
 		void concatenate_sources (string src, StreamWriter temp) {
 			using (StreamReader sr = new StreamReader (File.OpenRead (src))) {
-				int srcLine = 0;
+				int srcLine = 1;
 				while (!sr.EndOfStream) {
 					string line = sr.ReadLine ();
 					if (line.Trim ().StartsWith ("#include", StringComparison.Ordinal)) {
@@ -106,17 +107,20 @@ namespace SpirVTasks {
 						}
 						//store position when entering an included file
 						includesPositions.Add(new IncludePosition {
-							line = currentCompiledLine,
+							globalPos = currentCompiledLine,
+							localPos = 1,
 							path = incFile
 						});
 
 						concatenate_sources (incFile, temp);
 
 						//store current position when include parsing is finished
-						includesPositions.Add(new IncludePosition {
-							line = currentCompiledLine,
+						includesPositions.Add (new IncludePosition {
+							globalPos = currentCompiledLine,
+							localPos = srcLine + 1,
 							path = src
 						});
+						currentCompiledLine--;
 					} else
 						temp.WriteLine (line);
 					currentCompiledLine++;
@@ -161,7 +165,7 @@ namespace SpirVTasks {
 			success = true;
 
 			includesPositions.Clear();
-			currentCompiledLine = 0;
+			currentCompiledLine = 1;
 
 			if (!tryFindGlslcExecutable(out string glslcPath)) {
 				BuildErrorEventArgs err = new BuildErrorEventArgs ("execute", "VK001", BuildEngine.ProjectFileOfTaskNode, 0, 0, 0, 0, $"glslc command not found: {glslcPath}", "Set 'VULKAN_SDK' environment variable", "SpirVTasks");
@@ -232,7 +236,7 @@ namespace SpirVTasks {
 			glslc.BeginErrorReadLine ();
 			glslc.BeginOutputReadLine ();
 
-			DestinationFile.SetMetadata ("LogicalName", $"FromCS.{SourceFile.ItemSpec.Replace (Path.DirectorySeparatorChar, '.')}");
+			//DestinationFile.SetMetadata ("LogicalName", $"FromCS.{SourceFile.ItemSpec.Replace (Path.DirectorySeparatorChar, '.')}");
 
 			glslc.WaitForExit ();
 
@@ -254,11 +258,18 @@ namespace SpirVTasks {
 				string srcFile = SourceFile.ItemSpec;
 				int line = Math.Max (0, int.Parse (tmp[1]));
 
-				IncludePosition ip = includesPositions.LastOrDefault(p => p.line < line);
+				IncludePosition ip = includesPositions.LastOrDefault(p => p.globalPos <= line);
 				if (ip != null) {
-					line -= ip.line;
+					line = line - ip.globalPos + ip.localPos;
 					srcFile = ip.path;
+					//Log.LogMessage (MessageImportance.High, $"ErrLine:{tmp[1]} {ip.globalPos} : {ip.localPos} : {ip.path}");
 				}
+
+				//Log.LogMessage (MessageImportance.High, $"====================================");
+				//foreach (IncludePosition incPos in includesPositions) {
+				//	Log.LogMessage (MessageImportance.High, $"\t{incPos.globalPos} : {incPos.localPos}:{incPos.path}");
+				//}
+				//Log.LogMessage (MessageImportance.High, $"====================================");
 
 				BuildErrorEventArgs err = new BuildErrorEventArgs ("compile", tmp[2], srcFile, line, 0, 0, 0, $"{tmp[3]} {tmp[4]}", "no help", "SpirVTasks");
 				BuildEngine.LogErrorEvent (err);
