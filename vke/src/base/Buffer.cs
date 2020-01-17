@@ -19,9 +19,8 @@ namespace vke {
 		public VkBufferCreateInfo Infos => createInfo;
 		public override bool IsLinar => true;
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.BufferEXT, handle.Handle);
-
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Buffer, handle.Handle);
 		#region CTORS
 		public Buffer (Device device, VkBufferUsageFlags usage, VkMemoryPropertyFlags _memoryPropertyFlags, UInt64 size)
         : base (device, _memoryPropertyFlags) {

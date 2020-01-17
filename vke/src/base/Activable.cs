@@ -2,6 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
+using System.Xml.Serialization;
 using Vulkan;
 using static Vulkan.Vk;
 
@@ -34,7 +35,7 @@ namespace vke {
 	/// </remarks>
 	public abstract class Activable : IDisposable {
 		//count number of activation, only the first one will create a handle 
-		protected uint references;
+		[XmlIgnore] protected uint references;
 		//keep track of the current state of activation.
 		protected ActivableState state;
 		//With the debug marker extension, setting name to vulkan's object ease the debugging.
@@ -43,11 +44,11 @@ namespace vke {
 		/// This property has to be implemented in every vulkan object. It should return the correct debug marker info.
 		/// </summary>
 		/// <value>The debug marker info.</value>
-		protected abstract VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo { get; }
+		protected abstract VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo { get; }
 		/// <summary>
 		/// Vulkan logical device this activable is bound to.
 		/// </summary>
-		public Device Dev { get; private set; }
+		[XmlIgnore] public Device Dev { get; private set; }
 
 		#region CTOR
 		protected Activable (Device dev) {
@@ -66,12 +67,12 @@ namespace vke {
 		public void SetName (string name) {
 			this.name = name;
 
-			if (!Dev.debugMarkersEnabled)
+			if (!Dev.debugUtilsEnabled)
 				return;
 
-			VkDebugMarkerObjectNameInfoEXT dmo = DebugMarkerInfo;
+			VkDebugUtilsObjectNameInfoEXT dmo = DebugUtilsInfo;
 			dmo.pObjectName = name.Pin();
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (Dev.VkDev, ref dmo));
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.VkDev, ref dmo));
 			name.Unpin ();			
 		}
 		/// <summary>

@@ -61,7 +61,10 @@ namespace SpirVTasks {
 			get;
 			set;
 		}
-		public ITaskItem Optimisation {
+		/// <summary>
+		/// Optional, set optimization flag. Accepted values are NONE, PERF and SIZE. By default PERF is selected.
+		/// </summary>
+		public ITaskItem Optimization {
 			get;
 			set;
 		}
@@ -205,12 +208,12 @@ namespace SpirVTasks {
 				}
 			}
 			string optimisationStr = "";
-			if (!string.IsNullOrEmpty (Optimisation?.ItemSpec)) {
-				if (string.Equals (Optimisation.ItemSpec, "perf", StringComparison.OrdinalIgnoreCase))
+			if (!string.IsNullOrEmpty (Optimization?.ItemSpec)) {
+				if (string.Equals (Optimization.ItemSpec, "perf", StringComparison.OrdinalIgnoreCase))
 					optimisationStr = "-O";
-				else if (string.Equals (Optimisation.ItemSpec, "size", StringComparison.OrdinalIgnoreCase))
+				else if (string.Equals (Optimization.ItemSpec, "size", StringComparison.OrdinalIgnoreCase))
 					optimisationStr = "-Os";
-				else if (string.Equals (Optimisation.ItemSpec, "none", StringComparison.OrdinalIgnoreCase))
+				else if (string.Equals (Optimization.ItemSpec, "none", StringComparison.OrdinalIgnoreCase))
 					optimisationStr = "-O0";
 			}else
 				optimisationStr = "-O";
@@ -229,7 +232,7 @@ namespace SpirVTasks {
 			glslc.OutputDataReceived += Glslc_OutputDataReceived;
 			glslc.ErrorDataReceived += Glslc_ErrorDataReceived;
 
-			Log.LogMessage (MessageImportance.High, $"-> glslc {glslc.StartInfo.Arguments}");
+			Log.LogMessage (MessageImportance.Normal, $"-> glslc {glslc.StartInfo.Arguments}");
 
 			glslc.Start ();
 
@@ -252,9 +255,9 @@ namespace SpirVTasks {
 
 			string[] tmp = e.Data.Split (':');
 
-			Log.LogMessage (MessageImportance.High, $"glslc: {e.Data}");
+			//Log.LogMessage (MessageImportance.High, $"glslc: {e.Data}");
 
-			if (tmp.Length == 5) {
+			if (tmp.Length > 4) {
 				string srcFile = SourceFile.ItemSpec;
 				int line = Math.Max (0, int.Parse (tmp[1]));
 
@@ -271,7 +274,13 @@ namespace SpirVTasks {
 				//}
 				//Log.LogMessage (MessageImportance.High, $"====================================");
 
-				BuildErrorEventArgs err = new BuildErrorEventArgs ("compile", tmp[2], srcFile, line, 0, 0, 0, $"{tmp[3]} {tmp[4]}", "no help", "SpirVTasks");
+
+				string msg = tmp[4];
+
+				if (tmp.Length > 5) 
+					msg += tmp.Skip(5).Aggregate ((i, j) => i + ", " + j);
+
+				BuildErrorEventArgs err = new BuildErrorEventArgs ("compile", tmp[2], srcFile, line, 0, 0, 0, $"{tmp[3]} {msg}", "no help", "SpirVTasks");
 				BuildEngine.LogErrorEvent (err);
 				success = false;
 			} else {

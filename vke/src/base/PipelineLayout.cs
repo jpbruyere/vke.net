@@ -15,8 +15,8 @@ namespace vke {
 		public List<DescriptorSetLayout> DescriptorSetLayouts = new List<DescriptorSetLayout> ();
 		public List<VkPushConstantRange> PushConstantRanges = new List<VkPushConstantRange> ();
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.PipelineLayoutEXT, handle.Handle);
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+			=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.PipelineLayout, handle.Handle);
 
 		#region CTORS
 		public PipelineLayout (Device device) : base (device) {	}

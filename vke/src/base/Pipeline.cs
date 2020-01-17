@@ -22,8 +22,8 @@ namespace vke {
 		}
 		#endregion
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.PipelineEXT, handle.Handle);
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Pipeline, handle.Handle);
 
 		public abstract void Bind (CommandBuffer cmd);
 		public abstract void BindDescriptorSet (CommandBuffer cmd, DescriptorSet dset, uint firstSet = 0);

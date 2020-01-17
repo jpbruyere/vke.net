@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>EnvironmentPipeline</AssemblyName>
     <PackageId>vke.EnvironmentPipeline</PackageId>
-    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <AssemblyVersion>0.1.2</AssemblyVersion>
     <Description>vke.net Environment cube pipeline</Description>
     <PackageTags>vulkan c# vke.net</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>

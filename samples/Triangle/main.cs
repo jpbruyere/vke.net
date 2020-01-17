@@ -2,12 +2,18 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
+using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 using vke;
 using Vulkan;
 
 namespace Triangle {
+	public class Renderer {
+		public DescriptorPool descriptorPool;
+		[XmlIgnore] public DescriptorSetLayout dsLayout;
+	}
 	class Program : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
@@ -44,8 +50,6 @@ namespace Triangle {
 		HostBuffer vbo;
 		HostBuffer uboMats;
 
-		DescriptorPool descriptorPool;
-		DescriptorSetLayout dsLayout;
 		DescriptorSet descriptorSet;
 
 		FrameBuffers frameBuffers;
@@ -58,6 +62,10 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
+
+
+		public Renderer r = new Renderer ();
+
 		Program () : base () {
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
@@ -65,27 +73,36 @@ namespace Triangle {
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 
-			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
-			dsLayout = new DescriptorSetLayout (dev,
-				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer));
+			r.descriptorPool = new DescriptorPool (dev, 1,
+				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
+				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler));				
+
+			XmlSerializer serializer = new XmlSerializer (typeof(Renderer), Utils.GetXmlOverrides());
+			using (Stream s = new FileStream ("/home/jp/test.xml", FileMode.Create)) {
+				serializer.Serialize (s, r);
+			}
+
+
+			r.dsLayout = new DescriptorSetLayout (dev,
+					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer));
 
 			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1,false);
 
-			cfg.Layout = new PipelineLayout (dev, dsLayout);
+			cfg.Layout = new PipelineLayout (dev, r.dsLayout);
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
 			cfg.AddVertexBinding<Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#Triangle.main.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#Triangle.main.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
 
 			//note that descriptor set is allocated after the pipeline creation that use this layout, layout is activated
 			//automaticaly on pipeline creation, and will be disposed automatically when no longuer in use.
-			descriptorSet = descriptorPool.Allocate (dsLayout);
+			descriptorSet = r.descriptorPool.Allocate (r.dsLayout);
 
-			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, dsLayout);
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, r.dsLayout);
 			uboUpdate.Write (dev, uboMats.Descriptor);
 
 			uboMats.Map ();
@@ -159,7 +176,7 @@ namespace Triangle {
 					pipeline.Dispose ();
 
 					frameBuffers?.Dispose();
-					descriptorPool.Dispose ();
+					r.descriptorPool.Dispose ();
 					vbo.Dispose ();
 					ibo.Dispose ();
 					uboMats.Dispose ();

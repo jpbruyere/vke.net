@@ -84,11 +84,11 @@ namespace deferred {
 				new VkPushConstantRange (VkShaderStageFlags.Vertex|VkShaderStageFlags.Geometry, (uint)Marshal.SizeOf<Matrix4x4> ())
 			);
 
-			cfg.AddVertexBinding<PbrModel.Vertex> (0);
+			cfg.AddVertexBinding<PbrModelTexArray.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#deferred.shadow.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Geometry, "#deferred.shadow.geom.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.shadow.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Geometry, "#shaders.shadow.geom.spv");
 
 			shadowPipeline = new GraphicPipeline (cfg);
 
@@ -110,7 +110,7 @@ namespace deferred {
 		}
 
 		public void update_light_matrices () {
-			Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView (lightFOV, 1, 0.1f, lightFarPlane);
+			Matrix4x4 proj = Utils.CreatePerspectiveFieldOfView (lightFOV, 1, 0.1f, lightFarPlane);
 			for (int i = 0; i < renderer.lights.Length; i++) {
 				Matrix4x4 view = Matrix4x4.CreateLookAt (renderer.lights[i].position.ToVector3 (), Vector3.Zero, Vector3.UnitY);
 				renderer.lights[i].mvp = view * proj;

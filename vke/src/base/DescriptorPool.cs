@@ -3,20 +3,25 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
-    public sealed class DescriptorPool : Activable {
-        internal VkDescriptorPool handle;        
-        public readonly uint MaxSets;
+	[Serializable]
+    public sealed class DescriptorPool : Activable {        
+        internal VkDescriptorPool handle;
+		[XmlAttribute]
+		public uint MaxSets;
+		[XmlArrayItem("PoolSize")]
 
-        public List<VkDescriptorPoolSize> PoolSizes = new List<VkDescriptorPoolSize> ();
-        
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.DescriptorPoolEXT, handle.Handle);
+		public List<VkDescriptorPoolSize> PoolSizes = new List<VkDescriptorPoolSize> ();
+
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.DescriptorPool, handle.Handle);
 
 		#region CTORS
+		DescriptorPool () : base (null) {}
 		public DescriptorPool (Device device, uint maxSets = 1) : base (device) {            
             MaxSets = maxSets;
         }

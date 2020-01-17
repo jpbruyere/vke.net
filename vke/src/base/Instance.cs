@@ -29,13 +29,14 @@ namespace vke {
 		public IntPtr Handle => inst.Handle;
 		public VkInstance VkInstance => inst;
 
-
 		static class Strings {
 
 			public static FixedUtf8String main = "main";
 		}
 		const string strValidationLayer = "VK_LAYER_KHRONOS_validation";
 		const string strRenderDocLayer = "VK_LAYER_RENDERDOC_Capture";
+
+		internal bool debugUtilsEnabled;
 
 		/// <summary>
 		/// Create a new vulkan instance with enabled extensions given as argument.
@@ -49,10 +50,12 @@ namespace vke {
 
 			using (PinnedObjects pctx = new PinnedObjects ()) {
 				for (int i = 0; i < extensions.Length; i++) {
-					if (supportedExts.Contains (extensions[i]))
-						instanceExtensions.Add (extensions[i].Pin (pctx));
-					else
-						Console.WriteLine ($"Vulkan initialisation: Unsupported extension: {extensions[i]}");
+					if (supportedExts.Contains (extensions [i])) {
+						instanceExtensions.Add (extensions [i].Pin (pctx));
+						if (extensions [i] == Ext.I.VK_EXT_debug_utils)
+							debugUtilsEnabled = true;
+					} else
+						Console.WriteLine ($"Vulkan initialisation: Unsupported extension: {extensions [i]}");
 				}
 
 

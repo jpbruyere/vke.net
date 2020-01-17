@@ -60,13 +60,11 @@ namespace Textured {
 		ushort[] indices = { 0, 1, 2, 2, 0, 3 };
 		int currentImgIndex = 0;
 		string[] imgPathes = {
-			"/mnt/devel/vulkan/VulkanExamples/data/models/voyager/voyager_rgba_unorm.ktx",
-			"/mnt/devel/vulkan/vulkanExUpstream/data/models/voyager/voyager_astc_8x8_unorm.ktx",
-			Utils.DataDirectory + "font.ktx",
-			"/mnt/devel/vulkan/vulkanExUpstream/data/textures/trail_astc_8x8_unorm.ktx",
+			Utils.DataDirectory + "models/Bricks16_col.jpg",
 			Utils.DataDirectory + "textures/texturearray_rocks_bc3_unorm.ktx",
 			Utils.DataDirectory + "textures/texture.jpg",
 			Utils.DataDirectory + "textures/tex256.jpg",
+			Utils.DataDirectory + "font.ktx",
 		};
 
 		Program () : base () {
@@ -94,8 +92,8 @@ namespace Textured {
 			cfg.AddVertexBinding (0, 5 * sizeof(float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#Textured.main.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#Textured.main.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
 
@@ -112,6 +110,7 @@ namespace Textured {
 		}
 
 		void buildCommandBuffers () {
+			dev.WaitIdle ();
 			cmdPool.Reset();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i].Start();
@@ -160,6 +159,8 @@ namespace Textured {
 			nextTexture.CreateView ();
 			nextTexture.CreateSampler ();
 			nextTexture.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
+
+			dev.WaitIdle ();
 
 			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, dsLayout.Bindings[1]);
 			uboUpdate.Write (dev, nextTexture.Descriptor);

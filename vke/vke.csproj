@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>		
 		
-		<ReleaseVersion>0.1.8</ReleaseVersion>		
+		<ReleaseVersion>0.1.11</ReleaseVersion>		
+		
 		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
 		<Description>C# vulkan library with IDispose model and references counting</Description>		
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
@@ -48,8 +49,8 @@
 	</ItemGroup>
 		
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.15-beta" />
-		<PackageReference Include="Vulkan" Version="0.1.8-beta" />
+		<PackageReference Include="SpirVTasks" Version="0.1.37-beta" />
+		<PackageReference Include="Vulkan" Version="0.1.9-beta" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">

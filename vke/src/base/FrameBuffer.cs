@@ -21,9 +21,8 @@ namespace vke {
         public uint Height => createInfo.height;
         public uint Layers => createInfo.layers;
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo 
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.FramebufferEXT, handle.Handle);
-
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Framebuffer, handle.Handle);
 		#region CTORS
 		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, uint _layers = 1) : base(_renderPass.Dev) {
             renderPass = _renderPass;
@@ -45,13 +44,13 @@ namespace vke {
 				Image v = views[i];
 				if (v == null) {
 					//automatically create attachment if not in unused state in the renderpass
-					VkAttachmentDescription ad = renderPass.attachments[i];
+					VkAttachmentDescription ad = renderPass.Attachments[i];
 					VkImageUsageFlags usage = 0;
 					VkImageAspectFlags aspectFlags = 0;
 
 					Utils.QueryLayoutRequirements (ad.initialLayout, ref usage, ref aspectFlags);
 					Utils.QueryLayoutRequirements (ad.finalLayout, ref usage, ref aspectFlags);
-					foreach (SubPass sp in renderPass.subpasses) {
+					foreach (SubPass sp in renderPass.SubPasses) {
 						//TODO:check subpass usage
 					}
 

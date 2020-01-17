@@ -35,11 +35,11 @@ namespace vke {
 
 		public VkImageLayout lastKnownLayout { get; private set; }
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.ImageEXT, handle.Handle);
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Image, handle.Handle);
 
 		#region CTORS
-        public Image (Device device, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags _memoryPropertyFlags,
+		public Image (Device device, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags _memoryPropertyFlags,
             uint width, uint height,
             VkImageType type = VkImageType.Image2D, VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1,
             VkImageTiling tiling = VkImageTiling.Optimal, uint mipsLevels = 1, uint layers = 1, uint depth = 1,
@@ -414,14 +414,18 @@ namespace vke {
 			VkImageLayout oldImageLayout,
 			VkImageLayout newImageLayout,
 			VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands,
+			uint srcQueueFamilyIndex = Vk.QueueFamilyIgnored,
+			uint dstQueueFamilyIndex = Vk.QueueFamilyIgnored)
+		{
 			VkImageSubresourceRange subresourceRange = new VkImageSubresourceRange {
 				aspectMask = aspectMask,
 				baseMipLevel = 0,
 				levelCount = CreateInfo.mipLevels,
 				layerCount = CreateInfo.arrayLayers,
 			};
-			SetLayout (cmdbuffer, srcAccessMask, dstAccessMask, oldImageLayout, newImageLayout, subresourceRange, srcStageMask, dstStageMask);
+			SetLayout (cmdbuffer, srcAccessMask, dstAccessMask, oldImageLayout, newImageLayout, subresourceRange, srcStageMask, dstStageMask,
+				srcQueueFamilyIndex, dstQueueFamilyIndex);
 		}
 		public void SetLayout (
 			CommandBuffer cmdbuffer,
@@ -431,11 +435,14 @@ namespace vke {
 			VkImageLayout newImageLayout,
 			VkImageSubresourceRange subresourceRange,
 			VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands,
+			uint srcQueueFamilyIndex = Vk.QueueFamilyIgnored,
+			uint dstQueueFamilyIndex = Vk.QueueFamilyIgnored)
+		{
 
 			VkImageMemoryBarrier imageMemoryBarrier = VkImageMemoryBarrier.New ();
-			imageMemoryBarrier.srcQueueFamilyIndex = Vk.QueueFamilyIgnored;
-			imageMemoryBarrier.dstQueueFamilyIndex = Vk.QueueFamilyIgnored;
+			imageMemoryBarrier.srcQueueFamilyIndex = srcQueueFamilyIndex;
+			imageMemoryBarrier.dstQueueFamilyIndex = dstQueueFamilyIndex;
 			imageMemoryBarrier.oldLayout = oldImageLayout;
 			imageMemoryBarrier.newLayout = newImageLayout;
 			imageMemoryBarrier.image = handle;
@@ -462,11 +469,13 @@ namespace vke {
             VkImageLayout newImageLayout,
             VkImageSubresourceRange subresourceRange,
             VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-            VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+            VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands,
+			uint srcQueueFamilyIndex = Vk.QueueFamilyIgnored,
+			uint dstQueueFamilyIndex = Vk.QueueFamilyIgnored) {
             // Create an image barrier object
             VkImageMemoryBarrier imageMemoryBarrier = VkImageMemoryBarrier.New();
-            imageMemoryBarrier.srcQueueFamilyIndex = Vk.QueueFamilyIgnored;
-            imageMemoryBarrier.dstQueueFamilyIndex = Vk.QueueFamilyIgnored;
+            imageMemoryBarrier.srcQueueFamilyIndex = srcQueueFamilyIndex;
+            imageMemoryBarrier.dstQueueFamilyIndex = dstQueueFamilyIndex;
             imageMemoryBarrier.oldLayout = oldImageLayout;
             imageMemoryBarrier.newLayout = newImageLayout;
             imageMemoryBarrier.image = handle;

@@ -72,9 +72,8 @@ namespace vke {
 			base.Activate ();
 		}
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.PipelineCacheEXT, handle.Handle);
-
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.PipelineCache, handle.Handle);
 
 		public void Delete () {
 			string path = Path.Combine (globalConfigPath, cacheFile);

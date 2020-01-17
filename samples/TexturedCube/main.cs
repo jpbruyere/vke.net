@@ -131,8 +131,8 @@ namespace TextureCube {
 			cfg.AddVertexBinding (0, 5 * sizeof (float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#TexturedCube.skybox.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#TexturedCube.skybox.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.skybox.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.skybox.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
 

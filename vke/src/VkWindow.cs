@@ -31,6 +31,7 @@ namespace vke {
 		protected CommandPool cmdPool;
 		protected CommandBuffer[] cmds;
 		protected VkSemaphore[] drawComplete;
+		protected VkFence drawFence;
 
 		protected uint fps;
 		protected bool updateViewRequested = true;
@@ -125,6 +126,8 @@ namespace vke {
 
 			//First create the c# device class
 			dev = new Device (phy);
+			dev.debugUtilsEnabled = instance.debugUtilsEnabled;
+
 			//create queue class
 			createQueues ();
 
@@ -142,6 +145,7 @@ namespace vke {
 
 			cmds = new CommandBuffer[swapChain.ImageCount];
 			drawComplete = new VkSemaphore[swapChain.ImageCount];
+			drawFence = dev.CreateFence (true);
 
 			for (int i = 0; i < swapChain.ImageCount; i++) {
 				drawComplete[i] = dev.CreateSemaphore ();
@@ -179,10 +183,13 @@ namespace vke {
 			if (cmds[idx] == null)
 				return;
 
-			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx]);
+			dev.WaitForFence (drawFence);
+			dev.ResetFence (drawFence);
+
+			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx], drawFence);
 			presentQueue.Present (swapChain, drawComplete[idx]);
 
-			presentQueue.WaitIdle ();
+			//presentQueue.WaitIdle ();
 		}
 
 		protected virtual void onScroll (double xOffset, double yOffset) { }
@@ -339,6 +346,7 @@ namespace vke {
 					dev.DestroySemaphore (drawComplete[i]);
 					cmds[i].Free ();
 				}
+				dev.DestroyFence (drawFence);
 
 				swapChain.Dispose ();
 

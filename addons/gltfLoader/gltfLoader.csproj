@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>vke.gltfLoader</AssemblyName>
     <PackageId>vke.gltfLoader</PackageId>
-    <AssemblyVersion>0.1.7</AssemblyVersion>
+    <AssemblyVersion>0.1.8</AssemblyVersion>
     <Description>vke.net gltf addons</Description>
     <PackageTags>C# vulkan CVKL gltf</PackageTags>    
     <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>

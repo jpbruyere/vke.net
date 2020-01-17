@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Xml.Serialization;
 
 namespace Vulkan {
 	public static partial class Utils {
@@ -15,6 +16,18 @@ namespace Vulkan {
             if (result != VkResult.Success)
                 throw new InvalidOperationException (errorString + ": " + result.ToString ());
         }
+		static void xmlMakeTypeFieldsAsAttributes (Type t, ref XmlAttributeOverrides overrides)
+		{
+			foreach (FieldInfo fi in t.GetFields (BindingFlags.Public | BindingFlags.Instance))
+				overrides.Add (t, fi.Name, new XmlAttributes { XmlAttribute = new XmlAttributeAttribute () });
+		}
+		public static XmlAttributeOverrides GetXmlOverrides ()
+		{
+			XmlAttributeOverrides xmlAttributeOverrides = new XmlAttributeOverrides ();
+			//Assembly avk = Assembly.GetAssembly (typeof (VkInstance));
+			xmlMakeTypeFieldsAsAttributes (typeof (VkDescriptorPoolSize), ref xmlAttributeOverrides);
+			return xmlAttributeOverrides;
+		}
 		/// <summary>
 		/// Return a file or embedded resource stream.
 		/// </summary>
@@ -376,6 +389,15 @@ namespace Vulkan {
 			default:
 				return VkPipelineStageFlags.AllCommands;
 			}
+		}
+		public static Matrix4x4 CreatePerspectiveFieldOfView (float fov, float aspectRatio, float zNear, float zFar) {
+			float f = (float)(1.0 / System.Math.Tan (0.5 * fov));
+			return new Matrix4x4 (
+				f / aspectRatio, 0, 0, 0,
+				0, -f, 0, 0,
+				0, 0, zFar / (zNear - zFar), -1,
+				0, 0, zNear * zFar / (zNear - zFar), 0
+			);
 		}
 	}
 }

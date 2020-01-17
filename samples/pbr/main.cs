@@ -20,7 +20,7 @@ namespace pbrSample {
 			Instance.VALIDATION = true;
 			Instance.RENDER_DOC_CAPTURE = false;
 #endif
-			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Unorm;
+			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 
 			using (Program vke = new Program ()) {
 				vke.Run ();
@@ -48,6 +48,30 @@ namespace pbrSample {
 			metallic,
 			roughness
 		}
+
+		string[] modelPathes = {
+			Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
+			Utils.DataDirectory + "models/Hubble.glb",
+			Utils.DataDirectory + "models/ISS_stationary.glb",
+			Utils.DataDirectory + "models/MER_static.glb",
+			Utils.DataDirectory + "models/Box.gltf",
+
+			/*"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Avocado/glTF/Avocado.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BarramundiFish/glTF/BarramundiFish.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Box/glTF/Box.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/MetalRoughSpheres/glTF/MetalRoughSpheres.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/OrientationTest/glTF/OrientationTest.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Buggy/glTF/Buggy.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/2CylinderEngine/glTF-Embedded/2CylinderEngine.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/FlightHelmet/glTF/FlightHelmet.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/GearboxAssy/glTF/GearboxAssy.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Lantern/glTF/Lantern.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/SciFiHelmet/glTF/SciFiHelmet.gltf",
+			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Sponza/glTF/Sponza.gltf",
+			"/mnt/devel/vkChess/data/chess.gltf"*/
+		};
 
 		DebugView currentDebugView = DebugView.none;
 
@@ -141,23 +165,18 @@ namespace pbrSample {
 
 
 		Vector4 lightPos = new Vector4 (1, 0, 0, 0);
-		BoundingBox modelAABB;
+		uint curModelIndex = 0;
 
 		Program () : base() {
 
 			//UpdateFrequency = 20;
-
-			camera.SetPosition (0, 0, 5);
-
+			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 64f);
+			camera.SetPosition (0, 0, -2);
 
 			pbrPipeline = new PBRPipeline(presentQueue,
 				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples));
 
-
-
-			modelAABB = pbrPipeline.model.DefaultScene.AABB;
-
-			//camera.Model = Matrix4x4.CreateScale (1f/ Math.Max (Math.Max (modelAABB.max.X, modelAABB.max.Y), modelAABB.max.Z));
+			loadCurrentModel ();
 
 #if PIPELINE_STATS
 			statPool = new PipelineStatisticsQueryPool (dev,
@@ -175,7 +194,7 @@ namespace pbrSample {
 #endif
 		}
 
-		bool rebuildBuffers;
+		bool rebuildBuffers, reloadModel;
 
 		void buildCommandBuffers () {
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
@@ -206,8 +225,15 @@ namespace pbrSample {
 			pbrPipeline.RenderPass.End (cmd);
 		}
 
+		void loadCurrentModel () {
+			dev.WaitIdle ();
+			pbrPipeline.LoadModel (presentQueue, modelPathes[curModelIndex]);
+			BoundingBox modelAABB = pbrPipeline.model.DefaultScene.AABB;
+			camera.Model = Matrix4x4.CreateScale (1f / Math.Max (Math.Max (modelAABB.max.X, modelAABB.max.Y), modelAABB.max.Z));
+			updateViewRequested = true;
+		}
 
-#region update
+		#region update
 		public override void UpdateView () {
 			camera.AspectRatio = (float)swapChain.Width / swapChain.Height;
 
@@ -217,12 +243,8 @@ namespace pbrSample {
 			pbrPipeline.matrices.model = camera.Model;
 
 
-			pbrPipeline.matrices.camPos = new Vector4 (
-				-camera.Position.Z * (float)Math.Sin (camera.Rotation.Y) * (float)Math.Cos (camera.Rotation.X),
-				 camera.Position.Z * (float)Math.Sin (camera.Rotation.X),
-				 camera.Position.Z * (float)Math.Cos (camera.Rotation.Y) * (float)Math.Cos (camera.Rotation.X),
-				 0
-			);
+			Matrix4x4.Invert (camera.View, out Matrix4x4 inv);
+			pbrPipeline.matrices.camPos = new Vector4 (inv.M41, inv.M42, inv.M43, 0);
 			pbrPipeline.matrices.debugViewInputs = (float)currentDebugView;
 
 			pbrPipeline.uboMats.Update (pbrPipeline.matrices, (uint)Marshal.SizeOf<PBRPipeline.Matrices> ());
@@ -231,6 +253,11 @@ namespace pbrSample {
 		}
 
 		public override void Update () {
+			if (reloadModel) {
+				loadCurrentModel ();
+				reloadModel = false;
+				rebuildBuffers = true;
+			}
 #if PIPELINE_STATS
 			results = statPool.GetResults ();
 #endif
@@ -279,6 +306,13 @@ namespace pbrSample {
 
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {
+			case Key.Space:
+				if (modifiers.HasFlag (Modifier.Shift))
+					curModelIndex = curModelIndex == 0 ? (uint)modelPathes.Length - 1 : curModelIndex-1;
+				else
+					curModelIndex = curModelIndex < (uint)modelPathes.Length - 1 ? curModelIndex + 1 : 0;
+				reloadModel = true;
+				break;
 			/*
 				case Key.F:
 					if (modifiers.HasFlag (Modifier.Shift)) {

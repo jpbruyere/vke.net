@@ -3,6 +3,7 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using Vulkan;
 using static Vulkan.Vk;
 
@@ -43,8 +44,19 @@ namespace vke.DebugUtils {
 				break;			
 			}
 
-			Console.WriteLine (Marshal.PtrToStringAnsi (data.pMessage));
-			Console.ForegroundColor = curColor;
+			byte [] tmp = new byte [1024];
+
+			if (data.pMessage != IntPtr.Zero) {
+				byte b = Marshal.ReadByte (data.pMessage);
+				int i = 1;
+				while (b != 0) {
+					tmp [i] = b;
+					b = Marshal.ReadByte (data.pMessage, i);
+					i++;
+				}
+				Console.WriteLine (Encoding.UTF8.GetString(tmp));
+				Console.ForegroundColor = curColor;
+			}
 			return false;
 		}
 		/// <summary>

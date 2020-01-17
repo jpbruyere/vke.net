@@ -26,10 +26,6 @@ namespace ModelSample
 			public Matrix4x4 model;
 		}
 
-		public struct PushConstants {
-			public Matrix4x4 matrix;
-		}
-
 		Matrices matrices;
 
 		HostBuffer uboMats;
@@ -66,13 +62,7 @@ namespace ModelSample
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 				new VkDescriptorSetLayoutBinding (2, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler)
 			);
-
-			VkPushConstantRange pushConstantRange = new VkPushConstantRange { 
-				stageFlags = VkShaderStageFlags.Vertex,
-				size = (uint)Marshal.SizeOf<PushConstants>(),
-				offset = 0
-			};
-
+				
 			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, NUM_SAMPLES);
 			cfg.rasterizationState.cullMode = VkCullModeFlags.Back;
 			if (NUM_SAMPLES != VkSampleCountFlags.SampleCount1) {
@@ -80,13 +70,13 @@ namespace ModelSample
 				cfg.multisampleState.minSampleShading = 0.5f;
 			}
 
-			cfg.Layout = new PipelineLayout (dev, pushConstantRange, descLayoutMatrix, descLayoutTextures);
+			cfg.Layout = new PipelineLayout (dev, new VkPushConstantRange(VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ()), descLayoutMatrix, descLayoutTextures);
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
 			cfg.AddVertexBinding<Model.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#Model.model.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#Model.model.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.model.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.model.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
 
@@ -110,8 +100,8 @@ namespace ModelSample
 		}
 
 		public override void UpdateView () {
-			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
-				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f) * Camera.VKProjectionCorrection;
+			matrices.projection = Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
+				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 16.0f);
 			matrices.view =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
@@ -148,8 +138,8 @@ namespace ModelSample
 				cmds[i].BindDescriptorSet (pipeline.Layout, dsMatrices);
 				cmds[i].BindDescriptorSet (pipeline.Layout, dsTextures, 1);
 
-				PushConstants pc = new PushConstants { matrix = Matrix4x4.Identity };
-				cmds[i].PushConstant (pipeline.Layout, VkShaderStageFlags.Vertex, pc, (uint)Marshal.SizeOf<Matrix4x4> ());
+				Matrix4x4 matrix = Matrix4x4.Identity;
+				cmds[i].PushConstant (pipeline.Layout, VkShaderStageFlags.Vertex, matrix);
 
 				cmds[i].BindPipeline (pipeline);
 

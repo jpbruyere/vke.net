@@ -153,7 +153,7 @@ namespace vke {
 				dependencyFlags, 1, ref memoryBarrier, 0, IntPtr.Zero, 0, IntPtr.Zero);
 		}
 		public void BeginRegion (string name, float r = 1f, float g = 0.1f, float b=0.1f, float a = 1f) {
-			if (!Device.debugMarkersEnabled)
+			if (!Device.debugUtilsEnabled)
 				return;
 			VkDebugMarkerMarkerInfoEXT info = VkDebugMarkerMarkerInfoEXT.New();
 			info.pMarkerName = name.Pin ();
@@ -167,7 +167,7 @@ namespace vke {
 			name.Unpin ();
 		}
 		public void InsertDebugMarker (string name, float r = 1f, float g = 0.1f, float b=0.1f, float a = 1f) {
-			if (!Device.debugMarkersEnabled)
+			if (!Device.debugUtilsEnabled)
 				return;
 			VkDebugMarkerMarkerInfoEXT info = VkDebugMarkerMarkerInfoEXT.New();
 			info.pMarkerName = name.Pin ();
@@ -181,7 +181,7 @@ namespace vke {
 			name.Unpin ();
 		}
 		public void EndRegion () {
-			if (Device.debugMarkersEnabled)
+			if (Device.debugUtilsEnabled)
 				vkCmdDebugMarkerEndEXT (Handle);
 		}
 

@@ -110,59 +110,59 @@ namespace vke {
 
 		#region DebugMarkers
 		public static void SetDebugMarkerName (this VkCommandBuffer obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.CommandBufferEXT,
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.CommandBuffer,
 				(ulong)obj.Handle.ToInt64 ()) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkImageView obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.ImageViewEXT,
-				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.ImageView,
+				(ulong)obj.Handle) { pObjectName = name.Pin () };
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkSampler obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.SamplerEXT,
-				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Sampler,
+				(ulong)obj.Handle) { pObjectName = name.Pin () };
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkPipeline obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.PipelineEXT,
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Pipeline,
 				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkDescriptorSet obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.DescriptorSetEXT,
-				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.DescriptorSet,
+				(ulong)obj.Handle) { pObjectName = name.Pin () };
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkSemaphore obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.SemaphoreEXT,
-				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Semaphore,
+				(ulong)obj.Handle) { pObjectName = name.Pin () };
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkFence obj, Device dev, string name) {
-			if (!dev.debugMarkersEnabled)
+			if (!dev.debugUtilsEnabled)
 				return;
-			VkDebugMarkerObjectNameInfoEXT dmo = new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.FenceEXT,
-				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkDebugMarkerSetObjectNameEXT (dev.VkDev, ref dmo));
+			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Fence,
+				(ulong)obj.Handle) { pObjectName = name.Pin () };
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.VkDev, ref dmo));
 			name.Unpin ();
 		}
 		#endregion

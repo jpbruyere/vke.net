@@ -89,7 +89,7 @@ namespace delaunay {
 
 			cfg.ResetShadersAndVerticesInfos ();
 			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#compute.simpletexture.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.simpletexture.frag.spv");
 
 			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
 
@@ -97,10 +97,10 @@ namespace delaunay {
 
 			plCompute = new ComputePipeline (
 				new PipelineLayout (dev, new VkPushConstantRange (VkShaderStageFlags.Compute, 2 * sizeof (int)), dslCompute),
-				"#compute.computeTest.comp.spv");
+				"#shaders.computeTest.comp.spv");
 			plNormalize = new ComputePipeline (
 				plCompute.Layout,
-				"#compute.normalize.comp.spv");
+				"#shaders.normalize.comp.spv");
 
 			dsImage = dsPool.Allocate (dslImage);
 			dsetPing = dsPool.Allocate (dslCompute);

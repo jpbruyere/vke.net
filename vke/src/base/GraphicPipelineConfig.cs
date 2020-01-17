@@ -10,11 +10,30 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
+	/// <summary>
+	/// Graphic pipeline config is a helper class used to construct configurations to create pipelines.
+	/// This class has some facilities for chaining multiple pipelines creations that have small differencies
+	/// in their configurations.
+	/// </summary>
 	public class GraphicPipelineConfig {
 		public uint SubpassIndex;
+		/// <summary>
+		/// Pipeline layout. Note that layout will not be activated (handle creation) until
+		/// the creation of a new pipeline with this 'GraphicPipelineConfig'.
+		/// It is valid to use an already activated layout for a new config.
+		/// </summary>
 		public PipelineLayout Layout;
+		/// <summary>
+		/// See note for the 'Layout' field.
+		/// </summary>
 		public RenderPass RenderPass;
+		/// <summary>
+		/// VkPipelineCache to use for the pipeline creation.
+		/// </summary>
 		public PipelineCache Cache;
+		/// <summary>
+		/// VkPipelineBindPoint.Graphics is set by default,
+		/// </summary>
 		public VkPipelineBindPoint bindPoint = VkPipelineBindPoint.Graphics;
 		public VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = VkPipelineInputAssemblyStateCreateInfo.New ();
 		public VkPipelineRasterizationStateCreateInfo rasterizationState = VkPipelineRasterizationStateCreateInfo.New ();
@@ -34,7 +53,10 @@ namespace vke {
 		public VkSampleCountFlags Samples {
 			get { return multisampleState.rasterizationSamples; }
 		}
-
+		/// <summary>
+		/// Default constructor. Prefer the static 'CreateDefault' method to start with
+		/// a classic default configuration for rendering.
+		/// </summary>
 		public GraphicPipelineConfig () {
 
 		}
@@ -116,13 +138,20 @@ namespace vke {
 		public void AddShader (VkShaderStageFlags _stageFlags, string _spirvPath, SpecializationInfo specializationInfo = null, string _entryPoint = "main") {
 			shaders.Add (new ShaderInfo (_stageFlags, _spirvPath, specializationInfo, _entryPoint));
 		}
-
+		/// <summary>
+		/// Resets shaders and vertices in current configuration to ease reuse of
+		/// current 'GraphicPipelineConfig' for creating another pipeline.
+		/// </summary>
 		public void ResetShadersAndVerticesInfos () {
 			currentAttributeIndex = 0;
 			vertexBindings.Clear ();
 			vertexAttributes.Clear ();
 			ResetShaders ();
 		}
+		/// <summary>
+		/// Resets shaders in current config to ease reause of current 'GraphicPipelineConfig
+		/// for creating another similar pipeline with different shaders.
+		/// </summary>
 		public void ResetShaders () {
 			foreach (ShaderInfo shader in shaders)
 				shader.Dispose ();

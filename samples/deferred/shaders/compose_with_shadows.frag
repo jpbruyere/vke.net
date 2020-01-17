@@ -181,7 +181,7 @@ void main()
         // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
         vec3 color = NdotL * lights[i].color.rgb * (diffuseContrib + specContrib);
         
-        #if SHADOW
+        #ifdef WITH_SHADOWS
         vec4 shadowClip = lights[i].mvp * vec4(pos, 1);
         float shadowFactor = filterPCF(shadowClip, i);
         // Calculate lighting contribution from image based lighting source (IBL)

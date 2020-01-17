@@ -21,11 +21,13 @@ namespace vke {
 		public VkAttachmentDescription [] Attachments => attachments.ToArray ();
 		public SubPass [] SubPasses => subpasses.ToArray ();
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.RenderPassEXT, handle.Handle);
-
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.RenderPass, handle.Handle);
 		#region CTORS
 
+		/// <summary>
+		/// Create empty render pass with no attachment
+		/// </summary>
 		public RenderPass (Device device, VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1) : base(device) {
 			Samples = samples;
 		}

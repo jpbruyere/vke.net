@@ -11,17 +11,18 @@
 </p>
 </h1>
 
-`SpirVTasks` package add `SpirV` compilation support to msbuild project. Error and warning
-are routed to the `IDE`.
+**SpirVTasks** package add **SpirV** compilation support to msbuild project. Error and warning are routed to the `IDE`.
 
-
-#### Usage
+## Usage
 ```xml
+<ItemGroup>
+  <PackageReference Include="SpirVTasks" Version="0.1.15-beta" />		
+</ItemGroup>
 <ItemGroup>    
   <GLSLShader Include="shaders\*.frag;shaders\*.vert;shaders\*.comp;shaders\*.geom" />
 </ItemGroup> 
 ```
-Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv`. You can override the default resource id by adding a custom LogicalName.
+Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv`. You can override the default resource id by adding a custom **LogicalName**.
 ```xml
 <ItemGroup>    
   <GLSLShader Include="shaders\skybox.vert">
@@ -29,14 +30,15 @@ Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv
   </GLSLShader>
 </ItemGroup> 
 ```
-`VULKAN_SDK`/bin then `PATH` are searched for the `glslc` executable. You can also use the `SpirVglslcPath` property.
+
+`VULKAN_SDK/bin` then `PATH` are searched for the `glslc` executable. You can also use the `SpirVglslcPath` property.
 ```xml
 <PropertyGroup>
   <SpirVglslcPath>bin\glslc.exe</SpirVglslcPath>
 </PropertyGroup>
 ```
 
-#### Include in glsl
+## Include in glsl
 ```glsl
 #include <preamble.inc>
 
@@ -55,6 +57,20 @@ Included files are searched from the location of the current parsed file, then i
 </PropertyGroup>
 ```
 
-#### todo
+## Additional attributes
 
-- Error source file and line with included files.
+**Optimisation** attribute will set compiler flag for resulting code optimizations.
+```
+<GLSLShader Include="shaders\skybox.vert" Optimization="size"/>
+```
+Default optimization if this attribute is not present is **PERF**, accepted values are:
+- NONE: no optimization.
+- PERF: spirv will be optimized for performances.
+- SIZE: resulting code size will be minimized.
+
+**DefineConstants** attribute may contains a semicolon separated list of implicit **MACRO** to define for compilation.
+
+```
+<GLSLShader Include="shaders\skybox.vert" DefineConstants="DEBUG;SHADOW_FACTOR=0.15"/>
+```
+

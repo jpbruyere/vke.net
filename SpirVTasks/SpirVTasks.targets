@@ -26,6 +26,6 @@
 					TaskParameter="Include"			
 					ItemName="EmbeddedResource"/>	    
     </CreateItem>		
-		<Message Importance="High" Text="%(GLSLShader.Identity) -> $(AssemblyName).%(Filename)%(Extension).spv (Embedded Resource)" />
+		<Message Importance="High" Text="%(GLSLShader.Identity) -> %(GLSLShader.LogicalName) (Embedded Resource)" />
   </Target>
 </Project>

@@ -26,8 +26,8 @@ namespace vke {
 		public VkSemaphore presentComplete;
         public Image[] images;
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT (VkDebugReportObjectTypeEXT.SwapchainKhrEXT, Handle.Handle);
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.SwapchainKHR, Handle.Handle);
 
 		/// <summary>Swapchain images count.</summary>
 		public uint ImageCount => (uint)images?.Length;
@@ -84,8 +84,6 @@ namespace vke {
 		/// Create swapchain and populate images array
 		/// </summary>
 		public void Create () {
-			if (state != ActivableState.Activated)
-				Activate ();
 
 			Dev.WaitIdle ();
 
@@ -113,7 +111,10 @@ namespace vke {
                 _destroy ();
             Handle = newSwapChain;
 
-            VkImage[] tmp = Dev.GetSwapChainImages (Handle);
+			if (state != ActivableState.Activated)
+				Activate ();
+
+			VkImage[] tmp = Dev.GetSwapChainImages (Handle);
             images = new Image[tmp.Length];
             for (int i = 0; i < tmp.Length; i++) {
                 images[i] = new Image (Dev, tmp[i], ColorFormat, ImageUsage, Width, Height);

@@ -48,7 +48,7 @@ namespace vke {
 			get { return Matrix4x4.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar); }
 		}
 
-		public Camera (float fieldOfView, float aspectRatio, float nearPlane = 0.1f, float farPlane = 256f) {
+		public Camera (float fieldOfView, float aspectRatio, float nearPlane = 0.1f, float farPlane = 16f) {
 			fov = fieldOfView;
 			this.aspectRatio = aspectRatio;
 			zNear = nearPlane;
@@ -111,8 +111,9 @@ namespace vke {
 		}
 
 		public void Update () {
-			Projection = Matrix4x4.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar) * VKProjectionCorrection;
-			Matrix4x4 translation = Matrix4x4.CreateTranslation (position * zoom * new Vector3(1,1,-1)) ;
+			Projection =  Vulkan.Utils.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar);
+
+			Matrix4x4 translation = Matrix4x4.CreateTranslation (position * zoom);// * new Vector3(1,1,-1)) ;
 			if (Type == CamType.LookAt) {
 				View = 
 						Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotation.Z) *

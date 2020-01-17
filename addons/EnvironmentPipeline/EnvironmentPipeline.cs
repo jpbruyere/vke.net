@@ -5,6 +5,7 @@ using Vulkan;
 
 namespace vke.Environment {
 	public class EnvironmentCube : GraphicPipeline {
+		public static string STR_FRAG_PATH = "#EnvironmentPipeline.skybox.frag.spv";
 
 		GPUBuffer vboSkybox;
 
@@ -13,7 +14,7 @@ namespace vke.Environment {
 		public Image irradianceCube { get; private set; }
 		public Image prefilterCube { get; set; }
 
-		public EnvironmentCube (string cubemapPath, DescriptorSet dsSkybox, PipelineLayout plLayout, Queue staggingQ, RenderPass renderPass, PipelineCache cache = null)
+		public EnvironmentCube (string cubemapPath, PipelineLayout plLayout, Queue staggingQ, RenderPass renderPass, PipelineCache cache = null)
 		: base (renderPass, cache, "EnvCube pipeline") {
 
 			using (CommandPool cmdPool = new CommandPool (staggingQ.Dev, staggingQ.index)) {
@@ -33,7 +34,7 @@ namespace vke.Environment {
 				cfg.AddVertexBinding (0, 3 * sizeof (float));
 				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
 				cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv");
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.skybox.frag.spv");
+				cfg.AddShader (VkShaderStageFlags.Fragment, STR_FRAG_PATH);
 				cfg.multisampleState.rasterizationSamples = Samples;
 
 				layout = cfg.Layout;

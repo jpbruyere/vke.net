@@ -16,11 +16,12 @@ namespace vke {
         
 		public VkDescriptorSetLayoutCreateFlags Flags { get; private set; } = 0;
         public List<VkDescriptorSetLayoutBinding> Bindings { get; private set; } = new List<VkDescriptorSetLayoutBinding> ();
-        
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo 
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.DescriptorSetLayoutEXT, handle.Handle);
+
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.DescriptorSetLayout, handle.Handle);
 
 		#region CTORS
+		DescriptorSetLayout () : base (null) { }
 		public DescriptorSetLayout (Device device, VkDescriptorSetLayoutCreateFlags flags) : base (device) {            
 			Flags = flags;
         }

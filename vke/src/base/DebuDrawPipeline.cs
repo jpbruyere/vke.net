@@ -26,8 +26,8 @@ namespace vke {
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
 			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#CVKL.debug.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#CVKL.debug.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.debug.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#vke.debug.frag.spv");
 
 			layout = cfg.Layout;
 

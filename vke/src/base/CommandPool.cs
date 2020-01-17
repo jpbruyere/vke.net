@@ -34,8 +34,8 @@ namespace vke {
 		public CommandPool (Queue queue) : this(queue.dev, queue.qFamIndex) {}
 		#endregion
 
-		protected override VkDebugMarkerObjectNameInfoEXT DebugMarkerInfo
-			=> new VkDebugMarkerObjectNameInfoEXT(VkDebugReportObjectTypeEXT.CommandPoolEXT, handle.Handle);
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.CommandPool, handle.Handle);
 
 		public override void Activate () {
 			if (state != ActivableState.Activated) {            

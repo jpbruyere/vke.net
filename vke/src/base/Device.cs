@@ -24,7 +24,7 @@ namespace vke {
 
 
 		internal List<Queue> queues = new List<Queue> ();
-		internal bool debugMarkersEnabled;
+		internal bool debugUtilsEnabled;
 
 #if MEMORY_POOLS
 		public ResourceManager resourceManager;
@@ -66,12 +66,8 @@ namespace vke {
 			//enable only supported exceptions
 			List<IntPtr> deviceExtensions = new List<IntPtr> ();
 			for (int i = 0; i < extensions.Length; i++) {
-				if (phy.GetDeviceExtensionSupported (extensions[i])) {
-					deviceExtensions.Add (new FixedUtf8String (extensions[i]));
-					//store in a bool to prevent frequent string test for debug marker ext presence
-					if (extensions[i] == Ext.D.VK_EXT_debug_marker)
-						debugMarkersEnabled = true;
-				}
+				if (phy.GetDeviceExtensionSupported (extensions[i])) 
+					deviceExtensions.Add (new FixedUtf8String (extensions[i]));				
 			}
 
 			VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.New ();

@@ -15,7 +15,6 @@ namespace vke {
 		#region CTORS
 		protected GraphicPipeline (RenderPass renderPass, PipelineCache cache = null, string name = "graphic pipeline") : base(renderPass.Dev, cache, name) { 
 			RenderPass = renderPass;
-			handle.SetDebugMarkerName (Dev, name);
 		}
 		/// <summary>
 		/// Create a new Pipeline with supplied RenderPass

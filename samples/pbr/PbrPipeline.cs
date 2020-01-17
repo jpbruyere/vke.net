@@ -26,9 +26,9 @@ namespace vke {
 
 		public Matrices matrices = new Matrices {
 			lightDir = Vector4.Normalize (new Vector4 (0.7f, 0.6f, 0.2f, 0.0f)),
-			gamma = 2.2f,
-			exposure = 4.5f,
-			scaleIBLAmbient = 1f,
+			gamma = 1.2f,
+			exposure = 2.5f,
+			scaleIBLAmbient = 0.9f,
 			debugViewInputs = 0,
 			debugViewEquation = 0
 		};
@@ -84,8 +84,8 @@ namespace vke {
 			cfg.AddVertexBinding<PbrModel2.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#pbr.pbr.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#pbr.pbr_khr.frag.spv");
+			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.pbr.vert.spv");
+			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.pbr_khr.frag.spv");
 
 			layout = cfg.Layout;
 
@@ -93,46 +93,31 @@ namespace vke {
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 
-			envCube = new Environment.EnvironmentCube (cubemapPathes[0], dsMain, layout, staggingQ, RenderPass);
+			envCube = new Environment.EnvironmentCube (cubemapPathes[0], layout, staggingQ, RenderPass);
 
 			matrices.prefilteredCubeMipLevels = envCube.prefilterCube.CreateInfo.mipLevels;
 			uboMats = new HostBuffer (Dev, VkBufferUsageFlags.UniformBuffer, matrices, true);
 
-			string[] modelPathes = {
-				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Avocado/glTF/Avocado.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BarramundiFish/glTF/BarramundiFish.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Box/glTF/Box.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/MetalRoughSpheres/glTF/MetalRoughSpheres.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/OrientationTest/glTF/OrientationTest.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Buggy/glTF/Buggy.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/2CylinderEngine/glTF-Embedded/2CylinderEngine.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/FlightHelmet/glTF/FlightHelmet.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/GearboxAssy/glTF/GearboxAssy.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Lantern/glTF/Lantern.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/SciFiHelmet/glTF/SciFiHelmet.gltf",
-				"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Sponza/glTF/Sponza.gltf",
-				"/mnt/devel/vkChess/data/chess.gltf"
-			};
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descLayoutMain.Bindings.GetRange(0,4).ToArray());
+			uboUpdate.Write (Dev, dsMain,
+				uboMats.Descriptor,
+				envCube.irradianceCube.Descriptor,
+				envCube.prefilterCube.Descriptor,
+				envCube.lutBrdf.Descriptor);
+		}
 
+		public void LoadModel (Queue staggingQ, string path) {
+			model?.Dispose ();
 
-			model = new PbrModel2 (staggingQ, modelPathes[0], descLayoutTextures,
+			model = new PbrModel2 (staggingQ, path, descLayoutTextures,
 				AttachmentType.Color,
 				AttachmentType.PhysicalProps,
 				AttachmentType.Normal,
 				AttachmentType.AmbientOcclusion,
 				AttachmentType.Emissive);
-			//model = new Model (Dev, presentQueue, Utils.DataDirectory + "models/icosphere.gltf");
-			//model = new Model (Dev, presentQueue, cmdPool, Utils.DataDirectory + "models/cube.gltf");
-			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descLayoutMain.Bindings.GetRange(0,5).ToArray());
-			uboUpdate.Write (Dev, dsMain,
-				uboMats.Descriptor,
-				envCube.irradianceCube.Descriptor,
-				envCube.prefilterCube.Descriptor,
-				envCube.lutBrdf.Descriptor,
-				model.materialUBO.Descriptor);
+
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descLayoutMain.Bindings[4]);
+			uboUpdate.Write (Dev, dsMain, model.materialUBO.Descriptor);
 		}
 
 		public void RecordDraw (CommandBuffer cmd) {
