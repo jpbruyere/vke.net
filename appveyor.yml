@@ -1,0 +1,18 @@
+version: 1.0.{build}
+image: Visual Studio 2019
+
+environment:
+  VULKAN_SDK: C:/VulkanSDK/1.1.130.0
+
+cache:
+  - VulkanSDK.exe
+
+install:
+  - if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/1.1.130.0/windows/VulkanSDK-1.1.130.0-Installer.exe?Human=true
+  - VulkanSDK.exe /S
+
+before_build:
+  - nuget restore
+
+build:
+  verbosity: minimal

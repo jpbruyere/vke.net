@@ -7,7 +7,7 @@
     </AvailableItemName>
   </ItemGroup>
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Condition="'@(GLSLShader)'!=''" Outputs="@(CompiledShaders)">				
-	<CompileGLSLTask SourceFile="%(GLSLShader.Identity)"
+		<CompileGLSLTask SourceFile="%(GLSLShader.Identity)"
 					 AdditionalIncludeDirectories="%(GLSLShader.AdditionalIncludeDirectories);$(SpirVAdditionalIncludeDirectories)"
 					 DefineConstants="%(GLSLShader.DefineConstants);$(DefineConstants)"					 
 					 TempDirectory="$(IntermediateOutputPath)"
