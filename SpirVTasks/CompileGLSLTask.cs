@@ -144,7 +144,7 @@ namespace SpirVTasks {
 
 			string glslcExec = "glslc";
 			if (Environment.OSVersion.Platform.ToString ().StartsWith ("Win", StringComparison.Ordinal))
-				glslcExec = glslcExec + "exe";
+				glslcExec = glslcExec + ".exe";
 
 			glslcPath = Path.Combine (Environment.GetEnvironmentVariable ("VULKAN_SDK"), "bin");
 			glslcPath = Path.Combine (glslcPath, glslcExec);

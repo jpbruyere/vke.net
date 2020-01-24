@@ -11,27 +11,31 @@
 </p>
 </h1>
 
-**SpirVTasks** package add **SpirV** compilation support to msbuild project. Error and warning are routed to the `IDE`.
+**SpirVTasks** package add **SpirV** compilation support to **msbuild** projects through [Shaderrc](https://github.com/google/shaderc) which is part of the [lunarg vulkan sdk](https://www.lunarg.com/vulkan-sdk/).  Errors and warnings are routed to the `IDE`.
 
 ## Usage
+
+To enable SpirV compilation, you need to add the [nuget package](https://www.nuget.org/packages/SpirVTasks) to each project and tell with the new **<GLSLShader>** item where your shader sources reside.
+
 ```xml
 <ItemGroup>
-  <PackageReference Include="SpirVTasks" Version="0.1.15-beta" />		
+  <PackageReference Include="SpirVTasks"/>		
 </ItemGroup>
 <ItemGroup>    
   <GLSLShader Include="shaders\*.frag;shaders\*.vert;shaders\*.comp;shaders\*.geom" />
 </ItemGroup> 
 ```
-Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv`. You can override the default resource id by adding a custom **LogicalName**.
+Resulting `.spv` files are automatically embedded with the resource ID: `ProjectName.file.ext.spv`. You can override this default id by adding a custom **LogicalName**.
 ```xml
-<ItemGroup>    
-  <GLSLShader Include="shaders\skybox.vert">
-	  <LogicalName>NewName.vert.spv</LogicalName>
+<ItemGroup>
+  <GLSLShader Include="shaders\*.vert">
+	  <LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
   </GLSLShader>
 </ItemGroup> 
 ```
 
-`VULKAN_SDK/bin` then `PATH` are searched for the `glslc` executable. You can also use the `SpirVglslcPath` property.
+`VULKAN_SDK/bin` then `PATH` are searched for the **`glslc`** executable. You can also use the `SpirVglslcPath` property.
+
 ```xml
 <PropertyGroup>
   <SpirVglslcPath>bin\glslc.exe</SpirVglslcPath>
@@ -39,6 +43,9 @@ Resulting `.spv` files are embedded with resource ID = `ProjectName.file.ext.spv
 ```
 
 ## Include in glsl
+
+SpirVTasks add the ability to use **include** statements in your shader sources. Files are combined before compilation. Includes are not referenced in the project file with `GLSLShader` elements.
+
 ```glsl
 #include <preamble.inc>
 
@@ -57,10 +64,21 @@ Included files are searched from the location of the current parsed file, then i
 </PropertyGroup>
 ```
 
+It is also valid to add additional include search paths individually for each `GLSLShader`.
+
+```xml
+<ItemGroup>
+  <GLSLShader Include="shaders\*.vert">
+	  <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
+  </GLSLShader>
+</ItemGroup> 
+
+```
+
 ## Additional attributes
 
 **Optimisation** attribute will set compiler flag for resulting code optimizations.
-```
+```xml
 <GLSLShader Include="shaders\skybox.vert" Optimization="size"/>
 ```
 Default optimization if this attribute is not present is **PERF**, accepted values are:
@@ -68,9 +86,9 @@ Default optimization if this attribute is not present is **PERF**, accepted valu
 - PERF: spirv will be optimized for performances.
 - SIZE: resulting code size will be minimized.
 
-**DefineConstants** attribute may contains a semicolon separated list of implicit **MACRO** to define for compilation.
+**DefineConstants** attribute may contains a semicolon separated list of implicit **MACRO** to define for compilation. Note that **project constants** are automatically to the compilation unit.
 
-```
+```xml
 <GLSLShader Include="shaders\skybox.vert" DefineConstants="DEBUG;SHADOW_FACTOR=0.15"/>
 ```
 
