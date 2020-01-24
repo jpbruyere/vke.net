@@ -10,8 +10,8 @@
 		<Authors>Jean-Philippe Bruyère</Authors>
 
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
-		<OutputType>Exe</OutputType>        
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<OutputType>Exe</OutputType>
+		<!--<AllowUnsafeBlocks>true</AllowUnsafeBlocks>-->
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
 
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
@@ -33,7 +33,7 @@
 	</ItemGroup>
 			
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.37-beta" />		
+		<PackageReference Include="SpirVTasks" Version="0.1.38-beta" />		
 	</ItemGroup>    
 
 	<ItemGroup>    

@@ -1,9 +1,13 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "addons", "addons", "{4AA67AB0-C331-4CB2-9C00-B74F5DE31658}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpirVTasks", "SpirVTasks\SpirVTasks.csproj", "{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vke", "vke\vke.csproj", "{642726F4-0592-4846-8EAF-A5D1964C85A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "addons", "addons", "{4AA67AB0-C331-4CB2-9C00-B74F5DE31658}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentPipeline", "addons\EnvironmentPipeline\EnvironmentPipeline.csproj", "{F04C3F79-2E08-4D35-A804-43039DCB7F5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistanceFieldFont", "addons\DistanceFieldFont\DistanceFieldFont.csproj", "{FEF3AF30-5B88-4D3C-8BD7-8734200E0D1E}"
 EndProject
@@ -13,25 +17,25 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkvgPipeline", "addons\Vkvg
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{16439374-B8DB-4643-8116-EB3358B49A12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "samples\Triangle\Triangle.csproj", "{124152F8-FAE6-4D4B-87B9-6074DD365E9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Textured", "samples\Textured\Textured.csproj", "{1B2DF710-E500-49E5-8802-EBA71A05E827}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "compute", "samples\compute\compute.csproj", "{5000CDE2-99B9-47EA-B4D9-EA1631F0E14A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistanceFieldFontTest", "samples\DistanceFieldFontTest\DistanceFieldFontTest.csproj", "{77437C6D-28B5-4798-96CA-68F987770D65}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "samples\Model\Model.csproj", "{A7D3FB7F-769B-4F36-9E3E-3FB71F24D306}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Textured", "samples\Textured\Textured.csproj", "{1B2DF710-E500-49E5-8802-EBA71A05E827}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexturedCube", "samples\TexturedCube\TexturedCube.csproj", "{8185163E-A67C-4C0E-8548-67E2A9F16309}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpirVTasks", "SpirVTasks\SpirVTasks.csproj", "{7B05B5A7-49E2-4D05-BEF8-734F70CDBF17}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentPipeline", "addons\EnvironmentPipeline\EnvironmentPipeline.csproj", "{F04C3F79-2E08-4D35-A804-43039DCB7F5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "deferred", "samples\deferred\deferred.csproj", "{D9A41382-444E-44ED-B638-3D8F06F2FBC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "samples\Triangle\Triangle.csproj", "{124152F8-FAE6-4D4B-87B9-6074DD365E9B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pbr", "samples\pbr\pbr.csproj", "{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vkeEditor", "samples\vkeEditor\vkeEditor.csproj", "{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "samples\tests\tests.csproj", "{F9117397-E105-44DD-A9BD-F6F8DC641095}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,6 +150,26 @@ Global
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.DebugCrow|Any CPU.ActiveCfg = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.ReleaseSpirVTasks|Any CPU.ActiveCfg = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.ReleaseSpirVTasks|Any CPU.Build.0 = Debug|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.DebugCrow|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.ReleaseSpirVTasks|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.ReleaseSpirVTasks|Any CPU.Build.0 = Debug|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{F9117397-E105-44DD-A9BD-F6F8DC641095}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FEF3AF30-5B88-4D3C-8BD7-8734200E0D1E} = {4AA67AB0-C331-4CB2-9C00-B74F5DE31658}
@@ -160,6 +184,8 @@ Global
 		{D9A41382-444E-44ED-B638-3D8F06F2FBC2} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{124152F8-FAE6-4D4B-87B9-6074DD365E9B} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5} = {16439374-B8DB-4643-8116-EB3358B49A12}
+		{81619805-9E6F-404A-BC0D-A2C25DDA2EDC} = {16439374-B8DB-4643-8116-EB3358B49A12}
+		{F9117397-E105-44DD-A9BD-F6F8DC641095} = {16439374-B8DB-4643-8116-EB3358B49A12}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

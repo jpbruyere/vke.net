@@ -8,7 +8,7 @@ using static Vulkan.Vk;
 
 namespace vke {
 	/// <summary>
-	/// Tristate status of activables, reflecting vulkan openrations
+	/// Tristate status of activables, reflecting vulkan operations
 	/// </summary>
 	public enum ActivableState {
 		/// <summary>
@@ -38,10 +38,10 @@ namespace vke {
 		[XmlIgnore] protected uint references;
 		//keep track of the current state of activation.
 		protected ActivableState state;
-		//With the debug marker extension, setting name to vulkan's object ease the debugging.
+		//With the debug utils extension, setting name to vulkan's object ease the debugging.
 		protected string name;
 		/// <summary>
-		/// This property has to be implemented in every vulkan object. It should return the correct debug marker info.
+		/// This property has to be implemented in every vulkan object. It must return the correct debug marker info.
 		/// </summary>
 		/// <value>The debug marker info.</value>
 		protected abstract VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo { get; }
