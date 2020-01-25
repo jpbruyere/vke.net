@@ -1,5 +1,29 @@
 version: 1.0.{build}
-image: Visual Studio 2019
+
+image:
+  - Visual Studio 2019
+  - Ubuntu
+
+before_build:
+  - nuget restore
+
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
+
+install:
+  - wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+  - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
+  - sudo apt -qq update
+  - sudo apt install complete vulkan-sdk
+
+for:
+-
+  matrix:
+    only:
+      - image: Visual Studio 2019
 
 environment:
     VULKAN_SDK: C:/VulkanSDK/1.1.130.0
@@ -11,9 +35,6 @@ cache:
 
 install:
     - if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/1.1.130.0/windows/VulkanSDK-1.1.130.0-Installer.exe?Human=true && VulkanSDK.exe /S
-
-before_build:
-  - nuget restore
 
 build:
   verbosity: minimal
