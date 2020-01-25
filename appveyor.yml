@@ -12,7 +12,7 @@ for:
   -
     matrix:
       only:
-        - image: Visual Studio 2019
+        - image: Visual Studio 2017
     environment:
       VULKAN_SDK: C:/VulkanSDK/1.1.130.0
       APPVEYOR_SAVE_CACHE_ON_ERROR: true
