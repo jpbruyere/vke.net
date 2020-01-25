@@ -1,4 +1,4 @@
-language: csharp
+
 dist: bionic
 
 language: csharp
@@ -8,7 +8,7 @@ before_install:
     - wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
     - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
     - sudo apt -qq update
-    - sudo apt install lunarg-vkconfig glslang-tools vulkan-sdk
+    - sudo apt install vulkan-sdk
 
 script:
     - msbuild /t:restore
