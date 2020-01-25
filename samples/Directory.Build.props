@@ -1,4 +1,5 @@
 <Project>
+	<Import Project="../Directory.Build.props" />
 	<PropertyGroup>
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
@@ -16,7 +17,7 @@
 
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
 		
-		<RestoreAdditionalProjectSources>$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
+		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
     
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    
@@ -34,7 +35,7 @@
 	</ItemGroup>
 			
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.40-beta" />		
+		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
 	</ItemGroup>    
 
 	<ItemGroup>    

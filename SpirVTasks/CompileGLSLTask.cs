@@ -157,7 +157,7 @@ namespace SpirVTasks {
 
 			string envStrPathes = Environment.GetEnvironmentVariable ("PATH");
 			if (!string.IsNullOrEmpty (envStrPathes)) {
-				foreach (string path in envStrPathes.Split (';')) {
+				foreach (string path in envStrPathes.Split (':')) {
 					glslcPath = Path.Combine (path, glslcExec);
 					if (File.Exists (glslcPath))
 						return true;

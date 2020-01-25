@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
+	<PropertyGroup>			
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		
-		<ReleaseVersion>0.1.40</ReleaseVersion>
+		<ReleaseVersion>$(SpirVTasksReleaseVersion)</ReleaseVersion>
 		
 		<SynchReleaseVersion>false</SynchReleaseVersion>
 		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
 		<Description>MSBuild addon to compile and embed spirV shaders</Description>
 		<PackageId>SpirVTasks</PackageId>
 		<PackageTags>vulkan msbuild spirv glsl addons</PackageTags>
-		<PackageVersion>$(ReleaseVersion)-beta</PackageVersion>
+		<PackageVersion>$(SpirVTasksPackageVersion)</PackageVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vk.net/blob/master/SpirVTasks/README.md</PackageProjectUrl>
