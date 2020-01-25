@@ -3,7 +3,7 @@
 	<PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>		
 		
-		<ReleaseVersion>0.1.11</ReleaseVersion>		
+		<ReleaseVersion>0.1.12</ReleaseVersion>		
 		
 		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
 		<Description>C# vulkan library with IDispose model and references counting</Description>		
@@ -11,6 +11,7 @@
 		<PackageTags>vulkan game engine compute glfw c#</PackageTags>
 		<PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
 		<License>MIT</License>
@@ -36,12 +37,12 @@
 		<DebugType>full</DebugType>
 		<Optimize>false</Optimize>
 		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-		<DefineConstants>MEMORY_POOLS;NETSTANDARD;NETSTANDARD2_0;DEBUG;NETFRAMEWORK;NET471</DefineConstants>
+		<DefineConstants>MEMORY_POOLS;NETSTANDARD;NETSTANDARD2_0;DEBUG</DefineConstants>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<Optimize>true</Optimize>
-		<DefineConstants>MEMORY_POOLS</DefineConstants>
+		<DefineConstants>MEMORY_POOLS;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
 	</PropertyGroup>
 	
 	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
@@ -49,13 +50,11 @@
 	</ItemGroup>
 		
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.37-beta" />
-		<PackageReference Include="Vulkan" Version="0.1.9-beta" />
+		<PackageReference Include="SpirVTasks" Version="0.1.38-beta" />
+		<PackageReference Include="Vulkan" Version="0.2.0-beta" />
 	</ItemGroup>
 	<ItemGroup>
-		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
-			<ResourceId>testRsID</ResourceId>
-		</GLSLShader>
+		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />
 		<Compile Remove="build\**\*.cs;Properties\AssemblyInfo.cs;src\Renderer.cs;src\QueueFamily.cs" />
 	</ItemGroup>
 </Project>
