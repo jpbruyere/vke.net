@@ -36,6 +36,7 @@ for:
       - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
       - sudo apt -qq update
       - sudo apt -y install vulkan-sdk
+      - glslc --version
     build_script:
       - dotnet build /p:Configuration=ReleaseSpirVTasks /t:restore
       - dotnet build /p:Configuration=ReleaseSpirVTasks
