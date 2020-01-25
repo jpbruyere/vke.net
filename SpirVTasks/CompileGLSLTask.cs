@@ -136,6 +136,7 @@ namespace SpirVTasks {
 		/// Use the SpirVCompilerPath element if present. if not search 'VULKAN_SDK' environment, then PATH env variable.
 		/// </summary>
 		bool tryFindGlslcExecutable (out string glslcPath) {
+			glslcPath = "";
 			if (!string.IsNullOrEmpty (SpirVCompilerPath?.ItemSpec)) {
 				glslcPath = SpirVCompilerPath.ItemSpec;
 				if (!File.Exists (glslcPath))
@@ -146,10 +147,13 @@ namespace SpirVTasks {
 			if (Environment.OSVersion.Platform.ToString ().StartsWith ("Win", StringComparison.Ordinal))
 				glslcExec = glslcExec + ".exe";
 
-			glslcPath = Path.Combine (Environment.GetEnvironmentVariable ("VULKAN_SDK"), "bin");
-			glslcPath = Path.Combine (glslcPath, glslcExec);
-			if (File.Exists (glslcPath))
-				return true;
+			string vkSdk = Environment.GetEnvironmentVariable ("VULKAN_SDK");
+			if (!string.IsNullOrEmpty (vkSdk)) {
+				glslcPath = Path.Combine (vkSdk, "bin");
+				glslcPath = Path.Combine (glslcPath, glslcExec);
+				if (File.Exists (glslcPath))
+					return true;
+			}
 
 			string envStrPathes = Environment.GetEnvironmentVariable ("PATH");
 			if (!string.IsNullOrEmpty (envStrPathes)) {

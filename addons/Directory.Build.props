@@ -34,7 +34,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.38-beta" />	
+		<PackageReference Include="SpirVTasks" Version="0.1.40-beta" />	
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />			
 	</ItemGroup>    
 	

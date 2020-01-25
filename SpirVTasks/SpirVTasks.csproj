@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		
-		<ReleaseVersion>0.1.38</ReleaseVersion>
+		<ReleaseVersion>0.1.40</ReleaseVersion>
 		
 		<SynchReleaseVersion>false</SynchReleaseVersion>
 		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
