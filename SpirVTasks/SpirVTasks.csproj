@@ -22,6 +22,8 @@
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
 		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
 		<AssemblyName>SpirVTasks_$(TargetFramework)</AssemblyName>
+		
+		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />

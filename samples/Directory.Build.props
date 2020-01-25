@@ -15,7 +15,8 @@
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
 
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
-
+		
+		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
 	</PropertyGroup>
     
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    

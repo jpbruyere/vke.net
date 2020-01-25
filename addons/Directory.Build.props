@@ -16,7 +16,8 @@
 		<LangVersion>7.2</LangVersion>
 		
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
-
+		
+		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
 	</PropertyGroup>
     
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    

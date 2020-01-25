@@ -30,6 +30,8 @@
     <LangVersion>7.2</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>    
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		
+		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
