@@ -13,8 +13,7 @@ build:
 for:
   -
     image:
-      only:
-        - Ubuntu
+      only: Ubuntu
     install:
       - wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
       - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
@@ -22,8 +21,7 @@ for:
       - sudo apt install complete vulkan-sdk
   -
     image:
-      only:
-        - Visual Studio 2019
+      only: Visual Studio 2019
     environment:
       VULKAN_SDK: C:/VulkanSDK/1.1.130.0
       APPVEYOR_SAVE_CACHE_ON_ERROR: true
