@@ -16,7 +16,7 @@
 
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
 		
-		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
+		<RestoreAdditionalProjectSources>$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
     
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    
