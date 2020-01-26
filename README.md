@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://www.nuget.org/packages/vke"><img src="https://buildstats.info/nuget/vke"></a>
   <a href="https://travis-ci.org/jpbruyere/vke.net">
-      <img src="https://travis-ci.org/jpbruyere/vke.net.svg?branch=master">
+      <img src="https://img.shields.io/travis/jpbruyere/vke.net.svg?&logo=travis&logoColor=white">
   </a>
   <a href="https://ci.appveyor.com/project/jpbruyere/vke-net">
 	<img src="https://img.shields.io/appveyor/ci/jpbruyere/vke-net?label=Windows&logo=appveyor&logoColor=lightgrey">
