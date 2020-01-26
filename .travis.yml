@@ -15,5 +15,6 @@ before_install:
     - sudo apt install vulkan-sdk
 
 script:
-    - dotnet build vke.net.sln
+    - dotnet build /p:Configuration=ReleaseSpirVTasks
+    - dotnet build /p:Configuration=Release
     
