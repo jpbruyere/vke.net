@@ -62,7 +62,9 @@ namespace DistanceFieldFontTest {
 		Vector4 textColor = new Vector4 (1.0f, 1.0f, 0.0f, 1.0f);//alpha => 0:disabled 1:enabled
 		Vector4 outlineColor = new Vector4 (1.0f, 0.0f, 0.0f, 0.6f);//alpha => 0:disabled 1:enabled
 
-		Program () : base () {
+		protected override void initVulkan () {
+			base.initVulkan ();
+
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
 			font = new BMFont (Utils.DataDirectory + "font.fnt");

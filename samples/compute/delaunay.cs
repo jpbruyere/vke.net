@@ -30,8 +30,6 @@ namespace delaunay {
 
 		ComputePipeline plCompute, plNormalize;
 
-		DebugReport dbgReport;
-
 		const uint imgDim = 256;
 		uint zoom = 2;
 		int invocationCount = 8;
@@ -51,8 +49,9 @@ namespace delaunay {
 
 		}
 
+		protected override void initVulkan () {
+			base.initVulkan ();
 
-		public Program () : base () {
 			imgResult = new Image (dev, VkFormat.R32g32b32a32Sfloat, VkImageUsageFlags.TransferDst | VkImageUsageFlags.Sampled, VkMemoryPropertyFlags.DeviceLocal,
 				imgDim, imgDim);
 			imgResult.CreateView ();
@@ -307,8 +306,6 @@ namespace delaunay {
 					stagingDataBuff.Dispose ();
 
 					imgResult.Dispose ();
-
-					dbgReport?.Dispose ();
 				}
 			}
 

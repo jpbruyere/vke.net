@@ -10,6 +10,9 @@ using Vulkan;
 using Buffer = vke.Buffer;
 
 namespace TextureCube {
+	/// <summary>
+	/// Simple textured cube sampled.
+	/// </summary>
 	class Program : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
@@ -109,8 +112,10 @@ namespace TextureCube {
 
 #endif
 
-		Program () : base () {
-			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
+		protected override void initVulkan () {
+			base.initVulkan ();
+
+			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 
 			vbo = new GPUBuffer<float> (presentQueue, cmdPool, VkBufferUsageFlags.VertexBuffer, g_vertex_buffer_data);
 
@@ -146,7 +151,6 @@ namespace TextureCube {
 			loadTexture (imgPathes[currentImgIndex]);
 			if (nextTexture != null)
 				updateTextureSet ();
-
 
 #if WITH_VKVG
 			dsVkvg = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);

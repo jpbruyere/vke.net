@@ -1,15 +1,19 @@
 
+language: csharp
+
 dist: bionic
 
-language: cpp
+dotnet: 3.1
+
+env:
+    - FrameworkPathOverride=/usr/lib/mono/4.5/
 
 before_install:
     - wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
     - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
     - sudo apt -qq update
-    - sudo apt install mono-complete vulkan-sdk
+    - sudo apt install vulkan-sdk
 
 script:
-    - msbuild /t:restore
-    - msbuild
+    - dotnet build vke.net.sln
     

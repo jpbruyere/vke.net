@@ -138,15 +138,17 @@ namespace deferred {
 
 		DebugReport dbgRepport;
 
-		Program () : base() {
+		protected override void initVulkan () {
+			base.initVulkan ();
 
-			if (Instance.DEBUG_UTILS)
-				dbgRepport = new DebugReport (instance,
+#if DEBUG
+			dbgRepport = new DebugReport (instance,
 					VkDebugReportFlagsEXT.ErrorEXT
 					| VkDebugReportFlagsEXT.DebugEXT
 					| VkDebugReportFlagsEXT.WarningEXT
 					| VkDebugReportFlagsEXT.PerformanceWarningEXT
 				);
+#endif
 
 			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, 2);

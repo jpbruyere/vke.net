@@ -31,7 +31,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>    
 		<NoWarn>$(NoWarn);1591</NoWarn>
 		
-		<RestoreAdditionalProjectSources>$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
+		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -52,7 +52,7 @@
 	</ItemGroup>
 		
 	<ItemGroup>
-		<PackageReference Include="SpirVTasks" Version="0.1.40-beta" />
+		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
 		<PackageReference Include="Vulkan" Version="0.2.0-beta" />
 	</ItemGroup>
 	<ItemGroup>

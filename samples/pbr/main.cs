@@ -13,7 +13,7 @@ using Vulkan;
 using vke;
 
 namespace pbrSample {
-	class Program : VkWindow{
+	class Program : VkWindow {
 
 		static void Main (string[] args) {
 #if DEBUG
@@ -34,7 +34,7 @@ namespace pbrSample {
 			enabled_features.samplerAnisotropy = available_features.samplerAnisotropy;
 		}
 
-		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount4;
+		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount8;
 
 		FrameBuffers frameBuffers;
 		PBRPipeline pbrPipeline;
@@ -94,7 +94,7 @@ namespace pbrSample {
 		VkvgPipeline.VkvgPipeline vkvgPipeline;
 
 		void vkvgDraw () {
-            using (vkvg.Context ctx = vkvgPipeline.CreateContext ()) {
+			using (vkvg.Context ctx = vkvgPipeline.CreateContext ()) {
 				ctx.Clear ();
 
 				ctx.LineWidth = 1;
@@ -124,7 +124,7 @@ namespace pbrSample {
 				ctx.ShowText (string.Format ($"Gamma:   {pbrPipeline.matrices.gamma,5} "));
 				y += dy;
 				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"Light pos:   {lightPos.ToString()} "));
+				ctx.ShowText (string.Format ($"Light pos:   {lightPos.ToString ()} "));
 
 #if PIPELINE_STATS
 				if (results == null)
@@ -167,13 +167,14 @@ namespace pbrSample {
 		Vector4 lightPos = new Vector4 (1, 0, 0, 0);
 		uint curModelIndex = 0;
 
-		Program () : base() {
+		protected override void initVulkan () {
+			base.initVulkan ();
 
 			//UpdateFrequency = 20;
 			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 64f);
 			camera.SetPosition (0, 0, -2);
 
-			pbrPipeline = new PBRPipeline(presentQueue,
+			pbrPipeline = new PBRPipeline (presentQueue,
 				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples));
 
 			loadCurrentModel ();
@@ -221,7 +222,7 @@ namespace pbrSample {
 
 #if WITH_VKVG
 			vkvgPipeline.RecordDraw (cmd);
-#endif						
+#endif
 			pbrPipeline.RenderPass.End (cmd);
 		}
 
@@ -269,11 +270,11 @@ namespace pbrSample {
 			vkvgDraw ();
 #endif
 		}
-#endregion
+		#endregion
 
-		 
+
 		protected override void OnResize () {
-			base.OnResize();
+			base.OnResize ();
 
 			dev.WaitIdle ();
 #if WITH_VKVG
@@ -283,8 +284,8 @@ namespace pbrSample {
 
 			UpdateView ();
 
-			frameBuffers?.Dispose();
-			frameBuffers = pbrPipeline.RenderPass.CreateFrameBuffers(swapChain);
+			frameBuffers?.Dispose ();
+			frameBuffers = pbrPipeline.RenderPass.CreateFrameBuffers (swapChain);
 
 			buildCommandBuffers ();
 			dev.WaitIdle ();
@@ -308,7 +309,7 @@ namespace pbrSample {
 			switch (key) {
 			case Key.Space:
 				if (modifiers.HasFlag (Modifier.Shift))
-					curModelIndex = curModelIndex == 0 ? (uint)modelPathes.Length - 1 : curModelIndex-1;
+					curModelIndex = curModelIndex == 0 ? (uint)modelPathes.Length - 1 : curModelIndex - 1;
 				else
 					curModelIndex = curModelIndex < (uint)modelPathes.Length - 1 ? curModelIndex + 1 : 0;
 				reloadModel = true;
@@ -338,95 +339,95 @@ namespace pbrSample {
 					}
 					queryUpdatePrefilCube = updateViewRequested = true;
 					break;*/
-				case Key.P:
-					showDebugImg = !showDebugImg;
-					queryUpdatePrefilCube = updateViewRequested = true;
-					break;
-				case Key.Keypad0:
-					currentDebugView = DebugView.none;
-					break;
-				case Key.Keypad1:
-					currentDebugView = DebugView.color;
-					break;
-				case Key.Keypad2:
-					currentDebugView = DebugView.normal;
-					break;
-				case Key.Keypad3:
-					currentDebugView = DebugView.occlusion;
-					break;
-				case Key.Keypad4:
-					currentDebugView = DebugView.emissive;
-					break;
-				case Key.Keypad5:
-					currentDebugView = DebugView.metallic;
-					break;
-				case Key.Keypad6:
-					currentDebugView = DebugView.roughness;
-					break;
-				case Key.Up:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos -= Vector4.UnitZ;
-					else
-						camera.Move (0, 0, 1);
-					break;
-				case Key.Down:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos += Vector4.UnitZ;
-					else
-						camera.Move (0, 0, -1);
-					break;
-				case Key.Left:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos -= Vector4.UnitX;
-					else
-						camera.Move (1, 0, 0);
-					break;
-				case Key.Right:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos += Vector4.UnitX;
-					else
-						camera.Move (-1, 0, 0);
-					break;
-				case Key.PageUp:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos += Vector4.UnitY;
-					else
-						camera.Move (0, 1, 0);
-					break;
-				case Key.PageDown:
-					if (modifiers.HasFlag (Modifier.Shift))
-						lightPos -= Vector4.UnitY;
-					else
-						camera.Move (0, -1, 0);
-					break;
-				case Key.S:
-					if (modifiers.HasFlag (Modifier.Shift))
-						pbrPipeline.matrices.scaleIBLAmbient -= 0.1f;
-					else
-						pbrPipeline.matrices.scaleIBLAmbient += 0.1f;
-					break;
-				case Key.F2:
-					if (modifiers.HasFlag (Modifier.Shift))
-						pbrPipeline.matrices.exposure -= 0.3f;
-					else
-						pbrPipeline.matrices.exposure += 0.3f;
-					break;
+			case Key.P:
+				showDebugImg = !showDebugImg;
+				queryUpdatePrefilCube = updateViewRequested = true;
+				break;
+			case Key.Keypad0:
+				currentDebugView = DebugView.none;
+				break;
+			case Key.Keypad1:
+				currentDebugView = DebugView.color;
+				break;
+			case Key.Keypad2:
+				currentDebugView = DebugView.normal;
+				break;
+			case Key.Keypad3:
+				currentDebugView = DebugView.occlusion;
+				break;
+			case Key.Keypad4:
+				currentDebugView = DebugView.emissive;
+				break;
+			case Key.Keypad5:
+				currentDebugView = DebugView.metallic;
+				break;
+			case Key.Keypad6:
+				currentDebugView = DebugView.roughness;
+				break;
+			case Key.Up:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos -= Vector4.UnitZ;
+				else
+					camera.Move (0, 0, 1);
+				break;
+			case Key.Down:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos += Vector4.UnitZ;
+				else
+					camera.Move (0, 0, -1);
+				break;
+			case Key.Left:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos -= Vector4.UnitX;
+				else
+					camera.Move (1, 0, 0);
+				break;
+			case Key.Right:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos += Vector4.UnitX;
+				else
+					camera.Move (-1, 0, 0);
+				break;
+			case Key.PageUp:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos += Vector4.UnitY;
+				else
+					camera.Move (0, 1, 0);
+				break;
+			case Key.PageDown:
+				if (modifiers.HasFlag (Modifier.Shift))
+					lightPos -= Vector4.UnitY;
+				else
+					camera.Move (0, -1, 0);
+				break;
+			case Key.S:
+				if (modifiers.HasFlag (Modifier.Shift))
+					pbrPipeline.matrices.scaleIBLAmbient -= 0.1f;
+				else
+					pbrPipeline.matrices.scaleIBLAmbient += 0.1f;
+				break;
+			case Key.F2:
+				if (modifiers.HasFlag (Modifier.Shift))
+					pbrPipeline.matrices.exposure -= 0.3f;
+				else
+					pbrPipeline.matrices.exposure += 0.3f;
+				break;
 			case Key.F3:
-					if (modifiers.HasFlag (Modifier.Shift))
-						pbrPipeline.matrices.gamma -= 0.1f;
-					else
-						pbrPipeline.matrices.gamma += 0.1f;
-					break;
-				case Key.F4:
-					if (camera.Type == Camera.CamType.FirstPerson)
-						camera.Type = Camera.CamType.LookAt;
-					else
-						camera.Type = Camera.CamType.FirstPerson;
-					Console.WriteLine ($"camera type = {camera.Type}");
-					break;
-				default:
-					base.onKeyDown (key, scanCode, modifiers);
-					return;
+				if (modifiers.HasFlag (Modifier.Shift))
+					pbrPipeline.matrices.gamma -= 0.1f;
+				else
+					pbrPipeline.matrices.gamma += 0.1f;
+				break;
+			case Key.F4:
+				if (camera.Type == Camera.CamType.FirstPerson)
+					camera.Type = Camera.CamType.LookAt;
+				else
+					camera.Type = Camera.CamType.FirstPerson;
+				Console.WriteLine ($"camera type = {camera.Type}");
+				break;
+			default:
+				base.onKeyDown (key, scanCode, modifiers);
+				return;
 			}
 			updateViewRequested = true;
 		}
@@ -436,7 +437,7 @@ namespace pbrSample {
 			if (disposing) {
 				if (!isDisposed) {
 					dev.WaitIdle ();
-					frameBuffers?.Dispose();
+					frameBuffers?.Dispose ();
 					pbrPipeline.Dispose ();
 #if WITH_VKVG
 					vkvgPipeline.Dispose ();

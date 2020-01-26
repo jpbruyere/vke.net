@@ -6,16 +6,15 @@ using vke;
 using Vulkan;
 
 namespace Textured {
+	/// <summary>
+	/// Simple textured quad sample
+	/// </summary>
 	class Program : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
 			Instance.RENDER_DOC_CAPTURE = true;
 #endif
-
-			foreach (string s in System.Reflection.Assembly.GetEntryAssembly ().GetManifestResourceNames ())
-				Console.WriteLine (s);
-
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}
@@ -67,7 +66,9 @@ namespace Textured {
 			Utils.DataDirectory + "font.ktx",
 		};
 
-		Program () : base () {
+		protected override void initVulkan () {
+			base.initVulkan ();
+					
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 				
 			loadTexture (imgPathes[currentImgIndex]);
@@ -113,26 +114,29 @@ namespace Textured {
 			dev.WaitIdle ();
 			cmdPool.Reset();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				cmds[i].Start();
-				recordDraw (cmds[i], frameBuffers[i]);
-				cmds[i].End ();				 
+				CommandBuffer cmd = cmds[i];
+				FrameBuffer fb = frameBuffers[i];
+
+				cmd.Start();
+
+				pipeline.RenderPass.Begin (cmd, fb);
+
+				cmd.SetViewport (fb.Width, fb.Height);
+				cmd.SetScissor (fb.Width, fb.Height);
+				cmd.BindDescriptorSet (pipeline.Layout, descriptorSet);
+
+				pipeline.Bind (cmd);
+
+				cmd.BindVertexBuffer (vbo, 0);
+				cmd.BindIndexBuffer (ibo, VkIndexType.Uint16);
+				cmd.DrawIndexed ((uint)indices.Length);
+
+				pipeline.RenderPass.End (cmd);
+
+				cmd.End ();				 
 			}
 		}
-		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
-			pipeline.RenderPass.Begin (cmd, fb);
 
-			cmd.SetViewport (fb.Width, fb.Height);
-			cmd.SetScissor (fb.Width, fb.Height);
-			cmd.BindDescriptorSet (pipeline.Layout, descriptorSet);
-
-			pipeline.Bind (cmd);
-
-			cmd.BindVertexBuffer (vbo, 0);
-			cmd.BindIndexBuffer (ibo, VkIndexType.Uint16);
-			cmd.DrawIndexed ((uint)indices.Length);
-
-			pipeline.RenderPass.End (cmd);
-		}
 
 		VkMemoryPropertyFlags imgProp = VkMemoryPropertyFlags.DeviceLocal;
 		bool genMipMaps = true;
@@ -169,6 +173,7 @@ namespace Textured {
 			texture = nextTexture;
 			nextTexture = null;
 		}
+
 		void updateMatrices () { 
 			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 			matrices.view = Matrix4x4.CreateTranslation (0, 0, -2.5f * zoom);

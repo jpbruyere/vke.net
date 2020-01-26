@@ -10,30 +10,24 @@ using vke;
 using Vulkan;
 
 namespace Triangle {
-	public class Renderer {
-		public DescriptorPool descriptorPool;
-		[XmlIgnore] public DescriptorSetLayout dsLayout;
-	}
 	class Program : VkWindow {
 		static void Main (string[] args) {
-#if DEBUG
-			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = false;
-#endif
-
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}
 		}
 
-		float rotSpeed = 0.01f, zoomSpeed = 0.01f;
+		const float rotSpeed = 0.01f, zoomSpeed = 0.01f;
 		float rotX, rotY, rotZ = 0f, zoom = 1f;
 
+		[StructLayout (LayoutKind.Sequential)]
 		struct Matrices {
 			public Matrix4x4 projection;
 			public Matrix4x4 view;
 			public Matrix4x4 model;
 		}
+
+		[StructLayout(LayoutKind.Sequential)]
 		struct Vertex {
 			Vector3 position;
 			Vector3 color;
@@ -50,6 +44,7 @@ namespace Triangle {
 		HostBuffer vbo;
 		HostBuffer uboMats;
 
+		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;
 
 		FrameBuffers frameBuffers;
@@ -62,33 +57,23 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
+		Program () : base () {}
 
-
-		public Renderer r = new Renderer ();
-
-		Program () : base () {
-			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
+		protected override void initVulkan () {
+			base.initVulkan ();
 
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 
-			r.descriptorPool = new DescriptorPool (dev, 1,
-				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
-				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler));				
+			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 
-			XmlSerializer serializer = new XmlSerializer (typeof(Renderer), Utils.GetXmlOverrides());
-			using (Stream s = new FileStream ("/home/jp/test.xml", FileMode.Create)) {
-				serializer.Serialize (s, r);
-			}
+			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
 
+			cfg.Layout = new PipelineLayout (dev,
+				new DescriptorSetLayout (dev,
+					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer)));
 
-			r.dsLayout = new DescriptorSetLayout (dev,
-					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer));
-
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1,false);
-
-			cfg.Layout = new PipelineLayout (dev, r.dsLayout);
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
 			cfg.AddVertexBinding<Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
@@ -100,17 +85,19 @@ namespace Triangle {
 
 			//note that descriptor set is allocated after the pipeline creation that use this layout, layout is activated
 			//automaticaly on pipeline creation, and will be disposed automatically when no longuer in use.
-			descriptorSet = r.descriptorPool.Allocate (r.dsLayout);
+			descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
 
-			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, r.dsLayout);
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
 			uboUpdate.Write (dev, uboMats.Descriptor);
 
 			uboMats.Map ();
+
+			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 		}
 
 		public override void UpdateView () {
-			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
-				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f) * Camera.VKProjectionCorrection;
+			matrices.projection = Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
+				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 			matrices.view = 
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
@@ -133,6 +120,7 @@ namespace Triangle {
 				return;
 			updateViewRequested = true;
 		}
+
 		void buildCommandBuffers() {
 			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
 
@@ -176,7 +164,7 @@ namespace Triangle {
 					pipeline.Dispose ();
 
 					frameBuffers?.Dispose();
-					r.descriptorPool.Dispose ();
+					descriptorPool.Dispose ();
 					vbo.Dispose ();
 					ibo.Dispose ();
 					uboMats.Dispose ();

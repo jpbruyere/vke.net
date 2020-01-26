@@ -45,9 +45,10 @@ namespace ModelSample
 		float rotX, rotY, rotZ = 0f, zoom = 2f;
 
 		SimpleModel helmet;
-		vke.DebugUtils.Messenger dbgmsg;
 
-		Program () : base () {
+		protected override void initVulkan () {
+			base.initVulkan ();
+
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
 			descriptorPool = new DescriptorPool (dev, 2,
@@ -222,7 +223,6 @@ namespace ModelSample
 					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					uboMats.Dispose ();
-					dbgmsg?.Dispose ();
 				}
 			}
 
