@@ -4,6 +4,7 @@ image:
   - Visual Studio 2019
   - Ubuntu
 
+
 build:
   verbosity: minimal
 
@@ -21,6 +22,8 @@ for:
     install:
       - if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/1.1.130.0/windows/VulkanSDK-1.1.130.0-Installer.exe?Human=true && VulkanSDK.exe /S
     build_script:
+      - msbuild /p:Configuration=ReleaseSpirVTasks /t:restore
+      - msbuild /p:Configuration=ReleaseSpirVTasks
       - msbuild /p:Configuration=Release /t:restore
       - msbuild /p:Configuration=Release
 
@@ -35,6 +38,8 @@ for:
       - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list https://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list 
       - sudo apt -qq update
       - sudo apt -y install vulkan-sdk
+      - glslc --version
     build_script:
+      - dotnet build /p:Configuration=ReleaseSpirVTasks
       - dotnet build /p:Configuration=Release
 
