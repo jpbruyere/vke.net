@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) 2020  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+//
+// This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
@@ -7,17 +11,20 @@ using Glfw;
 using Vulkan;
 
 namespace deferred {
+	/// <summary>
+	/// Deferred PBR rendering.
+	/// </summary>
 	class Deferred : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			//Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
-			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
-			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R16g16b16a16Sfloat;
-			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R16g16b16a16Sfloat;
+			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount8;
+			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
+			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 
 			PbrModelTexArray.TEXTURE_DIM = 1024;
 
@@ -80,13 +87,16 @@ namespace deferred {
 
 		vke.DebugUtils.Messenger dbgmsg;
 
-		Deferred () : base("deferred") {
+		protected override void initVulkan () {
+			base.initVulkan ();
+
+#if DEBUG
 			dbgmsg = new vke.DebugUtils.Messenger (instance, VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT | VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT | VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT,
 				VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT |
 				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT |
 				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
 				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
-
+#endif
 
 			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, -2);
@@ -358,7 +368,7 @@ namespace deferred {
 					renderer.Dispose ();
 					plToneMap.Dispose ();
 					descriptorPool.Dispose ();
-					dbgmsg.Dispose ();
+					dbgmsg?.Dispose ();
 				}
 			}
 			base.Dispose (disposing);

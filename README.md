@@ -1,13 +1,15 @@
 <h1 align="center">
-vke.net 
-  <br>  
+    vke.net
+    <br>  
+    Vulkan Engine for .NET
+    <br>  
 <p align="center">
   <a href="https://www.nuget.org/packages/vke"><img src="https://buildstats.info/nuget/vke"></a>
   <a href="https://travis-ci.org/jpbruyere/vke.net">
       <img src="https://travis-ci.org/jpbruyere/vke.net.svg?branch=master">
   </a>
   <a href="https://ci.appveyor.com/project/jpbruyere/vke-net">
-    <img src="https://ci.appveyor.com/api/projects/status/j387lo59vnov8jbc?svg=true">
+	<img src="https://img.shields.io/appveyor/ci/jpbruyere/vke-net?label=Windows&logo=appveyor&logoColor=lightgrey">
   </a>
   <a href="https://www.paypal.me/GrandTetraSoftware">
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
@@ -22,7 +24,9 @@ vke.net
    <br>adaptation of the gltf PBR sample from Sacha Willems</br>
 </p>
 
-**vke.net** (_vulkan engine for .net_) is composed of high level classes encapsulating vulkan objects with `IDispose` model and **reference counting**. [GLFW](https://www.glfw.org/)  handles the windowing system.
+**vke.net** (_vulkan engine for .net_) is composed of high level classes encapsulating [vulkan]() objects with `IDispose` model and **reference counting**. [GLFW](https://www.glfw.org/)  handles the windowing system.
+
+
 
 Use the 'download_datas.sh' script for downloading sample's datas.
 
