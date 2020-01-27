@@ -135,15 +135,19 @@ namespace vke {
 
 			return formats;
 		}
-		public VkPresentModeKHR [] GetSurfacePresentModes (VkSurfaceKHR surf)
-		{
+		public VkPresentModeKHR[] GetSurfacePresentModes (VkSurfaceKHR surf) {
 			vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out uint count, IntPtr.Zero);
-			VkPresentModeKHR [] modes = new VkPresentModeKHR [count];
-
-			vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());
-			modes.Unpin ();
-
-			return modes;
+			if (Type.GetType ("Mono.Runtime") == null) {
+				int[] modes = new int[count];//this cause an error on mono
+				vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());
+				modes.Unpin ();
+				return modes.Cast<VkPresentModeKHR> ().ToArray ();
+			} else {
+				VkPresentModeKHR[] modes = new VkPresentModeKHR[count];//enums not blittable on ms.Net
+				vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());
+				modes.Unpin ();
+				return modes;
+			}
 		}
 		public VkFormatProperties GetFormatProperties (VkFormat format)
 		{

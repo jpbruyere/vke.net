@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Vulkan;
+using System.Linq;
 using static Vulkan.Vk;
 
 namespace vke {
@@ -57,7 +58,7 @@ namespace vke {
 
 					VkPipelineDynamicStateCreateInfo dynStatesInfo = VkPipelineDynamicStateCreateInfo.New ();
 					dynStatesInfo.dynamicStateCount = (uint)cfg.dynamicStates.Count;
-					dynStatesInfo.pDynamicStates = cfg.dynamicStates.Pin (pctx);
+					dynStatesInfo.pDynamicStates = cfg.dynamicStates.Cast<int>().ToArray().Pin (pctx);
 
 					VkPipelineVertexInputStateCreateInfo vertInputInfo = VkPipelineVertexInputStateCreateInfo.New ();
 					vertInputInfo.vertexBindingDescriptionCount = (uint)cfg.vertexBindings.Count;

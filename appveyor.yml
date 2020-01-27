@@ -1,9 +1,11 @@
-version: 0.1.{build}
+version: 0.1.12.{build}
 
 image:
   - Visual Studio 2019
   - Ubuntu
 
+artifacts:
+    - path: 'build/**/*.nupkg'
 
 build:
   verbosity: minimal

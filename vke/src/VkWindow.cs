@@ -102,7 +102,6 @@ namespace vke {
 			Glfw3.SetKeyCallback (hWin, HandleKeyDelegate);
 			Glfw3.SetMouseButtonPosCallback (hWin, HandleMouseButtonDelegate);
 			Glfw3.SetCursorPosCallback (hWin, HandleCursorPosDelegate);
-			Glfw3.SetWindowSizeCallback (hWin, HandleWindowSizeDelegate);
 			Glfw3.SetScrollCallback (hWin, HandleScrollDelegate);
 			Glfw3.SetCharCallback (hWin, HandleCharDelegate);
 
@@ -283,13 +282,13 @@ namespace vke {
 		protected virtual void onChar (CodePoint cp) { }
 
 		#region events delegates
-		static void HandleWindowSizeDelegate (IntPtr window, int width, int height) { }
-		static void HandleCursorPosDelegate (IntPtr window, double xPosition, double yPosition) {
+
+		static CursorPosDelegate HandleCursorPosDelegate = (window, xPosition, yPosition) => {
 			windows[window].onMouseMove (xPosition, yPosition);
 			windows[window].lastMouseX = xPosition;
 			windows[window].lastMouseY = yPosition;
-		}
-		static void HandleMouseButtonDelegate (IntPtr window, Glfw.MouseButton button, InputAction action, Modifier mods) {
+		};
+		static MouseButtonDelegate HandleMouseButtonDelegate = (IntPtr window, Glfw.MouseButton button, InputAction action, Modifier mods) => {
 			if (action == InputAction.Press) {
 				windows[window].buttons[(int)button] = true;
 				windows[window].onMouseButtonDown (button);
@@ -297,21 +296,21 @@ namespace vke {
 				windows[window].buttons[(int)button] = false;
 				windows[window].onMouseButtonUp (button);
 			}
-		}
-		static void HandleScrollDelegate (IntPtr window, double xOffset, double yOffset) {
+		};
+		static ScrollDelegate HandleScrollDelegate = (IntPtr window, double xOffset, double yOffset) => {
 			windows[window].onScroll (xOffset, yOffset);
-		}
-		static void HandleKeyDelegate (IntPtr window, Key key, int scanCode, InputAction action, Modifier modifiers) {
+		};
+		static KeyDelegate HandleKeyDelegate = (IntPtr window, Key key, int scanCode, InputAction action, Modifier modifiers) => {
 			windows[window].KeyModifiers = modifiers;
 			if (action == InputAction.Press || action == InputAction.Repeat) {
 				windows[window].onKeyDown (key, scanCode, modifiers);
 			} else {
 				windows[window].onKeyUp (key, scanCode, modifiers);
 			}
-		}
-		static void HandleCharDelegate (IntPtr window, CodePoint codepoint) {
+		};
+		static CharDelegate HandleCharDelegate = (IntPtr window, CodePoint codepoint) => {
 			windows[window].onChar (codepoint);
-		}
+		};
 		#endregion
 
 		/// <summary>
