@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>		
+    <TargetFramework>netstandard2.0</TargetFramework>
 		
-		<ReleaseVersion>0.1.12</ReleaseVersion>		
+		<ReleaseVersion>$(VkeReleaseVersion)</ReleaseVersion>
 		
-		<AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
+		<AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
 		<Description>C# vulkan library with IDispose model and references counting</Description>		
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<PackageTags>vulkan game engine compute glfw c#</PackageTags>
-		<PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
+		<PackageVersion>$(VkePackageVersion)</PackageVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
@@ -53,7 +53,7 @@
 		
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-		<PackageReference Include="Vulkan" Version="0.2.0-beta" />
+		<PackageReference Include="Vulkan" Version="0.2.1-beta" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />

@@ -13,9 +13,7 @@
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>    	    
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
-		
-		<LangVersion>7.2</LangVersion>
-		
+				
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
 		
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
@@ -32,7 +30,7 @@
 		<ProjectReference Include="..\..\vke\vke.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'BuildPackages|AnyCPU' ">
-		<PackageReference Include="vke" Version="0.1.12-beta" />
+		<PackageReference Include="vke" Version="$(VkePackageVersion)" />
 	</ItemGroup>
 	
 	<ItemGroup>

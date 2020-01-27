@@ -5,7 +5,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpirVTasks", "SpirVTasks\Sp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vke", "vke\vke.csproj", "{642726F4-0592-4846-8EAF-A5D1964C85A7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{7285454A-930F-4536-AB84-C076B44C0C80}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "addons", "addons", "{4AA67AB0-C331-4CB2-9C00-B74F5DE31658}"
+	ProjectSection(SolutionItems) = preProject
+		addons/Directory.Build.props = "Directory.Build.props"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentPipeline", "addons\EnvironmentPipeline\EnvironmentPipeline.csproj", "{F04C3F79-2E08-4D35-A804-43039DCB7F5E}"
 EndProject
@@ -16,6 +24,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkvgPipeline", "addons\VkvgPipeline\VkvgPipeline.csproj", "{611541A0-CE88-4A83-A6FF-3917971841C9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{16439374-B8DB-4643-8116-EB3358B49A12}"
+	ProjectSection(SolutionItems) = preProject
+		samples/Directory.Build.props = "Directory.Build.props"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "samples\Triangle\Triangle.csproj", "{124152F8-FAE6-4D4B-87B9-6074DD365E9B}"
 EndProject
