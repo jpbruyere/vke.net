@@ -10,6 +10,9 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
+	/// <summary>
+	/// Abstract base class for Images and Buffers resources.
+	/// </summary>
 	[DebuggerDisplay ("{previous.name} <- {name} -> {next.name}")]
 	public abstract class Resource : Activable {
 		protected VkMemoryRequirements memReqs;
@@ -20,13 +23,16 @@ namespace vke {
 		protected VkDeviceMemory vkMemory;
 #endif
 
-		/// <summary> double linked list in memory pool </summary>
+		/// <summary> Double linked list in memory pool </summary>
 		internal Resource previous;
 		public Resource next;
 
+		/// <summary> Effective memory allocation for the resource. </summary>
 		public ulong AllocatedDeviceMemorySize => memReqs.size;
 		public uint TypeBits => memReqs.memoryTypeBits;
+		/// <summary> Alignment constraint of the memory to allocate for the resource. </summary>
 		public ulong MemoryAlignment => memReqs.alignment;
+		/// <summary>Boolean indicating if used memory for the resource is linear.</summary>
 		public abstract bool IsLinar { get; }
 
 		protected IntPtr mappedData;
@@ -34,25 +40,25 @@ namespace vke {
 
 		public readonly VkMemoryPropertyFlags MemoryFlags;
 
-        protected Resource (Device device, VkMemoryPropertyFlags memoryFlags) : base (device) {            
-            MemoryFlags = memoryFlags;
-        }
+		protected Resource (Device device, VkMemoryPropertyFlags memoryFlags) : base (device) {
+			MemoryFlags = memoryFlags;
+		}
 
-        internal abstract void updateMemoryRequirements ();
+		internal abstract void updateMemoryRequirements ();
 
 		internal abstract void bindMemory ();
 
 		internal VkMappedMemoryRange MapRange => new VkMappedMemoryRange {
-				sType = VkStructureType.MappedMemoryRange,
+			sType = VkStructureType.MappedMemoryRange,
 #if MEMORY_POOLS
-				memory = memoryPool.vkMemory,
-				offset = poolOffset,
+			memory = memoryPool.vkMemory,
+			offset = poolOffset,
 #else
 				memory = vkMemory,
 				offset = 0,
 #endif
-				size = AllocatedDeviceMemorySize
-			};
+			size = AllocatedDeviceMemorySize
+		};
 #if !MEMORY_POOLS
 		protected void allocateMemory () {
 			VkMemoryAllocateInfo memInfo = VkMemoryAllocateInfo.New ();
@@ -67,7 +73,7 @@ namespace vke {
 #if MEMORY_POOLS
 			if (!memoryPool.IsMapped)
 				memoryPool.Map ();
-			mappedData = new IntPtr(memoryPool.MappedData.ToInt64() + (long)(poolOffset + offset));
+			mappedData = new IntPtr (memoryPool.MappedData.ToInt64 () + (long)(poolOffset + offset));
 #else
 			Utils.CheckResult (vkMapMemory (Dev.VkDev, vkMemory, offset, AllocatedDeviceMemorySize, 0, ref mappedData));
 #endif
@@ -80,19 +86,19 @@ namespace vke {
 #endif
 		}
 		public void Update (object data, ulong size, ulong offset = 0) {
-            GCHandle ptr = GCHandle.Alloc (data, GCHandleType.Pinned);
-            unsafe {
-                System.Buffer.MemoryCopy (ptr.AddrOfPinnedObject ().ToPointer (), (mappedData + (int)offset).ToPointer (), size, size);
-            }
-            ptr.Free ();
-        }
-        public void Flush () {
+			GCHandle ptr = GCHandle.Alloc (data, GCHandleType.Pinned);
+			unsafe {
+				System.Buffer.MemoryCopy (ptr.AddrOfPinnedObject ().ToPointer (), (mappedData + (int)offset).ToPointer (), size, size);
+			}
+			ptr.Free ();
+		}
+		public void Flush () {
 			VkMappedMemoryRange range = MapRange;
-            vkFlushMappedMemoryRanges (Dev.VkDev, 1, ref range);
-        }
+			vkFlushMappedMemoryRanges (Dev.VkDev, 1, ref range);
+		}
 
-#region IDisposable Support        
-        protected override void Dispose (bool disposing) {
+		#region IDisposable Support
+		protected override void Dispose (bool disposing) {
 			if (!disposing)
 				System.Diagnostics.Debug.WriteLine ("VKE Activable object disposed by finalizer");
 			if (state == ActivableState.Activated) {
@@ -106,7 +112,7 @@ namespace vke {
 
 			}
 			base.Dispose (disposing);
-        }
-#endregion
+		}
+		#endregion
 	}
 }

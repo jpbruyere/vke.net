@@ -35,7 +35,7 @@ namespace vke {
 		protected CommandPool cmdPool;
 		protected CommandBuffer[] cmds;
 		protected VkSemaphore[] drawComplete;
-		protected VkFence drawFence;
+		protected Fence drawFence;
 
 		protected uint fps { get; private set; }
 		protected bool updateViewRequested = true;
@@ -173,7 +173,7 @@ namespace vke {
 
 			cmds = new CommandBuffer[swapChain.ImageCount];
 			drawComplete = new VkSemaphore[swapChain.ImageCount];
-			drawFence = dev.CreateFence (true);
+			drawFence = new Fence (dev, true, "draw fence");
 
 			for (int i = 0; i < swapChain.ImageCount; i++) {
 				drawComplete[i] = dev.CreateSemaphore ();
@@ -218,8 +218,8 @@ namespace vke {
 			if (cmds[idx] == null)
 				return;
 
-			dev.WaitForFence (drawFence);
-			dev.ResetFence (drawFence);
+			drawFence.Wait ();
+			drawFence.Reset ();
 
 			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx], drawFence);
 			presentQueue.Present (swapChain, drawComplete[idx]);
@@ -393,8 +393,7 @@ namespace vke {
 					dev.DestroySemaphore (drawComplete[i]);
 					cmds[i].Free ();
 				}
-				dev.DestroyFence (drawFence);
-
+				drawFence.Dispose ();
 				swapChain.Dispose ();
 
 				vkDestroySurfaceKHR (instance.Handle, hSurf, IntPtr.Zero);

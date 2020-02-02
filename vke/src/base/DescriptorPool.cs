@@ -3,7 +3,6 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Vulkan;
 using static Vulkan.Vk;
 
@@ -11,20 +10,28 @@ namespace vke {
 	[Serializable]
     public sealed class DescriptorPool : Activable {        
         internal VkDescriptorPool handle;
-		[XmlAttribute]
 		public uint MaxSets;
-		[XmlArrayItem("PoolSize")]
-
-		public List<VkDescriptorPoolSize> PoolSizes = new List<VkDescriptorPoolSize> ();
+		public List<VkDescriptorPoolSize> PoolSizes { get; private set; } = new List<VkDescriptorPoolSize> ();
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
 					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.DescriptorPool, handle.Handle);
 
 		#region CTORS
 		DescriptorPool () : base (null) {}
+		/// <summary>
+		/// Create a new managed descriptor pool that will be manualy activated after the pool sizes had been populated.
+		/// </summary>
+		/// <param name="device">the logical device that create the pool.</param>
+		/// <param name="maxSets">maximum number of descriptor sets that can be allocated from the pool</param>
 		public DescriptorPool (Device device, uint maxSets = 1) : base (device) {            
             MaxSets = maxSets;
         }
+		/// <summary>
+		/// Create and automatically activate a new Descriptor pool with the supplied pool sizes.
+		/// </summary>
+		/// <param name="device">the logical device that create the pool.</param>
+		/// <param name="maxSets">maximum number of descriptor sets that can be allocated from the pool</param>
+		/// <param name="poolSizes">an array of pool sizes describing descriptor types and counts</param>
         public DescriptorPool (Device device, uint maxSets = 1, params VkDescriptorPoolSize[] poolSizes)
             : this (device, maxSets) {
 
@@ -34,7 +41,7 @@ namespace vke {
         }
 		#endregion
 
-		public override void Activate () {
+		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {            
 				VkDescriptorPoolCreateInfo info = VkDescriptorPoolCreateInfo.New();
 	            info.poolSizeCount = (uint)PoolSizes.Count;
@@ -46,11 +53,12 @@ namespace vke {
 			}
 			base.Activate ();
 		}
-
-        /// <summary>
-        /// Create and allocate a new DescriptorSet
-        /// </summary>
-        public DescriptorSet Allocate (params DescriptorSetLayout[] layouts) {
+		/// <summary>
+		/// Allocate a new DescriptorSet from this pool.
+		/// </summary>
+		/// <returns>A managed descriptor set.</returns>
+		/// <param name="layouts">a variable sized array of descriptor layout(s) to allocate the descriptor for.</param>
+		public DescriptorSet Allocate (params DescriptorSetLayout[] layouts) {
             DescriptorSet ds = new DescriptorSet (this, layouts);
             Allocate (ds);
             return ds;

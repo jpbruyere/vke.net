@@ -7,7 +7,7 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
-    public class SwapChain : Activable {
+	public class SwapChain : Activable {
 		/// <summary>
 		/// Set the default swapchain image format.
 		/// </summary>
@@ -24,7 +24,7 @@ namespace vke {
 		PresentQueue presentQueue;
 
 		public VkSemaphore presentComplete;
-        public Image[] images;
+		public Image[] images;
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
 					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.SwapchainKHR, Handle.Handle);
@@ -32,47 +32,47 @@ namespace vke {
 		/// <summary>Swapchain images count.</summary>
 		public uint ImageCount => (uint)images?.Length;
 		public uint Width => createInfos.imageExtent.width;
-        public uint Height => createInfos.imageExtent.height;
-        public VkFormat ColorFormat => createInfos.imageFormat;
-        public VkImageUsageFlags ImageUsage => createInfos.imageUsage;
+		public uint Height => createInfos.imageExtent.height;
+		public VkFormat ColorFormat => createInfos.imageFormat;
+		public VkImageUsageFlags ImageUsage => createInfos.imageUsage;
 
-        public SwapChain (PresentQueue _presentableQueue, uint width = 800, uint height = 600, VkFormat format = VkFormat.B8g8r8a8Unorm,
-        	VkPresentModeKHR presentMode = VkPresentModeKHR.FifoKHR)
-        : base (_presentableQueue.dev){
+		public SwapChain (PresentQueue _presentableQueue, uint width = 800, uint height = 600, VkFormat format = VkFormat.B8g8r8a8Unorm,
+			VkPresentModeKHR presentMode = VkPresentModeKHR.FifoKHR)
+		: base (_presentableQueue.dev) {
 
-            presentQueue = _presentableQueue;            
-            createInfos = VkSwapchainCreateInfoKHR.New();
+			presentQueue = _presentableQueue;
+			createInfos = VkSwapchainCreateInfoKHR.New ();
 
-            VkSurfaceFormatKHR[] formats = Dev.phy.GetSurfaceFormats (presentQueue.Surface);
-            for (int i = 0; i < formats.Length; i++) {
-                if (formats[i].format == format) {
-                    createInfos.imageFormat = format;
-                    createInfos.imageColorSpace = formats[i].colorSpace;
-                    break;
-                }
-            }
-            if (createInfos.imageFormat == VkFormat.Undefined) 
-                throw new Exception ("Invalid format for swapchain: " + format);
+			VkSurfaceFormatKHR[] formats = Dev.phy.GetSurfaceFormats (presentQueue.Surface);
+			for (int i = 0; i < formats.Length; i++) {
+				if (formats[i].format == format) {
+					createInfos.imageFormat = format;
+					createInfos.imageColorSpace = formats[i].colorSpace;
+					break;
+				}
+			}
+			if (createInfos.imageFormat == VkFormat.Undefined)
+				throw new Exception ("Invalid format for swapchain: " + format);
 
-            VkPresentModeKHR[] presentModes = Dev.phy.GetSurfacePresentModes (presentQueue.Surface);
-            for (int i = 0; i < presentModes.Length; i++) {
-                if (presentModes[i] == presentMode) {
-                    createInfos.presentMode = presentMode;
-                    break;
-                }
-            }
-            if (createInfos.presentMode != presentMode)
-                throw new Exception ("Invalid presentMode for swapchain: " + presentMode);
+			VkPresentModeKHR[] presentModes = Dev.phy.GetSurfacePresentModes (presentQueue.Surface);
+			for (int i = 0; i < presentModes.Length; i++) {
+				if (presentModes[i] == presentMode) {
+					createInfos.presentMode = presentMode;
+					break;
+				}
+			}
+			if (createInfos.presentMode != presentMode)
+				throw new Exception ("Invalid presentMode for swapchain: " + presentMode);
 
-            createInfos.surface = presentQueue.Surface;
-            createInfos.imageExtent = new VkExtent2D (width, height);
-            createInfos.imageArrayLayers = 1;
-            createInfos.imageUsage = IMAGES_USAGE;
-            createInfos.imageSharingMode = VkSharingMode.Exclusive;
-            createInfos.compositeAlpha = VkCompositeAlphaFlagsKHR.OpaqueKHR;
-            createInfos.presentMode = presentMode;
-            createInfos.clipped = 1;            
-        }
+			createInfos.surface = presentQueue.Surface;
+			createInfos.imageExtent = new VkExtent2D (width, height);
+			createInfos.imageArrayLayers = 1;
+			createInfos.imageUsage = IMAGES_USAGE;
+			createInfos.imageSharingMode = VkSharingMode.Exclusive;
+			createInfos.compositeAlpha = VkCompositeAlphaFlagsKHR.OpaqueKHR;
+			createInfos.presentMode = presentMode;
+			createInfos.clipped = 1;
+		}
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
 				presentComplete = Dev.CreateSemaphore ();
@@ -87,63 +87,69 @@ namespace vke {
 
 			Dev.WaitIdle ();
 
-            VkSurfaceCapabilitiesKHR capabilities = Dev.phy.GetSurfaceCapabilities (presentQueue.Surface);
+			VkSurfaceCapabilitiesKHR capabilities = Dev.phy.GetSurfaceCapabilities (presentQueue.Surface);
 
-            createInfos.minImageCount = capabilities.minImageCount;
-            createInfos.preTransform = capabilities.currentTransform;
-            createInfos.oldSwapchain = Handle;
+			createInfos.minImageCount = capabilities.minImageCount;
+			createInfos.preTransform = capabilities.currentTransform;
+			createInfos.oldSwapchain = Handle;
 
-            if (capabilities.currentExtent.width == 0xFFFFFFFF) {
-                if (createInfos.imageExtent.width < capabilities.minImageExtent.width)
-                    createInfos.imageExtent.width = capabilities.minImageExtent.width;
-                else if (createInfos.imageExtent.width > capabilities.maxImageExtent.width)
-                    createInfos.imageExtent.width = capabilities.maxImageExtent.width;
+			if (capabilities.currentExtent.width == 0xFFFFFFFF) {
+				if (createInfos.imageExtent.width < capabilities.minImageExtent.width)
+					createInfos.imageExtent.width = capabilities.minImageExtent.width;
+				else if (createInfos.imageExtent.width > capabilities.maxImageExtent.width)
+					createInfos.imageExtent.width = capabilities.maxImageExtent.width;
 
-                if (createInfos.imageExtent.height < capabilities.minImageExtent.height)
-                    createInfos.imageExtent.height = capabilities.minImageExtent.height;
-                else if (createInfos.imageExtent.height > capabilities.maxImageExtent.height)
-                    createInfos.imageExtent.height = capabilities.maxImageExtent.height;
-            } else 
-                createInfos.imageExtent = capabilities.currentExtent;
+				if (createInfos.imageExtent.height < capabilities.minImageExtent.height)
+					createInfos.imageExtent.height = capabilities.minImageExtent.height;
+				else if (createInfos.imageExtent.height > capabilities.maxImageExtent.height)
+					createInfos.imageExtent.height = capabilities.maxImageExtent.height;
+			} else
+				createInfos.imageExtent = capabilities.currentExtent;
 
-            VkSwapchainKHR newSwapChain = Dev.CreateSwapChain (createInfos);
-            if (Handle.Handle != 0)
-                _destroy ();
-            Handle = newSwapChain;
+			Utils.CheckResult (vkCreateSwapchainKHR (Dev.VkDev, ref createInfos, IntPtr.Zero, out VkSwapchainKHR newSwapChain));
+
+			if (Handle.Handle != 0)
+				_destroy ();
+			Handle = newSwapChain;
 
 			if (state != ActivableState.Activated)
 				Activate ();
+				
+			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out uint imageCount, IntPtr.Zero));
+			if (imageCount == 0)
+				throw new Exception ("Swapchain image count is 0.");
+			VkImage[] imgs = new VkImage[imageCount];
+			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out imageCount, imgs.Pin ()));
+			imgs.Unpin ();
 
-			VkImage[] tmp = Dev.GetSwapChainImages (Handle);
-            images = new Image[tmp.Length];
-            for (int i = 0; i < tmp.Length; i++) {
-                images[i] = new Image (Dev, tmp[i], ColorFormat, ImageUsage, Width, Height);
-                images[i].CreateView ();
+			images = new Image[imgs.Length];
+			for (int i = 0; i < imgs.Length; i++) {
+				images[i] = new Image (Dev, imgs[i], ColorFormat, ImageUsage, Width, Height);
+				images[i].CreateView ();
 				images[i].SetName ("SwapChain Img" + i);
 				images[i].Descriptor.imageView.SetDebugMarkerName (Dev, "SwapChain Img" + i + " view");
-            }
-        }
+			}
+		}
 		/// <summary>
 		/// Acquire next image, recreate swapchain if out of date or suboptimal error.
 		/// </summary>
 		/// <returns>Swapchain image index or -1 if failed</returns>
 		/// <param name="fence">Fence param of 'vkAcquireNextImageKHR'</param>
-        public int GetNextImage (VkFence fence = default(VkFence)) {
-            VkResult res = vkAcquireNextImageKHR (Dev.VkDev, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
-            if (res == VkResult.ErrorOutOfDateKHR || res == VkResult.SuboptimalKHR) {
-                Create ();
-                return -1;
-            }
-            Utils.CheckResult (res);
-            return (int)currentImageIndex;
-        }
+		public int GetNextImage (VkFence fence = default (VkFence)) {
+			VkResult res = vkAcquireNextImageKHR (Dev.VkDev, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
+			if (res == VkResult.ErrorOutOfDateKHR || res == VkResult.SuboptimalKHR) {
+				Create ();
+				return -1;
+			}
+			Utils.CheckResult (res);
+			return (int)currentImageIndex;
+		}
 
 		void _destroy () {
-            for (int i = 0; i < ImageCount; i++) 
-                images[i].Dispose ();
-
-            Dev.DestroySwapChain (Handle);
-        }
+			for (int i = 0; i < ImageCount; i++)
+				images[i].Dispose ();
+			vkDestroySwapchainKHR (Dev.VkDev, Handle, IntPtr.Zero);
+		}
 
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{Handle.Handle.ToString ("x")}]");

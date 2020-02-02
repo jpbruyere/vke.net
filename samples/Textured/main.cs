@@ -13,7 +13,6 @@ namespace Textured {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
@@ -234,9 +233,10 @@ namespace Textured {
 		}	
 
 		protected override void Dispose (bool disposing) {
+			dev.WaitIdle ();
+
 			if (disposing) {
 				if (!isDisposed) {
-					dev.WaitIdle ();
 					pipeline.Dispose ();
 					dsLayout.Dispose ();
 					frameBuffers.Dispose();

@@ -33,8 +33,14 @@ namespace vke {
 			//State = States.Init;
         }
 
-
-        public void Submit (VkQueue queue, VkSemaphore wait = default(VkSemaphore), VkSemaphore signal = default (VkSemaphore), VkFence fence = default(VkFence)) {
+		/// <summary>
+		/// Submit an executable command buffer with optional wait and signal semaphores, and an optional fence to be signaled when the commands have been completed.
+		/// </summary>
+		/// <param name="queue">Queue.</param>
+		/// <param name="wait">Wait.</param>
+		/// <param name="signal">Signal.</param>
+		/// <param name="fence">Fence.</param>
+        public void Submit (VkQueue queue, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
             VkSubmitInfo submit_info = VkSubmitInfo.New();
 
 			IntPtr dstStageMask = Marshal.AllocHGlobal (sizeof(uint));
@@ -58,10 +64,17 @@ namespace vke {
 			}
 			Marshal.FreeHGlobal (dstStageMask);
         }
+		/// <summary>
+		/// Put the command buffer in the recording state.
+		/// </summary>
+		/// <param name="usage">optional command buffer usage flags.</param>
         public void Start (VkCommandBufferUsageFlags usage = 0) {
             VkCommandBufferBeginInfo cmdBufInfo = new VkCommandBufferBeginInfo (usage);
             Utils.CheckResult (vkBeginCommandBuffer (handle, ref cmdBufInfo));
         }
+		/// <summary>
+		/// Put the command buffer in the executable state if no errors are present in the recording.
+		/// </summary>
         public void End () {
             Utils.CheckResult (vkEndCommandBuffer (handle));
         }

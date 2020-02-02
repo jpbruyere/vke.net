@@ -1,92 +1,60 @@
-### The Project File.
+### Creating buffers
 
-To build a minimal vulkan application, add the [vke](https://www.nuget.org/packages/vke/) nuget package, and to enable automatic shader compilation, add the [SpirVTasks](https://www.nuget.org/packages/SpirVTasks/) package and a generic **GLSLShader** item globing a full directory.
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-    <TargetFrameworks>net472</TargetFrameworks>
-    <OutputType>Exe</OutputType>
-    <ItemGroup>    
-        <GLSLShader Include="shaders\*.*" />		
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="SpirVTasks" />
-        <PackageReference Include="vke" />
-    </ItemGroup>
-</Project>
-
-```
-
-### VkWindow class
-
-**vke** use [GLFW](https://www.glfw.org/) to interface with the windowing system of the OS. Derive your application from the `VkWindow` base class to start with a vulkan enabled window. **Validation** and **RenderDoc** layers loading may be control at startup with public static boolean properties from the `Instance`class.
+Vke has two classes to handle buffers. Mappable [`HostBuffer`](../../wiki/api/HostBuffer) and device only [`GPUBuffer`](../../wiki/api/GPUBuffer). 
+For this first simple example, we will only use host mappable buffers. Those classes can handle a Generic argument of a blittable type to handle arrays. Resources like buffers or images are automatically activated, so they need to be explicitly disposed on cleanup. Create them in the `initVulkan` override.
 
 ```csharp
-class Program : VkWindow {
-	static void Main (string[] args) {
-		Instance.VALIDATION = true;		
-		using (Program vke = new Program ()) {
-			vke.Run ();
-		}
-	}
-}
+	//the vertex buffer
+	vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
+	//the index buffer
+	ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);	
+	//a permanantly mapped buffer for the mvp matrice
+	uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, mvp, true);
 ```
-### Vulkan Initialization
 
-Default vulkan initialization of the VkWindow class will provide the minimal for running and present simple command buffers. For further initialization steps, override the `init_vulkan`method.
+To be able to access the mvp matrix in a shader, we need a descriptor. This implies to create a descriptor  pool to allocate it from and configure the triangle pipeline layout with a corresponding descriptor layout for our matrix.
+```csharp
+	descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
+```
+Graphic pipeline configuration are predefined by the [`GraphicPipelineConfig`](../../wiki/api/GraphicPipelineConfig) class, which ease sharing configs for several pipelines having lots in common. The pipeline layout will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for [`DescriptorSetLayout`](../../wiki/api/DescriptorSetLayout).
+```csharp
+GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (
+      VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
+      
+cfg.Layout = new PipelineLayout (dev,
+  new DescriptorSetLayout (dev,
+     new VkDescriptorSetLayoutBinding (
+       0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
+```
+Next we configure a default [`RenderPass`](../../wiki/api/RenderPass) with just a color attachment for the swap chain image, a default sub-pass is automatically created and the render pass activation will follow the pipeline life cycle and will be automatically disposed when no longer in use.
+```csharp
+	cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
+```
+Configuration of vertex bindings and attributes
+```csharp
+	cfg.AddVertexBinding<Vertex> (0);
+	cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat,	//position
+	                            VkFormat.R32g32b32Sfloat);//color
+```
+shader are automatically compiled by [`SpirVTacks`](../../SpirVTasks/README.md) if added to the project. The resulting shaders are automatically embedded in the assembly. To specifiy that the shader path is a resource name, put the **'#'** prefix. Else the path will be search on disk.
+```csharp
+	cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+	cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+```
+Once the pipeline configuration is complete, we use it to effectively create and activate a graphic pipeline. Activables used by the pipeline (like the RenderPass, or the PipelineLayout) are referenced in the newly created managed pipeline. So the Configuration object doesn't need cleanup.
+```csharp
+	pipeline = new GraphicPipeline (cfg);
+```
+Because descriptor layouts used for a pipeline are only activated on pipeline activation, descriptor sets must not be allocated before, except if the layout has been manually activated, but in this case, layouts will also need to be explicitly disposed.
+```csharp
+	descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
+```
+The descriptor update is a two step operation. First we create a [`DescriptorSetWrites`](../../wiki/api/DescriptorSetWrites) object defining the layout(s), than we write the descriptor(s).
+The `Descriptor` property of the mvp HostBuffer will return a default descriptor with no offset of the full size of the buffer.
 
 ```csharp
-protected override void initVulkan () {
-   base.initVulkan ();
-   vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
-   ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
-   uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);   
-   ...
+	DescriptorSetWrites uboUpdate =
+	  new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
+	  
+	uboUpdate.Write (dev, uboMats.Descriptor);
 ```
-### Enabling extensions
-
-The `VkWindow` class provides two properties that you may override to enable additional extensions. The `Ext` static class of the vulkan package provides up to date lists of existing vulkan extensions for convenience.
-
-```csharp
-public virtual string[] EnabledInstanceExtensions => null;
-public virtual string[] EnabledDeviceExtensions =>
-    new string[] { Ext.D.VK_KHR_swapchain };
-```
-
-### Enabling features
-
-Override the `configureEnabledFeatures` method of `VkWindow` to enable features. Available features queried from the selected physical device are provided as argument.
-```csharp
-protected override void configureEnabledFeatures (
-    VkPhysicalDeviceFeatures available_features,
-    ref VkPhysicalDeviceFeatures enabled_features) {
-    
-	enabled_features.samplerAnisotropy = available_features.samplerAnisotropy;    
-}
-```
-### Creating queues
-
-To create queues, override the `createQueues` method of `VkWindow`. This function is called before the logical device creation and will take care of physically available queues, creating duplicates if count exceed availability. The `base` method will create a default presentable queue.
-
-```csharp
-protected override void createQueues () {
-	base.createQueues ();
-	transferQ = new Queue (dev, VkQueueFlags.Transfer);
-}
-```
-### Rendering
-
-VkWindow will provide the default swapchain, but it's up to you to create the frame buffers. For the triangle example, create them in the `OnResize` override. The `RenderPass` class has the ability to create a framebuffer collection for a given swapchain. The `OnResize` method is guarantied to be called once before entering the rendering loop, so that it is a safe place to call the building of your command buffers.
-```csharp
-FrameBuffers frameBuffers;
-
-protected override void OnResize () {
-	base.OnResize ();
-
-	frameBuffers?.Dispose();
-	frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
-
-    buildCommandBuffers ();
-}
-```
-

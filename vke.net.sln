@@ -8,11 +8,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{7285454A-930F-4536-AB84-C076B44C0C80}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "addons", "addons", "{4AA67AB0-C331-4CB2-9C00-B74F5DE31658}"
 	ProjectSection(SolutionItems) = preProject
-		addons/Directory.Build.props = "Directory.Build.props"
+		addons\Directory.Build.props = addons\Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvironmentPipeline", "addons\EnvironmentPipeline\EnvironmentPipeline.csproj", "{F04C3F79-2E08-4D35-A804-43039DCB7F5E}"
@@ -25,8 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkvgPipeline", "addons\Vkvg
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{16439374-B8DB-4643-8116-EB3358B49A12}"
 	ProjectSection(SolutionItems) = preProject
-		samples/Directory.Build.props = "Directory.Build.props"
+		samples\Directory.Build.props = samples\Directory.Build.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearScreen", "samples\ClearScreen\ClearScreen.csproj", "{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle", "samples\Triangle\Triangle.csproj", "{124152F8-FAE6-4D4B-87B9-6074DD365E9B}"
 EndProject
@@ -159,6 +162,16 @@ Global
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.DebugCrow|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.DebugCrow|Any CPU.Build.0 = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.ReleaseSpirVTasks|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.ReleaseSpirVTasks|Any CPU.Build.0 = Debug|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.BuildPackages|Any CPU.ActiveCfg = Release|Any CPU
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66}.BuildPackages|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FEF3AF30-5B88-4D3C-8BD7-8734200E0D1E} = {4AA67AB0-C331-4CB2-9C00-B74F5DE31658}
@@ -173,6 +186,7 @@ Global
 		{D9A41382-444E-44ED-B638-3D8F06F2FBC2} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{124152F8-FAE6-4D4B-87B9-6074DD365E9B} = {16439374-B8DB-4643-8116-EB3358B49A12}
 		{7EB2430B-6BC0-4AE9-B1FA-57C3DB2AE1C5} = {16439374-B8DB-4643-8116-EB3358B49A12}
+		{1D2A1968-8F04-4BE0-B03A-573F1F68AB66} = {16439374-B8DB-4643-8116-EB3358B49A12}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

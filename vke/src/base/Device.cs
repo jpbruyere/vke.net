@@ -97,7 +97,10 @@ namespace vke {
 			resourceManager = new ResourceManager (this);
 #endif
 		}
-
+		/// <summary>
+		/// Creates a new semaphore.
+		/// </summary>
+		/// <returns>The semaphore native handle</returns>
 		public VkSemaphore CreateSemaphore () {
 			VkSemaphore tmp;
 			VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo.New ();
@@ -108,38 +111,14 @@ namespace vke {
 			vkDestroySemaphore (dev, semaphore, IntPtr.Zero);
 			semaphore = 0;
 		}
-		public VkFence CreateFence (bool signaled = false) {
-			VkFence tmp;
-			VkFenceCreateInfo info = VkFenceCreateInfo.New ();
-			info.flags = signaled ? VkFenceCreateFlags.Signaled : 0;
-			Utils.CheckResult (vkCreateFence (dev, ref info, IntPtr.Zero, out tmp));
-			return tmp;
-		}
-		/// <summary>Destroy the fence.</summary>
-		/// <param name="fence">A valid fence handle.</param>
-		public void DestroyFence (VkFence fence) {
-			vkDestroyFence (dev, fence, IntPtr.Zero);
-			fence = 0;
-		}
-		public void WaitForFence (VkFence fence, ulong timeOut = UInt64.MaxValue) {
-			vkWaitForFences (dev, 1, ref fence, 1, timeOut);
-		}
-		public void ResetFence (VkFence fence) {
-			vkResetFences (dev, 1, ref fence);
-		}
-		public void WaitForFences (VkFence[] fences, ulong timeOut = UInt64.MaxValue) {
-			vkWaitForFences (dev, (uint)fences.Length, fences.Pin(), 1, timeOut);
-			fences.Unpin ();
-		}
-		public void ResetFences (params VkFence[] fences) {
-			vkResetFences (dev, (uint)fences.Length, fences.Pin());
-			fences.Unpin ();
-		}
 
 		public void DestroyShaderModule (VkShaderModule module) {
 			vkDestroyShaderModule (VkDev, module, IntPtr.Zero);
 			module = 0;
 		}
+		/// <summary>
+		/// Wait for this logical device to enter the idle state.
+		/// </summary>
 		public void WaitIdle () {
 			Utils.CheckResult (vkDeviceWaitIdle (dev));
 		}
@@ -148,27 +127,8 @@ namespace vke {
 			Utils.CheckResult (vkCreateRenderPass (dev, ref info, IntPtr.Zero, out renderPass));
 			return renderPass;
 		}
-		internal VkSwapchainKHR CreateSwapChain (VkSwapchainCreateInfoKHR infos) {
-			VkSwapchainKHR newSwapChain;
-			Utils.CheckResult (vkCreateSwapchainKHR (dev, ref infos, IntPtr.Zero, out newSwapChain));
-			return newSwapChain;
-		}
-		internal void DestroySwapChain (VkSwapchainKHR swapChain) {
-			vkDestroySwapchainKHR (dev, swapChain, IntPtr.Zero);
-		}
-		unsafe public VkImage[] GetSwapChainImages (VkSwapchainKHR swapchain) {
-			uint imageCount = 0;
-			Utils.CheckResult (vkGetSwapchainImagesKHR (dev, swapchain, out imageCount, IntPtr.Zero));
-			if (imageCount == 0)
-				throw new Exception ("Swapchain image count is 0.");
-			VkImage[] imgs = new VkImage[imageCount];
 
-			Utils.CheckResult (vkGetSwapchainImagesKHR (dev, swapchain, out imageCount, imgs.Pin ()));
-			imgs.Unpin ();
-
-			return imgs;
-		}
-		unsafe public VkImageView CreateImageView (VkImage image, VkFormat format, VkImageViewType viewType = VkImageViewType.ImageView2D, VkImageAspectFlags aspectFlags = VkImageAspectFlags.Color) {
+		public VkImageView CreateImageView (VkImage image, VkFormat format, VkImageViewType viewType = VkImageViewType.ImageView2D, VkImageAspectFlags aspectFlags = VkImageAspectFlags.Color) {
 			VkImageView view;
 			VkImageViewCreateInfo infos = VkImageViewCreateInfo.New ();
 			infos.image = image;

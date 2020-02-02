@@ -3,10 +3,10 @@
   <PropertyGroup>
     <AssemblyName>EnvironmentPipeline</AssemblyName>
     <PackageId>vke.EnvironmentPipeline</PackageId>
-    <AssemblyVersion>0.1.2</AssemblyVersion>
+    <AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
     <Description>vke.net Environment cube pipeline</Description>
     <PackageTags>vulkan c# vke.net</PackageTags>    
-    <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
+    <PackageVersion>$(VkePackageVersion)</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>

@@ -221,12 +221,10 @@ namespace vke {
             vkCmdEndRenderPass (cmd.Handle);
         }
 		/// <summary>
-		/// Create a one framebuffer per swapchain images of the supplied swapChain.
-		/// The presentable attachment of this renderpass is found searching for its final layout that could be
-		/// PresentSrcKHR or SharedPresentKHR.
+		/// Create one framebuffer per swapchain images. The presentable attachment of this renderpass is found searching for its final layout that could be PresentSrcKHR or SharedPresentKHR.
 		/// </summary>
 		/// <returns>A collection of FrameBuffer</returns>
-		/// <param name="swapChain">Swap chain.</param>
+		/// <param name="swapChain">a managed SwapChain instance.</param>
 		public FrameBuffers CreateFrameBuffers (SwapChain swapChain) {
 			FrameBuffers fbs = new FrameBuffers();
 			Image[] images = new Image[attachments.Count];

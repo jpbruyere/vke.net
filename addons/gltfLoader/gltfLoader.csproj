@@ -3,10 +3,10 @@
   <PropertyGroup>
     <AssemblyName>vke.gltfLoader</AssemblyName>
     <PackageId>vke.gltfLoader</PackageId>
-    <AssemblyVersion>0.1.8</AssemblyVersion>
+    <AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
     <Description>vke.net gltf addons</Description>
     <PackageTags>C# vulkan CVKL gltf</PackageTags>    
-    <PackageVersion>$(AssemblyVersion)-beta</PackageVersion>
+    <PackageVersion>$(AssemblyVersion)</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>

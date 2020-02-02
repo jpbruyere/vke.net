@@ -86,7 +86,7 @@ namespace vke {
 			if (freeCommandBuffer)
 				cmd.Free ();
 		}
-        public void Submit (CommandBuffer cmd, VkSemaphore wait = default(VkSemaphore), VkSemaphore signal = default (VkSemaphore), VkFence fence = default (VkFence)) {
+        public void Submit (CommandBuffer cmd, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
             cmd.Submit (handle, wait, signal, fence);
         }
         public void WaitIdle () {

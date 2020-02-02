@@ -41,7 +41,8 @@ namespace vke {
 		//With the debug utils extension, setting name to vulkan's object ease the debugging.
 		protected string name;
 		/// <summary>
-		/// This property has to be implemented in every vulkan object. It must return the correct debug marker info.
+		/// This property has to be implemented in every vulkan object. It must return the correct debug marker info to use
+		/// if VK_EXT_debug_utils extension is enabled.
 		/// </summary>
 		/// <value>The debug marker info.</value>
 		protected abstract VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo { get; }
@@ -52,11 +53,11 @@ namespace vke {
 
 		#region CTOR
 		protected Activable (Device dev) {
-			this.Dev = dev;
-			this.name = GetType ().Name;
+			Dev = dev;
+			name = GetType ().Name;
 		}
 		protected Activable (Device dev, string name) {
-			this.Dev = dev;
+			Dev = dev;
 			this.name = name;
 		}
 		#endregion
@@ -76,7 +77,7 @@ namespace vke {
 			name.Unpin ();			
 		}
 		/// <summary>
-		/// Activation of the object, the reference count is incremented.
+		/// Activation of the object, the reference count is incremented and if Debug utils is enabled, name is set.
 		/// </summary>
 		public virtual void Activate () {
 			references++;

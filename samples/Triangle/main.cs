@@ -1,14 +1,12 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-using System;
-using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 using vke;
 using Vulkan;
 
+//the traditional triangle sample
 namespace Triangle {
 	class Program : VkWindow {
 		static void Main (string[] args) {
@@ -18,15 +16,9 @@ namespace Triangle {
 		}
 
 		const float rotSpeed = 0.01f, zoomSpeed = 0.01f;
-		float rotX, rotY, rotZ = 0f, zoom = 1f;
+		float rotX, rotY, zoom = 1f;
 
-		[StructLayout (LayoutKind.Sequential)]
-		struct Matrices {
-			public Matrix4x4 projection;
-			public Matrix4x4 view;
-			public Matrix4x4 model;
-		}
-
+		//vertex structure
 		[StructLayout(LayoutKind.Sequential)]
 		struct Vertex {
 			Vector3 position;
@@ -38,18 +30,19 @@ namespace Triangle {
 			}
 		}
 
-		Matrices matrices;
+		Matrix4x4 mvp;      //the model view projection matrix
 
-		HostBuffer ibo;
-		HostBuffer vbo;
-		HostBuffer uboMats;
+		HostBuffer ibo;     //a host mappable buffer to hold the indices.
+		HostBuffer vbo;     //a host mappable buffer to hold vertices.
+		HostBuffer uboMats; //a host mappable buffer for mvp matrice.
 
 		DescriptorPool descriptorPool;
-		DescriptorSet descriptorSet;
+		DescriptorSet descriptorSet;//descriptor set for the mvp matrice.
 
-		FrameBuffers frameBuffers;
-		GraphicPipeline pipeline;
+		FrameBuffers frameBuffers;	//the frame buffer collection coupled to the swapchain images
+		GraphicPipeline pipeline;   //the triangle rendering pipeline
 
+		//triangle vertices (position + color per vertex) and indices.
 		Vertex[] vertices = {
 			new Vertex (-1.0f, -1.0f, 0.0f ,  1.0f, 0.0f, 0.0f),
 			new Vertex ( 1.0f, -1.0f, 0.0f ,  0.0f, 1.0f, 0.0f),
@@ -57,57 +50,63 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
-		Program () : base () {}
-
 		protected override void initVulkan () {
 			base.initVulkan ();
 
+			//first create the needed buffers
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
-			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
+			//because mvp matrice may be updated by mouse move, we keep it mapped after creation.
+			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, mvp, true);
 
+			//a descriptor pool to allocate the mvp matrice descriptor from.
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 
+			//Graphic pipeline configuration are predefined by the GraphicPipelineConfig class, which ease sharing config for several pipelines having lots in common.
 			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
-
+			//Create the pipeline layout, it will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit
+			//from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for DescriptorSetLayout.
 			cfg.Layout = new PipelineLayout (dev,
-				new DescriptorSetLayout (dev,
-					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer)));
-
+				new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
+			//create a default renderpass with just a color attachment for the swapchain image, a default subpass is automatically created and the renderpass activation
+			//will follow the pipeline life cicle and will be automatically disposed when no longuer used.
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
+			//configuration of vertex bindings and attributes
 			cfg.AddVertexBinding<Vertex> (0);
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
+			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);//position + color
 
+			//shader are automatically compiled by SpirVTacks if added to the project. The resulting shaders are automatically embedded in the assembly.
+			//To specifiy that the shader path is a resource name, put the '#' prefix. Else the path will be search on disk.
 			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
 			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
+			//create and activate the pipeline with the configuration we've just done.
 			pipeline = new GraphicPipeline (cfg);
 
-			//note that descriptor set is allocated after the pipeline creation that use this layout, layout is activated
-			//automaticaly on pipeline creation, and will be disposed automatically when no longuer in use.
+			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated, 
+			//but in this case, layout will need also to be explicitly disposed.
 			descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
 
+			//Write the content of the descriptor, the mvp matrice.
 			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
+			//Descriptor property of the mvp buffer will return a default descriptor with no offset of the full size of the buffer.
 			uboUpdate.Write (dev, uboMats.Descriptor);
 
-			uboMats.Map ();
-
+			//allocate the default VkWindow buffers, one per swapchain image. Their will be only reset when rebuilding and not reallocated.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 		}
 
+		//view update override, see base method for more informations.
 		public override void UpdateView () {
-			matrices.projection = Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
-				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
-			matrices.view = 
-				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
+			mvp =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotX) *
-				Matrix4x4.CreateTranslation (0, 0, -3f * zoom);
-			matrices.model = Matrix4x4.Identity;
-			uboMats.Update (matrices, (uint)Marshal.SizeOf<Matrices> ());
-			updateViewRequested = false;
-		}
+				Matrix4x4.CreateTranslation (0, 0, -3f * zoom) *
+				Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 
+			uboMats.Update (mvp, (uint)Marshal.SizeOf<Matrix4x4> ());
+			base.UpdateView ();
+		}
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
@@ -118,6 +117,8 @@ namespace Triangle {
 				zoom += zoomSpeed * (float)diffY;
 			} else
 				return;
+			//VkWindow has a boolean for requesting a call to 'UpdateView', it will be
+			//reset by the 'UpdateView' base method or the custom override.
 			updateViewRequested = true;
 		}
 
@@ -156,15 +157,18 @@ namespace Triangle {
 
 			buildCommandBuffers ();
 		}
-
+		//clean up
 		protected override void Dispose (bool disposing) {		
 			dev.WaitIdle ();
 			if (disposing) {
 				if (!isDisposed) {
+					//pipeline clean up will dispose PipelineLayout, DescriptorSet layouts and render pass automatically. If their reference count is zero, their handles will be destroyed.
 					pipeline.Dispose ();
-
+					//frame buffers are automatically activated on creation as for resources, so it requests an explicit call to dispose.
 					frameBuffers?.Dispose();
+					//the descriptor pool
 					descriptorPool.Dispose ();
+					//resources have to be explicityly disposed.
 					vbo.Dispose ();
 					ibo.Dispose ();
 					uboMats.Dispose ();

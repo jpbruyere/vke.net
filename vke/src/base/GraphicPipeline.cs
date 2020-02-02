@@ -8,20 +8,25 @@ using System.Linq;
 using static Vulkan.Vk;
 
 namespace vke {
-    public class GraphicPipeline : Pipeline {
+	public class GraphicPipeline : Pipeline {
 
 		public readonly RenderPass RenderPass;
 		public VkSampleCountFlags Samples => RenderPass.Samples;
 
 		#region CTORS
-		protected GraphicPipeline (RenderPass renderPass, PipelineCache cache = null, string name = "graphic pipeline") : base(renderPass.Dev, cache, name) { 
+		/// <summary>
+		/// Create and activate a new pipeline for supplied render pass.
+		/// </summary>
+		/// <param name="renderPass">a managed Render pass that will be activated (if not already) during the pipeline creation.</param>
+		/// <param name="cache">an optional pipeline cache to speed up pipeline creation.</param>
+		/// <param name="name">an optionnal name that will be used by the debug utils extension if enabled.</param>
+		protected GraphicPipeline (RenderPass renderPass, PipelineCache cache = null, string name = "graphic pipeline") : base (renderPass.Dev, cache, name) {
 			RenderPass = renderPass;
 		}
 		/// <summary>
 		/// Create a new Pipeline with supplied RenderPass
 		/// </summary>
-		public GraphicPipeline (GraphicPipelineConfig cfg, string name = "graphic pipeline") : this (cfg.RenderPass, cfg.Cache, name)
-		{
+		public GraphicPipeline (GraphicPipelineConfig cfg, string name = "graphic pipeline") : this (cfg.RenderPass, cfg.Cache, name) {
 			layout = cfg.Layout;
 
 			init (cfg);
@@ -46,8 +51,7 @@ namespace vke {
 					VkPipelineColorBlendStateCreateInfo colorBlendInfo = VkPipelineColorBlendStateCreateInfo.New ();
 					colorBlendInfo.logicOpEnable = cfg.ColorBlendLogicOpEnable;
 					colorBlendInfo.logicOp = cfg.ColorBlendLogicOp;
-					unsafe
-					{
+					unsafe {
 						colorBlendInfo.blendConstants[0] = cfg.ColorBlendConstants.X;
 						colorBlendInfo.blendConstants[1] = cfg.ColorBlendConstants.Y;
 						colorBlendInfo.blendConstants[2] = cfg.ColorBlendConstants.Z;
@@ -58,7 +62,7 @@ namespace vke {
 
 					VkPipelineDynamicStateCreateInfo dynStatesInfo = VkPipelineDynamicStateCreateInfo.New ();
 					dynStatesInfo.dynamicStateCount = (uint)cfg.dynamicStates.Count;
-					dynStatesInfo.pDynamicStates = cfg.dynamicStates.Cast<int>().ToArray().Pin (pctx);
+					dynStatesInfo.pDynamicStates = cfg.dynamicStates.Cast<int> ().ToArray ().Pin (pctx);
 
 					VkPipelineVertexInputStateCreateInfo vertInputInfo = VkPipelineVertexInputStateCreateInfo.New ();
 					vertInputInfo.vertexBindingDescriptionCount = (uint)cfg.vertexBindings.Count;
@@ -97,7 +101,7 @@ namespace vke {
 					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 
 					for (int i = 0; i < cfg.shaders.Count; i++)
-						Dev.DestroyShaderModule (shaderStages [i].module);
+						Dev.DestroyShaderModule (shaderStages[i].module);
 				}
 			}
 			base.Activate ();
@@ -112,9 +116,9 @@ namespace vke {
 
 		protected override void Dispose (bool disposing) {
 			if (disposing) {
-				if (state == ActivableState.Activated) 
+				if (state == ActivableState.Activated)
 					RenderPass.Dispose ();
-			}else
+			} else
 				System.Diagnostics.Debug.WriteLine ("GraphicPipeline disposed by finalizer");
 
 			base.Dispose (disposing);

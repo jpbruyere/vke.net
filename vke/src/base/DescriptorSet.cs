@@ -3,7 +3,7 @@
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System.Collections.Generic;
 using Vulkan;
-
+//TODO:
 namespace vke {
 	public class DescriptorSet {
         internal VkDescriptorSet handle;

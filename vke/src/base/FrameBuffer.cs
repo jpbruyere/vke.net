@@ -10,27 +10,30 @@ using static Vulkan.Vk;
 
 namespace vke {
 
-    public class FrameBuffer : Activable {
-        internal VkFramebuffer handle;
-        RenderPass renderPass;
-        
-		public List<Image> attachments = new List<Image> ();
-        VkFramebufferCreateInfo createInfo = VkFramebufferCreateInfo.New();
+	/// <summary>
+	/// Managed activable for one Frame buffer
+	/// </summary>
+	public class FrameBuffer : Activable {
+		internal VkFramebuffer handle;
+		RenderPass renderPass;
 
-        public uint Width => createInfo.width;
-        public uint Height => createInfo.height;
-        public uint Layers => createInfo.layers;
+		public List<Image> attachments = new List<Image> ();
+		VkFramebufferCreateInfo createInfo = VkFramebufferCreateInfo.New ();
+
+		public uint Width => createInfo.width;
+		public uint Height => createInfo.height;
+		public uint Layers => createInfo.layers;
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
 					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Framebuffer, handle.Handle);
 		#region CTORS
-		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, uint _layers = 1) : base(_renderPass.Dev) {
-            renderPass = _renderPass;
-            createInfo.width = _width;
-            createInfo.height = _height;
-            createInfo.layers = _layers;
-            createInfo.renderPass = renderPass.handle;
-        }
+		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, uint _layers = 1) : base (_renderPass.Dev) {
+			renderPass = _renderPass;
+			createInfo.width = _width;
+			createInfo.height = _height;
+			createInfo.layers = _layers;
+			createInfo.renderPass = renderPass.handle;
+		}
 		/// <summary>
 		/// Create and Activate a new frabuffer for the supplied RenderPass.
 		/// </summary>
@@ -39,7 +42,7 @@ namespace vke {
 		/// <param name="_height">Height.</param>
 		/// <param name="views">Views.</param>
 		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, params Image[] views)
-        : this (_renderPass, _width, _height) {
+		: this (_renderPass, _width, _height) {
 			for (int i = 0; i < views.Length; i++) {
 				Image v = views[i];
 				if (v == null) {
@@ -61,13 +64,13 @@ namespace vke {
 				} else
 					v.Activate ();//increase ref and create handle if not already activated
 
-                attachments.Add (v);
+				attachments.Add (v);
 			}
-            Activate ();
+			Activate ();
 		}
 		#endregion
 
-		public override void Activate () {
+		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
 				VkImageView[] views = attachments.Select (a => a.Descriptor.imageView).ToArray ();
 				createInfo.attachmentCount = (uint)views.Length;
@@ -78,26 +81,26 @@ namespace vke {
 				views.Unpin ();
 			}
 			base.Activate ();
-        }
+		}
 
 
 		public override string ToString () {
-			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");
+			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString ("x")}]");
 		}
 
-#region IDisposable Support
+		#region IDisposable Support
 		protected override void Dispose (bool disposing) {
 			if (state == ActivableState.Activated)
 				Dev.DestroyFramebuffer (handle);
 			if (disposing) {
-				foreach (Image img in attachments) 
-					img.Dispose();
-			}else
+				foreach (Image img in attachments)
+					img.Dispose ();
+			} else
 				System.Diagnostics.Debug.WriteLine ("VKE Activable object disposed by finalizer");
-				
+
 			base.Dispose (disposing);
 		}
-#endregion
+		#endregion
 
 	}
 }
