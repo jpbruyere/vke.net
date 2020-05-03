@@ -1,8 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-  </PropertyGroup>
-
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net472</TargetFrameworks>
+		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
+		<IntermediateOutputPath>$(SolutionDir)build\obj\$(Configuration)\</IntermediateOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />
+		<None Include="data\**\*.*;ui\*.*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<EmbeddedResource Include="ui\CrowTemplateOverrides\**\*.*">
+			<LogicalName>Crow.%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="*.style" />		
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="SpirVTasks" Version="0.1.15-beta" />
+		<!--	<PackageReference Include="Crow" Version="0.8.5-beta" />-->
+		<ProjectReference Include="..\..\vke\vke.csproj" />
+		<!--<PackageReference Include="vke.gltfLoader" Version="0.1.7-beta" />-->
+		<ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
+		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+		<PackageReference Include="Crow" Version="0.8.6-beta" />
+	</ItemGroup>
 </Project>

@@ -23,17 +23,17 @@ To build a minimal vulkan application, add the [vke](https://www.nuget.org/packa
 
 ```csharp
 class Program : VkWindow {
-	static void Main (string[] args) {
-		using (Program vke = new Program ()) {
-			vke.Run ();
-		}
-	}
+    static void Main (string[] args) {
+    	using (Program vke = new Program ()) {
+    		vke.Run ();
+    	}
+    }
 }
 ```
 
 ### Vulkan Initialization
 
-`init_vulkan` is the first method called by the 'Run' method. Default initialization will provide a vulkan window, a default swap chain bound to it, and a draw and present semaphore to sync the rendering.
+`initVulkan` is the first method called by the 'Run' method. Default initialization will provide a vulkan window, a default swap chain bound to it, and a draw and present semaphore to sync the rendering.
 ```csharp
 protected override void initVulkan () {
     base.initVulkan ();
@@ -79,13 +79,10 @@ void buildCommandBuffers() {
 	cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
 
 	for (int i = 0; i < swapChain.ImageCount; ++i) {
-		cmds[i].Start ();
-
-		renderPass.Begin (cmds[i], frameBuffers[i]);
-
-		renderPass.End (cmds[i]);
-
-		cmds[i].End ();
+        cmds[i].Start ();
+        renderPass.Begin (cmds[i], frameBuffers[i]);
+        renderPass.End (cmds[i]);
+        cmds[i].End ();
 	}
 }
 ```

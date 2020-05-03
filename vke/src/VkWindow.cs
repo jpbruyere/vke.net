@@ -33,10 +33,12 @@ namespace vke {
 		protected PresentQueue presentQueue;
 		protected SwapChain swapChain;
 		protected CommandPool cmdPool;
-		protected CommandBuffer[] cmds;
+		protected PrimaryCommandBuffer[] cmds;
 		protected VkSemaphore[] drawComplete;
 		protected Fence drawFence;
 
+		/// <summary>readonly GLFW window handle</summary>
+		protected IntPtr WindowHandle => hWin;
 		protected uint fps { get; private set; }
 		protected bool updateViewRequested = true;
 		protected double lastMouseX { get; private set; }
@@ -164,14 +166,14 @@ namespace vke {
 
 			swapChain = new SwapChain (presentQueue as PresentQueue, Width, Height, SwapChain.PREFERED_FORMAT,
 				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.MailboxKHR);
-			swapChain.Create ();
+			swapChain.Activate ();
 
 			Width = swapChain.Width;
 			Height = swapChain.Height;
 
-			cmdPool = new CommandPool (dev, presentQueue.qFamIndex);
+			cmdPool = new CommandPool (dev, presentQueue.qFamIndex, VkCommandPoolCreateFlags.ResetCommandBuffer);
 
-			cmds = new CommandBuffer[swapChain.ImageCount];
+			cmds = new PrimaryCommandBuffer[swapChain.ImageCount];
 			drawComplete = new VkSemaphore[swapChain.ImageCount];
 			drawFence = new Fence (dev, true, "draw fence");
 

@@ -113,7 +113,7 @@ namespace Textured {
 			dev.WaitIdle ();
 			cmdPool.Reset();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				CommandBuffer cmd = cmds[i];
+				PrimaryCommandBuffer cmd = cmds[i];
 				FrameBuffer fb = frameBuffers[i];
 
 				cmd.Start();

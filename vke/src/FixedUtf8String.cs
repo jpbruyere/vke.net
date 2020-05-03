@@ -21,13 +21,11 @@ namespace Vulkan {
 			numBytes = (uint)text.Length;
 		}
 
-		private string GetString () {
-			return Marshal.PtrToStringUni (Ptr);
-		}
+		public override string ToString () => Encoding.UTF8.GetString ((handle.Target as byte[]));
 
 		public static implicit operator IntPtr (FixedUtf8String utf8String) => utf8String.Ptr;
 		public static implicit operator FixedUtf8String (string s) => new FixedUtf8String (s);
-		public static implicit operator string (FixedUtf8String utf8String) => utf8String.GetString ();
+		public static implicit operator string (FixedUtf8String utf8String) => utf8String.ToString();
 
 		#region IDisposable Support
 		private bool disposedValue = false; // Pour détecter les appels redondants

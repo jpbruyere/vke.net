@@ -135,7 +135,7 @@ namespace vke {
 		/// <summary>
 		/// execute the descriptors writes targeting descriptorSets setted on AddWriteInfo call
 		/// </summary>
-		public void Push (CommandBuffer cmd, PipelineLayout plLayout, params object[] descriptors) {
+		public void Push (PrimaryCommandBuffer cmd, PipelineLayout plLayout, params object[] descriptors) {
 			using (PinnedObjects pinCtx = new PinnedObjects ()) {
 				int i = 0;
 				int wdsPtr = 0;

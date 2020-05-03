@@ -1,5 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">  
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>		
     <IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>  
 </Project>

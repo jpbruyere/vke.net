@@ -8,31 +8,27 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
-	/// <summary>
-	/// Command buffers are objects used to record commands which can be subsequently submitted to a device queue for execution.
-	/// There are two levels of command buffers 
-	/// - primary command buffers, which can execute secondary command buffers, and which are submitted to queues
-	/// - secondary command buffers, which can be executed by primary command buffers, and which are not directly submitted to queues.
-	/// Command buffer are not derived from activable, because their state is retained by the pool which create them.
-	/// </summary>
-	public class CommandBuffer {
-		public enum States { Init, Record, Executable, Pending, Invalid };
-
-        CommandPool pool;
-        VkCommandBuffer handle;
-
-        public VkCommandBuffer Handle => handle;
-		public Device Device => pool?.Dev;//this help
-		//public States State { get; internal set; }
-
-        internal CommandBuffer (VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff)
-        {
-            pool = _pool;
-            handle = _buff;
-
-			//State = States.Init;
-        }
-
+	public class SecondaryCommandBuffer : CommandBuffer {
+		internal SecondaryCommandBuffer (VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff) : base (_dev, _pool, _buff) {
+		}
+		public void Start (VkCommandBufferUsageFlags usage = 0, RenderPass rp = null, uint subpass = 0, FrameBuffer fb = null,
+			bool occlusionQueryEnable = false, VkQueryControlFlags queryFlags = 0, VkQueryPipelineStatisticFlags statFlags = 0) {
+			VkCommandBufferInheritanceInfo inheri = VkCommandBufferInheritanceInfo.New ();
+			inheri.renderPass = rp == null ? 0 : rp.handle;
+			inheri.subpass = subpass;
+			inheri.framebuffer = fb == null ? 0 : fb.handle;
+			inheri.occlusionQueryEnable = occlusionQueryEnable;
+			inheri.queryFlags = queryFlags;
+			inheri.pipelineStatistics = statFlags;
+			VkCommandBufferBeginInfo cmdBufInfo = new VkCommandBufferBeginInfo (usage);
+			cmdBufInfo.pInheritanceInfo = inheri.Pin ();
+			Utils.CheckResult (vkBeginCommandBuffer (handle, ref cmdBufInfo));
+			inheri.Unpin ();
+		}
+	}
+	public class PrimaryCommandBuffer : CommandBuffer {
+		internal PrimaryCommandBuffer (VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff) : base (_dev, _pool, _buff) {
+		}
 		/// <summary>
 		/// Submit an executable command buffer with optional wait and signal semaphores, and an optional fence to be signaled when the commands have been completed.
 		/// </summary>
@@ -40,10 +36,10 @@ namespace vke {
 		/// <param name="wait">Wait.</param>
 		/// <param name="signal">Signal.</param>
 		/// <param name="fence">Fence.</param>
-        public void Submit (VkQueue queue, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
-            VkSubmitInfo submit_info = VkSubmitInfo.New();
+		public void Submit (VkQueue queue, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
+			VkSubmitInfo submit_info = VkSubmitInfo.New ();
 
-			IntPtr dstStageMask = Marshal.AllocHGlobal (sizeof(uint));
+			IntPtr dstStageMask = Marshal.AllocHGlobal (sizeof (uint));
 			Marshal.WriteInt32 (dstStageMask, (int)VkPipelineStageFlags.ColorAttachmentOutput);
 
 			using (PinnedObjects pctx = new PinnedObjects ()) {
@@ -63,19 +59,70 @@ namespace vke {
 				Utils.CheckResult (vkQueueSubmit (queue, 1, ref submit_info, fence));
 			}
 			Marshal.FreeHGlobal (dstStageMask);
-        }
+		}
 		/// <summary>
 		/// Put the command buffer in the recording state.
 		/// </summary>
 		/// <param name="usage">optional command buffer usage flags.</param>
-        public void Start (VkCommandBufferUsageFlags usage = 0) {
-            VkCommandBufferBeginInfo cmdBufInfo = new VkCommandBufferBeginInfo (usage);
-            Utils.CheckResult (vkBeginCommandBuffer (handle, ref cmdBufInfo));
+		public void Start (VkCommandBufferUsageFlags usage = 0) {
+			VkCommandBufferBeginInfo cmdBufInfo = new VkCommandBufferBeginInfo (usage);
+			Utils.CheckResult (vkBeginCommandBuffer (handle, ref cmdBufInfo));
+		}
+		/// <summary>
+		/// Execute secondary command buffers.
+		/// </summary>
+		public void Execute (params SecondaryCommandBuffer[] secondaryCmds) {
+			if (secondaryCmds.Length == 1) {
+				VkCommandBuffer hnd = secondaryCmds[0].Handle;
+				vkCmdExecuteCommands (handle, 1, ref hnd);
+				return;
+			}
+			int sizeElt = Marshal.SizeOf<IntPtr> ();
+			IntPtr cmdsPtr = Marshal.AllocHGlobal (secondaryCmds.Length * sizeElt);
+			int count = 0;
+			for (int i = 0; i < secondaryCmds.Length; i++) {
+				if (secondaryCmds[i] == null)
+					continue;
+				Marshal.WriteIntPtr (cmdsPtr + count * sizeElt, secondaryCmds[i].Handle.Handle);
+				count++;
+			}
+			if (count > 0)
+				vkCmdExecuteCommands (handle, (uint)count, cmdsPtr);
+
+			Marshal.FreeHGlobal (cmdsPtr);
+
+		}
+
+	}
+	/// <summary>
+	/// Command buffers are objects used to record commands which can be subsequently submitted to a device queue for execution.
+	/// There are two levels of command buffers 
+	/// - primary command buffers, which can execute secondary command buffers, and which are submitted to queues
+	/// - secondary command buffers, which can be executed by primary command buffers, and which are not directly submitted to queues.
+	/// Command buffer are not derived from activable, because their state is retained by the pool which create them.
+	/// </summary>
+	public abstract class CommandBuffer {
+		public enum States { Init, Record, Executable, Pending, Invalid };
+
+        protected CommandPool pool;
+        protected VkCommandBuffer handle;
+
+        public VkCommandBuffer Handle => handle;
+		public Device Device => pool?.Dev;//this help
+		//public States State { get; internal set; }
+
+        internal CommandBuffer (VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff)
+        {
+            pool = _pool;
+            handle = _buff;
+
+			//State = States.Init;
         }
+
 		/// <summary>
 		/// Put the command buffer in the executable state if no errors are present in the recording.
 		/// </summary>
-        public void End () {
+		public void End () {
             Utils.CheckResult (vkEndCommandBuffer (handle));
         }
         /// <summary>

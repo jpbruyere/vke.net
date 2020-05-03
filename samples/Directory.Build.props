@@ -42,8 +42,8 @@
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
 			<LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
 		</GLSLShader>		
-    <EmbeddedResource Include="ui\**\*.*">
-      <LogicalName>ui.%(Filename)%(Extension)</LogicalName>
-    </EmbeddedResource> 		
+		<EmbeddedResource Include="ui\**\*.*">
+			<LogicalName>ui.%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
 	</ItemGroup>     
 </Project>

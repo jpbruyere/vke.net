@@ -350,7 +350,7 @@ namespace deferred {
 
 			modelAABB = model.DefaultScene.AABB;
 		}
-		public void buildCommandBuffers (CommandBuffer cmd) {
+		public void buildCommandBuffers (PrimaryCommandBuffer cmd) {
 
 
 			renderPass.Begin (cmd, frameBuffer);

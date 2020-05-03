@@ -114,7 +114,7 @@ namespace DistanceFieldFontTest {
 
 			generateText ("Vulkan", out HostBuffer<Vertex> staggingVbo, out HostBuffer<ushort> staggingIbo);
 
-			CommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 			staggingVbo.CopyTo (cmd, vbo);
 			staggingIbo.CopyTo (cmd, ibo);
@@ -213,7 +213,7 @@ namespace DistanceFieldFontTest {
 			}
 		}
 
-		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
+		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) {
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);

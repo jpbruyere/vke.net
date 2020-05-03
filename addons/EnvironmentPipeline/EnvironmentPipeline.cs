@@ -47,7 +47,7 @@ namespace vke.Environment {
 
 		}
 
-		public void RecordDraw (CommandBuffer cmd) {
+		public void RecordDraw (PrimaryCommandBuffer cmd) {
 			Bind (cmd);
 			cmd.BindVertexBuffer (vboSkybox);
 			cmd.Draw (36);
@@ -124,7 +124,7 @@ namespace vke.Environment {
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
 				using (FrameBuffer fb = new FrameBuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
-					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
+					PrimaryCommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 					pl.RenderPass.Begin (cmd, fb);
 					pl.Bind (cmd);
@@ -222,7 +222,7 @@ namespace vke.Environment {
 				Dev.WaitIdle ();
 
 				using (FrameBuffer fb = new FrameBuffer (pl.RenderPass, dim, dim, imgFbOffscreen)) {
-					CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
+					PrimaryCommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 					cmap.SetLayout (cmd, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, subRes);

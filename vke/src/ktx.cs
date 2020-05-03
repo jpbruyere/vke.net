@@ -103,7 +103,7 @@ namespace KTX {
 						using (HostBuffer stagging = new HostBuffer (staggingQ.Dev, VkBufferUsageFlags.TransferSrc, staggingSize)) {
 							stagging.Map ();
 
-							CommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+							PrimaryCommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 							img.SetLayout (cmd, VkImageAspectFlags.Color,
 								VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
 								VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.Transfer);

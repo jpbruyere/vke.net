@@ -53,11 +53,12 @@
 	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />		
 		<PackageReference Include="glfw-sharp" Version="0.2.0" />
+		<PackageReference Include="shaderc" Version="0.1.0-beta" />
 	</ItemGroup>
 		
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-		<PackageReference Include="Vulkan" Version="0.2.1" />
+		<PackageReference Include="Vulkan" Version="0.2.2.2-beta" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />

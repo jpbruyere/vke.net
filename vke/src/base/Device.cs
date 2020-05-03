@@ -181,30 +181,36 @@ namespace vke {
             }
             throw new InvalidOperationException ("No suitable depth format found.");
         }
-
+		/// <summary>
+		/// Load compiled SpirvShader.
+		/// </summary>
+		/// <returns>the vulkan shader module.</returns>
+		/// <param name="filename">path of the spv shader.</param>
         public VkShaderModule LoadSPIRVShader (string filename) {
-			VkShaderModule shaderModule;
 			using (Stream stream = Utils.GetStreamFromPath (filename)) {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
-					ulong shaderSize = (ulong)shaderCode.Length;
-
-					// Create a new shader module that will be used for Pipeline creation
-					VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
-					moduleCreateInfo.codeSize = new UIntPtr (shaderSize);
-					moduleCreateInfo.pCode = shaderCode.Pin ();
-
-					Utils.CheckResult (vkCreateShaderModule (VkDev, ref moduleCreateInfo, IntPtr.Zero, out shaderModule));
-
+					UIntPtr shaderSize = (UIntPtr)shaderCode.Length;
+					VkShaderModule shaderModule = LoadSPIRVShader (shaderCode.Pin (), shaderSize);
 					shaderCode.Unpin ();
+					return shaderModule;
 				}
-
 			}
-			return shaderModule;            
+        }/// <summary>
+        /// Load spirv code from unmanaged native pointer.
+        /// </summary>
+        /// <returns>the vulkan shader module.</returns>
+        /// <param name="code">unmanaged pointer holding the spirv code.</param>
+        /// <param name="codeSize">spirv code byte size.</param>
+		public VkShaderModule LoadSPIRVShader (IntPtr code, UIntPtr codeSize) {
+			VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
+			moduleCreateInfo.codeSize = codeSize;
+			moduleCreateInfo.pCode = code;
+			Utils.CheckResult (vkCreateShaderModule (VkDev, ref moduleCreateInfo, IntPtr.Zero, out VkShaderModule shaderModule));
+			return shaderModule;
+		}
 
-        }        
-
-#region IDisposable Support
+		#region IDisposable Support
 		private bool disposedValue = false; // Pour détecter les appels redondants
 
         protected virtual void Dispose (bool disposing) {

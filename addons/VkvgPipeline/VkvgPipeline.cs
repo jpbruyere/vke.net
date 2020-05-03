@@ -51,7 +51,7 @@ namespace VkvgPipeline {
 			initUISurface (width, height);
 			dsUpdate.Write (Dev, uiImage.Descriptor);
 		}
-		public void RecordDraw (CommandBuffer cmd) {
+		public void RecordDraw (PrimaryCommandBuffer cmd) {
 			Bind (cmd);
 
 			uiImage.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ColorAttachmentOptimal, VkImageLayout.ShaderReadOnlyOptimal,

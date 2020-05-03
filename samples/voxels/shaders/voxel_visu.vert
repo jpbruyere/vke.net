@@ -1,34 +1,20 @@
+// derived from :
+// 	Author:	Fredrik Präntare <prantare@gmail.com> 
+// 	Date:	11/26/2016
+
 #version 450
 
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inUV;
 
-layout (binding = 0) uniform UBO 
-{
-	mat4 projectionMatrix;
-    mat4 viewMatrix;
-	mat4 modelMatrix;
-} ubo;
+layout (location = 0) out vec2 textureCoordinateFrag; 
 
-layout (location = 0) out vec3 pos;
-layout (location = 1) out vec3 outN;
+// Scales and bias a given vector (i.e. from [-1, 1] to [0, 1]).
+vec2 scaleAndBias(vec2 p) { return 0.5f * p + vec2(0.5f); }
 
-
-layout(push_constant) uniform PushConsts {
-    mat4 model;
-} pc;
-
-vec3 light = vec3(2.0,2.0,-2.0);
-
-void main() 
-{
-    mat4 mod = ubo.modelMatrix;// * pc.model;
-    pos = (mod * vec4(inPos.xyz, 1.0)).xyz;
-    
-	//gl_Position = pos;    
-	outN = mat3(mod)* inNormal;
+void main(){
+	textureCoordinateFrag = scaleAndBias(inPos.xy);
+	gl_Position = vec4(inPos, 1);
 }

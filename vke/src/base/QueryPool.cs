@@ -22,13 +22,13 @@ namespace vke {
 		}
 		#endregion
 
-		public void Write (CommandBuffer cmd, uint query, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
+		public void Write (PrimaryCommandBuffer cmd, uint query, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, query);
 		}
-		public void Start (CommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
+		public void Start (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, 0);
 		}
-		public void End (CommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
+		public void End (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, 1);
 		}
 		public float ElapsedMiliseconds {
@@ -79,10 +79,10 @@ namespace vke {
 		}
 		#endregion
 
-		public void Begin (CommandBuffer cmd, uint query = 0) {
+		public void Begin (PrimaryCommandBuffer cmd, uint query = 0) {
 			vkCmdBeginQuery (cmd.Handle, handle, query, VkQueryControlFlags.Precise);
 		}
-		public void End (CommandBuffer cmd, uint query = 0) {
+		public void End (PrimaryCommandBuffer cmd, uint query = 0) {
 			vkCmdEndQuery (cmd.Handle, handle, query);
 		}
 	}

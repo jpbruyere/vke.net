@@ -120,12 +120,12 @@ namespace vke {
 			uboUpdate.Write (Dev, dsMain, model.materialUBO.Descriptor);
 		}
 
-		public void RecordDraw (CommandBuffer cmd) {
+		public void RecordDraw (PrimaryCommandBuffer cmd) {
 			cmd.BindDescriptorSet (Layout, dsMain);
 			envCube.RecordDraw (cmd);
 			drawModel (cmd);
 		}
-		void drawModel (CommandBuffer cmd) {
+		void drawModel (PrimaryCommandBuffer cmd) {
 			Bind (cmd);
 			model.Bind (cmd);
 			model.DrawAll (cmd, Layout);

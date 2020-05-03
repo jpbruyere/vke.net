@@ -122,7 +122,7 @@ namespace deferred {
 		public void update_shadow_map (CommandPool cmdPool) {
 			update_light_matrices ();
 
-			CommandBuffer cmd = cmdPool.AllocateAndStart ();
+			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart ();
 
 			shadowPass.Begin (cmd, fbShadowMap);
 

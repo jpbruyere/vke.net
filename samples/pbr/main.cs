@@ -212,7 +212,7 @@ namespace pbrSample {
 				cmds[i].End ();
 			}
 		}
-		void recordDraw (CommandBuffer cmd, FrameBuffer fb) {
+		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) {
 			pbrPipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -296,7 +296,7 @@ namespace pbrSample {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
 			if (MouseButton[0]) {
-				camera.Rotate ((float)-diffX, (float)-diffY);
+				camera.Rotate ((float)-diffY, (float)-diffX,0);
 			} else if (MouseButton[1]) {
 				camera.SetZoom ((float)diffY);
 			} else

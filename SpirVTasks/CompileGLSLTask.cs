@@ -229,7 +229,7 @@ namespace SpirVTasks {
 			glslc.StartInfo.RedirectStandardOutput = true;
 			glslc.StartInfo.RedirectStandardError = true;
 			glslc.StartInfo.FileName = glslcPath;
-			glslc.StartInfo.Arguments = $"{tempFile} -o {DestinationFile.ItemSpec} {macros.ToString()} {optimisationStr}";
+			glslc.StartInfo.Arguments = $"\"{tempFile}\" -o \"{DestinationFile.ItemSpec}\" {macros.ToString()} {optimisationStr}";
 			glslc.StartInfo.CreateNoWindow = true;
 
 			glslc.EnableRaisingEvents = true;
@@ -259,11 +259,16 @@ namespace SpirVTasks {
 
 			string[] tmp = e.Data.Split (':');
 
-			//Log.LogMessage (MessageImportance.High, $"glslc: {e.Data}");
+			Log.LogMessage (MessageImportance.Low, $"glslc err: {e.Data}");
 
 			if (tmp.Length > 4) {
 				string srcFile = SourceFile.ItemSpec;
-				int line = Math.Max (0, int.Parse (tmp[1]));
+				if (!int.TryParse (tmp[1], out int line)) {
+					Log.LogMessage (MessageImportance.High, $"UNPARSED ERR:{e.Data}");
+					return;
+				}
+
+				line = Math.Max (0, line);
 
 				IncludePosition ip = includesPositions.LastOrDefault(p => p.globalPos <= line);
 				if (ip != null) {

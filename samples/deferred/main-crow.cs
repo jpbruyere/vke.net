@@ -172,7 +172,7 @@ namespace deferred {
 
 		}
 
-		protected override void recordDraw (CommandBuffer cmd, int imageIndex) {
+		protected override void recordDraw (PrimaryCommandBuffer cmd, int imageIndex) {
 			statPool.Begin (cmd);
 			renderer.buildCommandBuffers (cmd, imageIndex);
 			statPool.End (cmd);

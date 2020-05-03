@@ -163,6 +163,8 @@ namespace deferred {
 		}
 
 		public override void UpdateView () {
+			dev.WaitIdle ();
+
 			renderer.UpdateView (camera);
 			updateViewRequested = false;
 #if WITH_SHADOWS
@@ -199,7 +201,6 @@ namespace deferred {
 
 			UpdateView ();
 
-
 			frameBuffers?.Dispose();
 			frameBuffers = plToneMap.RenderPass.CreateFrameBuffers(swapChain);
 
@@ -218,7 +219,7 @@ namespace deferred {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
 			if (MouseButton[0]) {
-				camera.Rotate ((float)-diffX, (float)-diffY);
+				camera.Rotate ((float)-diffY, (float)-diffX, 0);
 			} else if (MouseButton[1]) {
 				camera.SetZoom ((float)diffY);
 			} else

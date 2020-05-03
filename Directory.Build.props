@@ -2,9 +2,9 @@
 	<PropertyGroup>
 		<RootDirectory>$(MSBuildThisFileDirectory)</RootDirectory>
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
-		<SpirVTasksReleaseVersion>0.1.41</SpirVTasksReleaseVersion>
+		<SpirVTasksReleaseVersion>0.1.44</SpirVTasksReleaseVersion>
 		<SpirVTasksPackageVersion>$(SpirVTasksReleaseVersion)-beta</SpirVTasksPackageVersion>
-		<VkeReleaseVersion>0.1.13</VkeReleaseVersion>
+		<VkeReleaseVersion>0.1.15</VkeReleaseVersion>
 		<VkePackageVersion>$(VkeReleaseVersion)-beta</VkePackageVersion>
 		
 		<LangVersion>7.2</LangVersion>

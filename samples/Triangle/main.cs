@@ -1,8 +1,10 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+//using System.Text;
 using vke;
 using Vulkan;
 
@@ -53,6 +55,8 @@ namespace Triangle {
 		protected override void initVulkan () {
 			base.initVulkan ();
 
+			test ();
+
 			//first create the needed buffers
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
@@ -94,6 +98,25 @@ namespace Triangle {
 
 			//allocate the default VkWindow buffers, one per swapchain image. Their will be only reset when rebuilding and not reallocated.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
+		}
+
+		void test()
+		{
+			if (Vk.vkEnumerateInstanceLayerProperties (out var count, IntPtr.Zero) != VkResult.Success) return;
+			var sizeStruct = Marshal.SizeOf<VkLayerProperties> ();
+			var ptrSupLayers = Marshal.AllocHGlobal (sizeStruct * (int)count);
+			if (Vk.vkEnumerateInstanceLayerProperties (out count, ptrSupLayers) != VkResult.Success) return;
+			VkLayerProperties[] result = new VkLayerProperties [count];
+			var tmp = ptrSupLayers;
+			for (var i = 0; i < count; i++) {
+				result [i] = Marshal.PtrToStructure<VkLayerProperties> (tmp);
+				tmp += sizeStruct;
+			}
+			Marshal.FreeHGlobal (ptrSupLayers);
+			unsafe {
+				foreach (VkLayerProperties p in result) 
+					Console.WriteLine ($"{p.layerName} ({p.specVersion}) : {p.description}");
+			}
 		}
 
 		//view update override, see base method for more informations.

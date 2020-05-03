@@ -170,7 +170,7 @@ namespace delaunay {
 
 			using (CommandPool cmdPoolCompute = new CommandPool (dev, computeQ.qFamIndex)) {
 
-				CommandBuffer cmd = cmdPoolCompute.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+				PrimaryCommandBuffer cmd = cmdPoolCompute.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				pong = false;
 				uint stepSize = imgDim / 2;
@@ -256,7 +256,7 @@ namespace delaunay {
 			dev.WaitIdle ();
 			using (CommandPool cmdPoolTransfer = new CommandPool (dev, transferQ.qFamIndex)) {
 
-				CommandBuffer cmd = cmdPoolTransfer.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+				PrimaryCommandBuffer cmd = cmdPoolTransfer.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				imgResult.SetLayout (cmd, VkImageAspectFlags.Color,
 					VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferDstOptimal,
@@ -276,7 +276,7 @@ namespace delaunay {
 
 		void initGpuBuffers () {
 			using (CommandPool staggingCmdPool = new CommandPool (dev, transferQ.qFamIndex)) {
-				CommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+				PrimaryCommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				stagingDataBuff.CopyTo (cmd, inBuff);
 

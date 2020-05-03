@@ -85,7 +85,7 @@ namespace vke {
 				this.indexBase = indexBase;
 			}
 
-			public void Draw (CommandBuffer cmd, uint instanceCount = 1, uint firstInstance = 0) {
+			public void Draw (PrimaryCommandBuffer cmd, uint instanceCount = 1, uint firstInstance = 0) {
 				cmd.DrawIndexed (indexCount, instanceCount, indexBase, vertexBase, firstInstance);
 			}
 		}

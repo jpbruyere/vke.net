@@ -14,6 +14,7 @@ namespace TextureCube {
 	/// Simple textured cube sampled.
 	/// </summary>
 	class Program : VkWindow {
+
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
@@ -170,7 +171,7 @@ namespace TextureCube {
 				cmds[i].End ();				 
 			}
 		} 
-		void recordDraw (CommandBuffer cmd, FrameBuffer fb) { 
+		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) { 
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);

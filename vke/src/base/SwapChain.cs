@@ -7,16 +7,23 @@ using Vulkan;
 using static Vulkan.Vk;
 
 namespace vke {
+	/// <summary>
+	/// A swapchain provides the ability to present rendering results to a surface.
+	/// A swapchain is an abstraction for an array of presentable images that are associated with a surface.
+	/// The presentable images are represented by `Image` objects created by the platform.
+	/// One image (which can: be an array image for multiview/stereoscopic-3D surfaces) is displayed at a time, but multiple images can: be queued for presentation.
+	/// An application renders to the image, and then queues the image for presentation to the surface.
+	/// </summary>
+	/// <remarks>
+	/// A native window cannot: be associated with more than one non-retired swapchain at a time.
+	/// Further, swapchains cannot: be created for native windows that have a non-Vulkan graphics API surface associated with them.
+	/// </remarks>
 	public class SwapChain : Activable {
-		/// <summary>
-		/// Set the default swapchain image format.
-		/// </summary>
+		/// <summary> Set the default swapchain image format. </summary>
 		public static VkFormat PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
-		/// <summary>
-		/// Set additional usage flags for the swapchain images such as TransferDst.
-		/// </summary>
+		/// <summary> Set additional usage flags for the swapchain images such as TransferDst. </summary>
 		public static VkImageUsageFlags IMAGES_USAGE = VkImageUsageFlags.ColorAttachment;
-
+		/// <summary> Opaque handle to a swapchain object. </summary>
 		public VkSwapchainKHR Handle { get; private set; }
 
 		internal uint currentImageIndex;
@@ -36,6 +43,14 @@ namespace vke {
 		public VkFormat ColorFormat => createInfos.imageFormat;
 		public VkImageUsageFlags ImageUsage => createInfos.imageUsage;
 
+		/// <summary>
+		/// Create a new managed `SwapChain` object. Native object will only be created with a call to the 'Create` method.
+		/// </summary>
+		/// <param name="_presentableQueue">Presentable queue.</param>
+		/// <param name="width">Swapchain x dimension.</param>
+		/// <param name="height">Swapchain y dimension.</param>
+		/// <param name="format">Swapchain's images format.</param>
+		/// <param name="presentMode">a present mode supported by the engine as returned by the `GetSurfacePresentModes` method of the `PhysicalDevice`</param>
 		public SwapChain (PresentQueue _presentableQueue, uint width = 800, uint height = 600, VkFormat format = VkFormat.B8g8r8a8Unorm,
 			VkPresentModeKHR presentMode = VkPresentModeKHR.FifoKHR)
 		: base (_presentableQueue.dev) {
@@ -77,11 +92,12 @@ namespace vke {
 			if (state != ActivableState.Activated) {
 				presentComplete = Dev.CreateSemaphore ();
 				presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
+				Create ();
 			}
 			base.Activate ();
 		}
 		/// <summary>
-		/// Create swapchain and populate images array
+		/// Create/recreate swapchain and populate images array
 		/// </summary>
 		public void Create () {
 
@@ -111,10 +127,7 @@ namespace vke {
 			if (Handle.Handle != 0)
 				_destroy ();
 			Handle = newSwapChain;
-
-			if (state != ActivableState.Activated)
-				Activate ();
-				
+							
 			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out uint imageCount, IntPtr.Zero));
 			if (imageCount == 0)
 				throw new Exception ("Swapchain image count is 0.");
@@ -131,11 +144,11 @@ namespace vke {
 			}
 		}
 		/// <summary>
-		/// Acquire next image, recreate swapchain if out of date or suboptimal error.
+		/// Retrieve the index of the next available presentable image, recreate swapchain if out of date or suboptimal error.
 		/// </summary>
 		/// <returns>Swapchain image index or -1 if failed</returns>
-		/// <param name="fence">Fence param of 'vkAcquireNextImageKHR'</param>
-		public int GetNextImage (VkFence fence = default (VkFence)) {
+		/// <param name="fence">an optional fence to signal.</param>
+		public int GetNextImage (Fence fence = null) {
 			VkResult res = vkAcquireNextImageKHR (Dev.VkDev, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
 			if (res == VkResult.ErrorOutOfDateKHR || res == VkResult.SuboptimalKHR) {
 				Create ();
@@ -158,8 +171,7 @@ namespace vke {
 		#region IDisposable Support
 		protected override void Dispose (bool disposing) {
 			if (state == ActivableState.Activated) {
-				if (disposing) {
-				} else
+				if (!disposing)
 					System.Diagnostics.Debug.WriteLine ("VKE Swapchain disposed by finalizer");
 
 				Dev.DestroySemaphore (presentComplete);

@@ -191,13 +191,13 @@ namespace vke {
         /// <summary>
         /// Begin Render pass with framebuffer extent dimensions
         /// </summary>
-        public void Begin (CommandBuffer cmd, FrameBuffer frameBuffer) {
-            Begin (cmd, frameBuffer, frameBuffer.Width, frameBuffer.Height);
+        public void Begin (PrimaryCommandBuffer cmd, FrameBuffer frameBuffer, VkSubpassContents contents = VkSubpassContents.Inline) {
+            Begin (cmd, frameBuffer, frameBuffer.Width, frameBuffer.Height, contents);
         }
         /// <summary>
         /// Begin Render pass with custom render area
         /// </summary>
-        public void Begin (CommandBuffer cmd, FrameBuffer frameBuffer, uint width, uint height) {
+        public void Begin (PrimaryCommandBuffer cmd, FrameBuffer frameBuffer, uint width, uint height, VkSubpassContents contents = VkSubpassContents.Inline) {
 
             VkRenderPassBeginInfo info = VkRenderPassBeginInfo.New();
             info.renderPass = handle;
@@ -207,17 +207,17 @@ namespace vke {
             info.pClearValues = ClearValues.Pin ();
             info.framebuffer = frameBuffer.handle;
 
-			vkCmdBeginRenderPass (cmd.Handle, ref info, VkSubpassContents.Inline);
+			vkCmdBeginRenderPass (cmd.Handle, ref info, contents);
 
 			ClearValues.Unpin ();
         }
 		/// <summary>
 		/// Switch to next subpass
 		/// </summary>
-		public void BeginSubPass (CommandBuffer cmd, VkSubpassContents subpassContents = VkSubpassContents.Inline) {
+		public void BeginSubPass (PrimaryCommandBuffer cmd, VkSubpassContents subpassContents = VkSubpassContents.Inline) {
 			vkCmdNextSubpass (cmd.Handle, subpassContents);
 		}
-        public void End (CommandBuffer cmd) {
+        public void End (PrimaryCommandBuffer cmd) {
             vkCmdEndRenderPass (cmd.Handle);
         }
 		/// <summary>

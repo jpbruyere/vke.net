@@ -57,8 +57,9 @@ namespace vke {
 		}
 
 		public void Rotate (float x, float y, float z = 0) {
-			rotation.Y += rotSpeed * x;
-			rotation.X += rotSpeed * y;
+			rotation.X += rotSpeed * x;
+			rotation.Y += rotSpeed * y;
+			rotation.Z += rotSpeed * z;
 			Update ();
 		}
 		public float Zoom {

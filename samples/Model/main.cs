@@ -41,15 +41,21 @@ namespace ModelSample
 
 		VkSampleCountFlags NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
 
-		float rotSpeed = 0.01f, zoomSpeed = 0.01f;
-		float rotX, rotY, rotZ = 0f, zoom = 2f;
-
 		SimpleModel helmet;
+
+		DebugDrawPipeline dbgPipeline;
+
+
 
 		protected override void initVulkan () {
 			base.initVulkan ();
 
+			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 64f);
+			camera.SetRotation (Utils.DegreesToRadians (90),0, 0);
+			camera.SetPosition (0, 0, -3);
+
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
+			cmdDebug = cmdPool.AllocateSecondaryCommandBuffer ();
 
 			descriptorPool = new DescriptorPool (dev, 2,
 				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
@@ -98,17 +104,99 @@ namespace ModelSample
 				helmet.textures[2].Descriptor);
 
 			uboMats.Map ();//permanent map
+
+			dbgPipeline = new DebugDrawPipeline (pipeline.RenderPass);
+			dbgPipeline.AddLine (Vector3.Zero, Vector3.UnitX, 1, 0, 0);
+			dbgPipeline.AddLine (Vector3.Zero, Vector3.UnitY, 0, 1, 0);
+			dbgPipeline.AddLine (Vector3.Zero, Vector3.UnitZ, 0, 0, 1);
+			dbgPipeline.AddStar (Vector3.One*0.2f, 0.3f, 1, 0, 1);
+
+			cmdPoolModel = new CommandPool (presentQueue, VkCommandPoolCreateFlags.ResetCommandBuffer);
+			cmdModel = cmdPoolModel.AllocateSecondaryCommandBuffer ();
 		}
 
+
+		bool rebuildCmdBuffers, rebuildCmdModel = true;
+		CommandPool cmdPoolModel;
+		SecondaryCommandBuffer cmdModel, cmdDebug;
+
+		void buildModelCmd () {
+			cmdPoolModel.Reset ();
+			cmdModel.Start (VkCommandBufferUsageFlags.RenderPassContinue | VkCommandBufferUsageFlags.SimultaneousUse, pipeline.RenderPass, 0);
+
+			cmdModel.SetViewport (swapChain.Width, swapChain.Height);
+			cmdModel.SetScissor (swapChain.Width, swapChain.Height);
+
+			cmdModel.BindDescriptorSet (pipeline.Layout, dsMatrices);
+			cmdModel.BindDescriptorSet (pipeline.Layout, dsTextures, 1);
+
+			Matrix4x4 matrix = Matrix4x4.Identity;
+			cmdModel.PushConstant (pipeline.Layout, VkShaderStageFlags.Vertex, matrix);
+
+			cmdModel.BindPipeline (pipeline);
+
+			helmet.DrawAll (cmdModel, pipeline.Layout);
+			cmdModel.End ();
+		}
+
+		void buildDebugCmd () {
+			cmdDebug.Start (VkCommandBufferUsageFlags.RenderPassContinue | VkCommandBufferUsageFlags.SimultaneousUse, pipeline.RenderPass);
+
+			float d = 0.2f;
+			uint dbgW = (uint)(swapChain.Width * d);
+			uint dbgH = (uint)(swapChain.Height * d);
+			cmdDebug.SetViewport (dbgW, dbgH, swapChain.Width - dbgW, swapChain.Height - dbgH);
+			cmdDebug.SetScissor (dbgW, dbgH, (int)(swapChain.Width - dbgW), (int)(swapChain.Height - dbgH));
+
+			dbgPipeline.RecordDraw (cmdDebug, camera.Projection,
+				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, camera.Rotation.Z) *
+				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, camera.Rotation.Y) *
+				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, camera.Rotation.X) *
+				Matrix4x4.CreateTranslation (0, 0, -3));
+			cmdDebug.End ();
+		}
+
+		void buildCommandBuffers () {
+			dev.WaitIdle ();
+			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
+
+			if (rebuildCmdModel) {
+				buildModelCmd ();
+				rebuildCmdModel = false;
+			}
+
+			buildDebugCmd ();
+
+			for (int i = 0; i < swapChain.ImageCount; ++i) {
+				FrameBuffer fb = frameBuffers[i];
+				cmds[i].Start ();
+
+				pipeline.RenderPass.Begin (cmds[i], fb, VkSubpassContents.SecondaryCommandBuffers);
+
+				if (cmdModel != null)
+					cmds[i].Execute (cmdModel);
+					
+				cmds[i].Execute (cmdDebug);
+
+				pipeline.RenderPass.End (cmds[i]);
+
+				cmds[i].End ();
+			}
+		}
+
+
+		public override void Update () {
+			if (rebuildCmdBuffers) {
+				buildCommandBuffers ();
+				rebuildCmdBuffers = false;
+			}
+		}
 		public override void UpdateView () {
-			matrices.projection = Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f),
-				(float)swapChain.Width / (float)swapChain.Height, 0.1f, 16.0f);
-			matrices.view =
-				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
-				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
-				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotX) *
-				Matrix4x4.CreateTranslation (0, 0, -3f * zoom);
-			matrices.model = Matrix4x4.Identity;
+			camera.AspectRatio = (float)swapChain.Width / swapChain.Height;
+			matrices.projection = camera.Projection;
+			matrices.view = camera.View;
+			matrices.model = camera.Model;
+
 			uboMats.Update (matrices, (uint)Marshal.SizeOf<Matrices> ());
 			updateViewRequested = false;
 		}
@@ -117,40 +205,17 @@ namespace ModelSample
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
 			if (MouseButton[0]) {
-				rotY -= rotSpeed * (float)diffX;
-				rotX += rotSpeed * (float)diffY;
+				camera.Rotate ((float)-diffY,0, (float)diffX);
 			} else if (MouseButton[1]) {
-				zoom += zoomSpeed * (float)diffY;
-			}
+				camera.SetZoom ((float)diffY);
+			} else
+				return;
+			rebuildCmdBuffers = true;
 			updateViewRequested = true;
 		}
-		void buildCommandBuffers () {
-			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
 
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				FrameBuffer fb = frameBuffers[i];
-				cmds[i].Start ();
 
-				pipeline.RenderPass.Begin (cmds[i], fb);
 
-				cmds[i].SetViewport (swapChain.Width, swapChain.Height);
-				cmds[i].SetScissor (swapChain.Width, swapChain.Height);
-
-				cmds[i].BindDescriptorSet (pipeline.Layout, dsMatrices);
-				cmds[i].BindDescriptorSet (pipeline.Layout, dsTextures, 1);
-
-				Matrix4x4 matrix = Matrix4x4.Identity;
-				cmds[i].PushConstant (pipeline.Layout, VkShaderStageFlags.Vertex, matrix);
-
-				cmds[i].BindPipeline (pipeline);
-
-				helmet.DrawAll (cmds[i], pipeline.Layout);
-
-				pipeline.RenderPass.End (cmds[i]);
-
-				cmds[i].End ();
-			}
-		}
 
 		protected override void OnResize () {
 			base.OnResize();
@@ -214,6 +279,8 @@ namespace ModelSample
 		}
 
 		protected override void Dispose (bool disposing) {
+			dev.WaitIdle ();
+
 			if (disposing) {
 				if (!isDisposed) {
 					helmet.Dispose ();
@@ -223,6 +290,8 @@ namespace ModelSample
 					frameBuffers?.Dispose();
 					descriptorPool.Dispose ();
 					uboMats.Dispose ();
+					dbgPipeline?.Dispose ();
+					cmdPoolModel?.Dispose ();
 				}
 			}
 

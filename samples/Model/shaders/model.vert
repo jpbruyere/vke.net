@@ -34,7 +34,7 @@ void main()
 {
     outUV = inUV;
     
-    mat4 mod = ubo.modelMatrix;// * pc.model;
+    mat4 mod = ubo.modelMatrix * pc.model;
     vec4 pos = mod * vec4(inPos.xyz, 1.0);
     vec3 lPos = mat3(mod) * light;
     

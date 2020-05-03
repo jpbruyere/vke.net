@@ -10,7 +10,7 @@
 		<License>MIT</License>
 		<Authors>Jean-Philippe Bruyère</Authors>
 
-		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>    	    
+		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
 				

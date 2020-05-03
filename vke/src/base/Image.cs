@@ -316,7 +316,7 @@ namespace vke {
 			} else {
 				using (HostBuffer stagging = new HostBuffer (Dev, VkBufferUsageFlags.TransferSrc, (UInt64)size, bitmap)) {
 
-					CommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+					PrimaryCommandBuffer cmd = staggingCmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 					stagging.CopyTo (cmd, this);
 					if (generateMipmaps)
@@ -433,19 +433,19 @@ namespace vke {
 			Descriptor.sampler = sampler;
 		}
 
-		public void SetLayout (CommandBuffer cmdbuffer,
+		public void SetLayout (PrimaryCommandBuffer cmdbuffer,
 			VkImageAspectFlags aspectMask,
 			VkImageLayout newImageLayout) {
 			SetLayout (cmdbuffer, aspectMask, lastKnownLayout, newImageLayout, lastKnownLayout.GetDefaultStage (), newImageLayout.GetDefaultStage ());
 		}
-		public void SetLayout (CommandBuffer cmdbuffer,
+		public void SetLayout (PrimaryCommandBuffer cmdbuffer,
 			VkImageAspectFlags aspectMask,
 			VkImageLayout oldImageLayout,
 			VkImageLayout newImageLayout) {
 			SetLayout (cmdbuffer, aspectMask, oldImageLayout, newImageLayout, oldImageLayout.GetDefaultStage (), newImageLayout.GetDefaultStage ());
 		}
 		public void SetLayout (
-			CommandBuffer cmdbuffer,
+			PrimaryCommandBuffer cmdbuffer,
 			VkImageAspectFlags aspectMask,
 			VkImageLayout oldImageLayout,
 			VkImageLayout newImageLayout,
@@ -460,7 +460,7 @@ namespace vke {
 			SetLayout (cmdbuffer, oldImageLayout, newImageLayout, subresourceRange, srcStageMask, dstStageMask);
 		}
 		public void SetLayout (
-			CommandBuffer cmdbuffer,
+			PrimaryCommandBuffer cmdbuffer,
 			VkImageAspectFlags aspectMask,
 			VkAccessFlags srcAccessMask,
 			VkAccessFlags dstAccessMask,
@@ -480,7 +480,7 @@ namespace vke {
 				srcQueueFamilyIndex, dstQueueFamilyIndex);
 		}
 		public void SetLayout (
-			CommandBuffer cmdbuffer,
+			PrimaryCommandBuffer cmdbuffer,
 			VkAccessFlags srcAccessMask,
 			VkAccessFlags dstAccessMask,
 			VkImageLayout oldImageLayout,
@@ -515,7 +515,7 @@ namespace vke {
 		// an image and put it into an active command buffer
 		// See chapter 11.4 "Image Layout" for details
 		public void SetLayout (
-			CommandBuffer cmdbuffer,
+			PrimaryCommandBuffer cmdbuffer,
 			VkImageLayout oldImageLayout,
 			VkImageLayout newImageLayout,
 			VkImageSubresourceRange subresourceRange,
@@ -638,7 +638,7 @@ namespace vke {
 				Debug.WriteLine ("Invoking BuildMipmaps on image that has only one mipLevel");
 				return;
 			}
-			CommandBuffer cmd = copyCmdPool.AllocateCommandBuffer ();
+			PrimaryCommandBuffer cmd = copyCmdPool.AllocateCommandBuffer ();
 
 			cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 			BuildMipmaps (cmd);
@@ -653,7 +653,7 @@ namespace vke {
 		/// Build mipmap chain for this image. Final layout will be ShaderReadOnlyOptimal.
 		/// </summary>
 		/// <param name="cmd">a command buffer to handle the operation.</param>
-		public void BuildMipmaps (CommandBuffer cmd) {
+		public void BuildMipmaps (PrimaryCommandBuffer cmd) {
 
 			VkImageSubresourceRange mipSubRange = new VkImageSubresourceRange (VkImageAspectFlags.Color, 0, 1, 0, info.arrayLayers);
 			SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.TransferDstOptimal);
@@ -682,7 +682,7 @@ namespace vke {
 		/// <param name="cmd">a command buffer to handle the blit operation.</param>
 		/// <param name="dest">the destination image to blit to.</param>
 		/// <param name="filter">filtering for the blit operation.</param>
-		public void BlitTo (CommandBuffer cmd, Image dest, VkFilter filter = VkFilter.Linear) {
+		public void BlitTo (PrimaryCommandBuffer cmd, Image dest, VkFilter filter = VkFilter.Linear) {
 			VkImageBlit imageBlit = new VkImageBlit {
 				srcSubresource = new VkImageSubresourceLayers (VkImageAspectFlags.Color, info.arrayLayers, 0),
 				srcOffsets_1 = new VkOffset3D ((int)info.extent.width, (int)info.extent.height, 1),

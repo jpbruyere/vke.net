@@ -13,6 +13,7 @@ namespace vke {
 	/// </summary>
 	public sealed class CommandPool : Activable {
         public readonly uint QFamIndex;
+		public readonly VkCommandPoolCreateFlags Flags;
         VkCommandPool handle;
 
 		#region CTORS
@@ -21,9 +22,10 @@ namespace vke {
 		/// </summary>
 		/// <param name="device">Vulkan Device.</param>
 		/// <param name="qFamIdx">Queue family index.</param>
-		public CommandPool (Device device, uint qFamIdx) : base(device)
+		public CommandPool (Device device, uint qFamIdx, VkCommandPoolCreateFlags flags = 0) : base(device)
         {            
             QFamIndex = qFamIdx;
+			Flags = flags;
 
 			Activate ();
         }
@@ -31,7 +33,7 @@ namespace vke {
 		/// Initializes a new instance of the [[CommandPool]]"/> class.
 		/// </summary>
 		/// <param name="queue">Device Queue of the queue family to create the pool for.</param>
-		public CommandPool (Queue queue) : this(queue.dev, queue.qFamIndex) {}
+		public CommandPool (Queue queue, VkCommandPoolCreateFlags flags = 0) : this(queue.dev, queue.qFamIndex, flags) {}
 		#endregion
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
@@ -41,44 +43,60 @@ namespace vke {
 			if (state != ActivableState.Activated) {            
         	    VkCommandPoolCreateInfo infos = VkCommandPoolCreateInfo.New();
     	        infos.queueFamilyIndex = QFamIndex;
+				infos.flags = Flags;
 	            Utils.CheckResult (vkCreateCommandPool (Dev.VkDev, ref infos, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}
 		/// <summary>
-		/// Allocates single command buffer.
+		/// Allocates single primary command buffer.
 		/// When command buffers are first allocated, they are in the initial state.
 		/// </summary>
 		/// <returns>The command buffer in the Init state.</returns>
-		/// <param name="level">Command Buffer Level.</param>
-		public CommandBuffer AllocateCommandBuffer (VkCommandBufferLevel level = VkCommandBufferLevel.Primary) {
+		public PrimaryCommandBuffer AllocateCommandBuffer () {
             VkCommandBuffer buff;
             VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New();
             infos.commandPool = handle;
-            infos.level = level;
+            infos.level = VkCommandBufferLevel.Primary;
             infos.commandBufferCount = 1;
 
             Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, out buff));
 
-            return new CommandBuffer (Dev.VkDev, this, buff);
+            return new PrimaryCommandBuffer (Dev.VkDev, this, buff);
         }
+		/// <summary>
+		/// Allocates single primary command buffer.
+		/// When command buffers are first allocated, they are in the initial state.
+		/// </summary>
+		/// <returns>The command buffer in the Init state.</returns>
+		public SecondaryCommandBuffer AllocateSecondaryCommandBuffer () {
+			VkCommandBuffer buff;
+			VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New ();
+			infos.commandPool = handle;
+			infos.level = VkCommandBufferLevel.Secondary;
+			infos.commandBufferCount = 1;
+
+			Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, out buff));
+
+			return new SecondaryCommandBuffer (Dev.VkDev, this, buff);
+		}
+
 		/// <summary>
 		/// Allocates multiple command buffer.
 		/// </summary>
 		/// <returns>An array of command buffers alloocated from this pool.</returns>
 		/// <param name="count">Buffer count to create.</param>
-		/// <param name="level">Command Buffer Level.</param>
-		public CommandBuffer[] AllocateCommandBuffer (uint count, VkCommandBufferLevel level = VkCommandBufferLevel.Primary) {
+		public PrimaryCommandBuffer[] AllocateCommandBuffer (uint count) {
 			VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New ();
 			infos.commandPool = handle;
-			infos.level = level;
+			infos.level = VkCommandBufferLevel.Primary;
 			infos.commandBufferCount = count;
 			VkCommandBuffer[] buffs = new VkCommandBuffer[count];
 			Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, buffs.Pin()));
 			buffs.Unpin ();
-			CommandBuffer[] cmds = new CommandBuffer[count];
+			PrimaryCommandBuffer[] cmds = new PrimaryCommandBuffer[count];
 			for (int i = 0; i < count; i++) 
-				cmds[i] = new CommandBuffer (Dev.VkDev, this, buffs[i]);
+				cmds[i] = new PrimaryCommandBuffer (Dev.VkDev, this, buffs[i]);
 
 			return cmds;
 		}
@@ -97,9 +115,8 @@ namespace vke {
 		/// </summary>
 		/// <returns>New command buffer in the recording state.</returns>
 		/// <param name="usage">Usage.</param>
-		/// <param name="level">Command buffer level, primary or secondary.</param>
-		public CommandBuffer AllocateAndStart (VkCommandBufferUsageFlags usage = 0, VkCommandBufferLevel level = VkCommandBufferLevel.Primary) {
-			CommandBuffer cmd = AllocateCommandBuffer (level);
+		public PrimaryCommandBuffer AllocateAndStart (VkCommandBufferUsageFlags usage = 0) {
+			PrimaryCommandBuffer cmd = AllocateCommandBuffer ();
 			cmd.Start (usage);
 			return cmd;
 		}

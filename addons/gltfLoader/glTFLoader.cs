@@ -309,7 +309,7 @@ namespace vke.glTF {
 
 				stagging.Unmap ();
 
-				CommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
+				PrimaryCommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 				cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				stagging.CopyTo (cmd, vbo, vertSize, 0, vboOffset);
@@ -414,7 +414,7 @@ namespace vke.glTF {
 		public void BuildTexArray (ref Image texArray, uint firstImg = 0) {
 			int texDim = (int)texArray.CreateInfo.extent.width;
 
-			CommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 			texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 
 						VkPipelineStageFlags.BottomOfPipe, VkPipelineStageFlags.Transfer);
 			cmd.End ();

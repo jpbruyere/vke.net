@@ -44,7 +44,7 @@ namespace vke {
 		public GPUBuffer (Queue staggingQ, CommandPool staggingCmdPool, VkBufferUsageFlags usage, T[] elements)
             : base (staggingQ.Dev, usage | VkBufferUsageFlags.TransferDst, (ulong)(Marshal.SizeOf<T> () * elements.Length)) {
 			using (HostBuffer<T> stagging = new HostBuffer<T> (Dev, VkBufferUsageFlags.TransferSrc, elements)) { 
-				CommandBuffer cmd = staggingCmdPool.AllocateCommandBuffer ();
+				PrimaryCommandBuffer cmd = staggingCmdPool.AllocateCommandBuffer ();
 				cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				stagging.CopyTo (cmd, this);
