@@ -265,11 +265,11 @@ namespace deferred {
 						new SpecializationConstant<float> (1, farPlane),
 						new SpecializationConstant<float> (2, MAX_MATERIAL_COUNT))) {
 
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.GBuffPbr.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.GBuffPbr.vert.spv");
 				if (TEXTURE_ARRAY) 
-					cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.GBuffPbrTexArray.frag.spv", constants);
+					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbrTexArray.frag.spv", constants);
 				else
-					cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.GBuffPbr.frag.spv", constants);
+					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbr.frag.spv", constants);
 
 				gBuffPipeline = new GraphicPipeline (cfg);
 			}
@@ -284,22 +284,25 @@ namespace deferred {
 			cfg.depthStencilState.depthWriteEnable = false;
 			using (SpecializationInfo constants = new SpecializationInfo (
 				new SpecializationConstant<uint> (0, (uint)lights.Length))) {
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
 #if WITH_SHADOWS
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
 #else
 				cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
 #endif
 				composePipeline = new GraphicPipeline (cfg);
 			}
 			//DEBUG DRAW use subpass of compose
-			cfg.shaders[1] = new ShaderInfo (VkShaderStageFlags.Fragment, "#shaders.show_gbuff.frag.spv");
+			cfg.Shaders[1].Dispose ();
+			cfg.Shaders[1] = new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.show_gbuff.frag.spv");
 			cfg.SubpassIndex = SP_COMPOSE;
 			debugPipeline = new GraphicPipeline (cfg);
 			////TONE MAPPING
 			//cfg.shaders[1] = new ShaderInfo (VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv");
 			//cfg.SubpassIndex = SP_TONE_MAPPING;
 			//toneMappingPipeline = new GraphicPipeline (cfg);
+
+			cfg.DisposeShaders ();
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 			dsGBuff = descriptorPool.Allocate (descLayoutGBuff);

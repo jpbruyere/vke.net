@@ -1,0 +1,84 @@
+﻿<?xml version="1.0"?>
+<!--<Widget Width="Stretched" Height="Stretched" Background="Blue"/>-->
+<Border CornerRadius="10" Left="10" Top="10" Width="80%" Height="80%" Background="0.3,0.3,0.3,0.5">
+	<VerticalStack Spacing="2" Margin="20">
+		<HorizontalStack Height="Fit">
+			<Label Margin="2" Text="Fps:" Width="80" Background="SteelBlue" />
+			<Label Margin="2" Text="{fps}" Width="80" MouseEnter="{Background=Red}" MouseLeave="{Background=Transparent}" />
+		</HorizontalStack>
+		<Spinner Caption="test" Width="60" />
+		<Slider Height="10" Width="Stretched" Background="Jet" Foreground="White" />
+		<GroupBox Caption="Descriptor Pool" Height="Fit" DataSource="{descriptorPool}" Margin="10">
+			<VerticalStack>
+				<HorizontalStack Height="Fit">
+					<Label Width="Stretched" Text="Max Sets" />
+					<Label Width="50" Text="{MaxSets}" TextAlignment="Right" />
+				</HorizontalStack>
+				<ListBox Data="{PoolSizes}">
+					<ItemTemplate>
+						<HorizontalStack Height="Fit">
+							<Label Background="DimGrey" Width="Stretched" Text="{type}" />
+							<Label Background="DimGrey" Width="50" Text="{descriptorCount}" TextAlignment="Right" />
+						</HorizontalStack>
+					</ItemTemplate>
+				</ListBox>
+			</VerticalStack>
+		</GroupBox>
+		<GroupBox Caption="Image" Height="Fit" DataSource="{uiImage}" Margin="10">
+			<VerticalStack DataSource="{CreateInfo}">
+				<HorizontalStack Height="Fit">
+					<Label Width="50%" Text="Format" />
+					<Label Text="{format}" />
+				</HorizontalStack>
+				<HorizontalStack Height="Fit">
+					<Label Width="50%" Text="Type" />
+					<Label Text="{imageType}" />
+				</HorizontalStack>
+				<HorizontalStack Height="Fit" DataSource="{extent}">
+					<Label Width="50%" Text="Size" />
+					<Label Text="{width}" />
+					<Label Text=" x " />
+					<Label Text="{height}" />
+					<Label Text=" x " />
+					<Label Text="{depth}" />
+				</HorizontalStack>
+				<HorizontalStack Height="Fit">
+					<Label Width="50%" Text="usage" />
+					<Label Text="{usage}" />
+				</HorizontalStack>
+			</VerticalStack>
+		</GroupBox>
+		<VerticalStack DataSource="{RenderPass}" Height="Fit" Background="Grey">
+			<ListBox Data="{Attachments}" Height="Fit">
+				<Template>
+					<HorizontalStack Background="SteelBlue">
+						<Label Margin="10" Text="RP" />
+						<HorizontalStack Background="DimGrey" Name="ItemsContainer" Margin="10" />
+					</HorizontalStack>
+				</Template>
+				<ItemTemplate>
+					<VerticalStack Fit="true" Background="DarkBlue" CornerRadius="5">
+						<Label Fit="true" Text="{format}" />
+						<Label Fit="true" Text="{samples}" />
+						<HorizontalStack Width="Stretched">
+							<Label Width="100" Text="{loadOp}" TextAlignment="Center" />
+							<Label Width="100" Text="{storeOp}" TextAlignment="Center" />
+						</HorizontalStack>
+						<HorizontalStack>
+							<Label Width="100" Text="{initialLayout}" TextAlignment="Center" />
+							<Label Width="100" Text="{finalLayout}" TextAlignment="Center" />
+						</HorizontalStack>
+					</VerticalStack>
+				</ItemTemplate>
+			</ListBox>
+			<!--			<ListBox Data="{SubPasses}" Height="Fit">
+				<Template>
+					<VerticalStack Height="Fit" Name="ItemsContainer" Background="DimGrey"/>
+				</Template>
+				<ItemTemplate>					
+					<Label Background="Red" Width="Stretched" Text="{format}" />											
+				</ItemTemplate>
+			</ListBox>-->
+		</VerticalStack>
+	</VerticalStack>
+</Border>

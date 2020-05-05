@@ -21,7 +21,7 @@ namespace vke {
 		}	
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
-			=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Framebuffer, handle.Handle);
+			=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Fence, handle.Handle);
 
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {

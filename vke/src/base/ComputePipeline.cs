@@ -31,10 +31,10 @@ namespace vke {
 				layout.Activate ();
 				Cache?.Activate ();
 
-				using (ShaderInfo shader = new ShaderInfo (VkShaderStageFlags.Compute, SpirVPath)) {
+				using (ShaderInfo shader = new ShaderInfo (Dev, VkShaderStageFlags.Compute, SpirVPath)) {
 					VkComputePipelineCreateInfo info = VkComputePipelineCreateInfo.New ();
 					info.layout = layout.Handle;
-					info.stage = shader.GetStageCreateInfo (Dev);
+					info.stage = shader.info;
 					info.basePipelineHandle = 0;
 					info.basePipelineIndex = 0;
 

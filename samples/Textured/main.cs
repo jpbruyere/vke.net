@@ -92,8 +92,8 @@ namespace Textured {
 			cfg.AddVertexBinding (0, 5 * sizeof(float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
 

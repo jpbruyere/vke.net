@@ -21,6 +21,10 @@ layout (set = 0, binding = 1) uniform UBOLights {
 
 //layout (location = 0) in int inInstanceIndex[];
 
+in gl_PerVertex
+{
+  vec4 gl_Position;
+} gl_in[];
 
 void main() 
 {

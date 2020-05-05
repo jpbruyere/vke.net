@@ -8,7 +8,7 @@ using static Vulkan.Vk;
 
 namespace vke {
 	[Serializable]
-    public sealed class DescriptorPool : Activable {        
+    public sealed class DescriptorPool : Activable {
         internal VkDescriptorPool handle;
 		public uint MaxSets;
 		public List<VkDescriptorPoolSize> PoolSizes { get; private set; } = new List<VkDescriptorPoolSize> ();
@@ -44,11 +44,11 @@ namespace vke {
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {            
 				VkDescriptorPoolCreateInfo info = VkDescriptorPoolCreateInfo.New();
-	            info.poolSizeCount = (uint)PoolSizes.Count;
-	            info.pPoolSizes = PoolSizes.Pin ();
-	            info.maxSets = MaxSets;
+				info.poolSizeCount = (uint)PoolSizes.Count;
+				info.pPoolSizes = PoolSizes.Pin ();
+				info.maxSets = MaxSets;
 
-	            Utils.CheckResult (vkCreateDescriptorPool (Dev.VkDev, ref info, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreateDescriptorPool (Dev.VkDev, ref info, IntPtr.Zero, out handle));
 				PoolSizes.Unpin ();
 			}
 			base.Activate ();

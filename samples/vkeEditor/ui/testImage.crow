@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<Window Width="50%" Height="50%">
+	<VerticalStack>
+		<Slider Height="10"/>
+		<!--<HorizontalStack Fit="true" Margin="5">
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+			<Label Text="{fps}" Fit="true" Background="SeaGreen" Margin="5" CornerRadius="3"/>
+		</HorizontalStack>-->
+		<TextBox Text="{Source}" Height="Stretched" Multiline="True" TextAlignment="TopLeft"/>
+	</VerticalStack>
+</Window>
+

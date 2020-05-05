@@ -79,13 +79,20 @@ namespace Triangle {
 			cfg.AddVertexBinding<Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);//position + color
 
-			//shader are automatically compiled by SpirVTacks if added to the project. The resulting shaders are automatically embedded in the assembly.
+			//shader are automatically compiled by SpirVTasks if added to the project. The resulting shaders are automatically embedded in the assembly.
 			//To specifiy that the shader path is a resource name, put the '#' prefix. Else the path will be search on disk.
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+			cfg.AddShaders (
+				new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv"),
+				new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv")
+			);
 
 			//create and activate the pipeline with the configuration we've just done.
 			pipeline = new GraphicPipeline (cfg);
+
+			//ShaderInfo used in this configuration with create the VkShaderModule's used
+			//for creating the pipeline. They have to be disposed to destroy those modules
+			//used only during pipeline creation.
+			cfg.DisposeShaders ();
 
 			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated, 
 			//but in this case, layout will need also to be explicitly disposed.

@@ -11,7 +11,7 @@ namespace VkvgPipeline {
 	public class VkvgPipeline : GraphicPipeline {
 		vkvg.Device vkvgDev;
 		vkvg.Surface vkvgSurf;
-		Image uiImage;
+		public Image Texture { get; private set; }
 
 		public vkvg.Context CreateContext () => new vkvg.Context (vkvgSurf);
 
@@ -21,8 +21,8 @@ namespace VkvgPipeline {
 			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, this.RenderPass.Samples, false);
 			cfg.RenderPass = RenderPass;
 			cfg.Layout = pipeline.Layout;
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#vke.simpletexture.frag.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#vke.simpletexture.frag.spv");
 			cfg.multisampleState.rasterizationSamples = Samples;
 
 			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
@@ -31,36 +31,34 @@ namespace VkvgPipeline {
 
 			init (cfg);
 
+			cfg.DisposeShaders ();
+
 			vkvgDev = new vkvg.Device (instance.Handle, dev.phy.Handle, dev.VkDev.Handle, queue.qFamIndex,
 				vkvg.SampleCount.Sample_4, queue.index);				
 		}
 
 		void initUISurface (int width, int height) {
-			uiImage?.Dispose ();
+			Texture?.Dispose ();
 			vkvgSurf?.Dispose ();
 			vkvgSurf = new vkvg.Surface (vkvgDev, width, height);
-			uiImage = new Image (Dev, new VkImage ((ulong)vkvgSurf.VkImage.ToInt64 ()), VkFormat.B8g8r8a8Unorm,
+			Texture = new Image (Dev, new VkImage ((ulong)vkvgSurf.VkImage.ToInt64 ()), VkFormat.B8g8r8a8Unorm,
 				VkImageUsageFlags.ColorAttachment, (uint)vkvgSurf.Width, (uint)vkvgSurf.Height);
-			uiImage.CreateView (VkImageViewType.ImageView2D, VkImageAspectFlags.Color);
-			uiImage.CreateSampler (VkFilter.Nearest, VkFilter.Nearest, VkSamplerMipmapMode.Nearest, VkSamplerAddressMode.ClampToBorder);
-			uiImage.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
+			Texture.CreateView (VkImageViewType.ImageView2D, VkImageAspectFlags.Color);
+			Texture.CreateSampler (VkFilter.Nearest, VkFilter.Nearest, VkSamplerMipmapMode.Nearest, VkSamplerAddressMode.ClampToBorder);
+			Texture.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 		}
 
 
 		public void Resize (int width, int height, DescriptorSetWrites dsUpdate) {
 			initUISurface (width, height);
-			dsUpdate.Write (Dev, uiImage.Descriptor);
+			dsUpdate.Write (Dev, Texture.Descriptor);
 		}
 		public void RecordDraw (PrimaryCommandBuffer cmd) {
 			Bind (cmd);
 
-			uiImage.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ColorAttachmentOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-				VkPipelineStageFlags.ColorAttachmentOutput, VkPipelineStageFlags.FragmentShader);
 
 			cmd.Draw (3, 1, 0, 0);
 
-			uiImage.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.ColorAttachmentOptimal,
-				VkPipelineStageFlags.FragmentShader, VkPipelineStageFlags.BottomOfPipe);
 		}
 		public void DrawResources (vkvg.Context ctx, int width, int height) {
 			ResourceManager rm = Dev.resourceManager;
@@ -124,7 +122,7 @@ namespace VkvgPipeline {
 			}
 		}
 		protected override void Dispose (bool disposing) {
-			uiImage?.Dispose ();
+			Texture?.Dispose ();
 			vkvgSurf?.Dispose ();
 			vkvgDev.Dispose ();
 

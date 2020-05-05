@@ -600,7 +600,7 @@ namespace vke {
 			case VkImageLayout.ColorAttachmentOptimal:
 				// Image will be used as a color attachment
 				// Make sure any writes to the color buffer have been finished
-				imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
+				imageMemoryBarrier.srcAccessMask = oldImageLayout == VkImageLayout.ShaderReadOnlyOptimal ? VkAccessFlags.ShaderRead : VkAccessFlags.TransferRead;
 				imageMemoryBarrier.dstAccessMask = VkAccessFlags.ColorAttachmentWrite;
 				break;
 

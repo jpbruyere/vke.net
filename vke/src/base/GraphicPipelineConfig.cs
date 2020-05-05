@@ -45,7 +45,13 @@ namespace vke {
 		public List<VkDynamicState> dynamicStates = new List<VkDynamicState> ();
 		public List<VkVertexInputBindingDescription> vertexBindings = new List<VkVertexInputBindingDescription> ();
 		public List<VkVertexInputAttributeDescription> vertexAttributes = new List<VkVertexInputAttributeDescription> ();
-		public List<ShaderInfo> shaders = new List<ShaderInfo> ();
+		/// <summary>
+		/// List of ShaderInfo's used to in this pipeline configuration. Those shaders have to be Disposed
+		/// after pipeline creation from this configuration. The 'DisposeShaders' helper method with clear the list.
+		/// To replace a single shader between two use of this configuration object to create two different pipelines, use
+		/// the 'ReplaceShader' helper method to automatically dispose the replace shader.
+		/// </summary>
+		public List<ShaderInfo> Shaders = new List<ShaderInfo> ();
 		public VkBool32 ColorBlendLogicOpEnable = false;
 		public VkLogicOp ColorBlendLogicOp;
 		public Vector4 ColorBlendConstants;
@@ -135,27 +141,67 @@ namespace vke {
 				attribs[i] = fields[i].GetCustomAttribute<VertexAttributeAttribute> ().Format;
 			AddVertexAttributes (binding, attribs);
 		}
-		public void AddShader (VkShaderStageFlags _stageFlags, string _spirvPath, SpecializationInfo specializationInfo = null, string _entryPoint = "main") {
-			shaders.Add (new ShaderInfo (_stageFlags, _spirvPath, specializationInfo, _entryPoint));
+		/// <summary>
+		/// Add shaders to this pipeline configuration. 
+		/// </summary>
+		public void AddShaders (params ShaderInfo[] shaderInfos) {
+			Shaders.AddRange (shaderInfos);
 		}
 		/// <summary>
-		/// Resets shaders and vertices in current configuration to ease reuse of
-		/// current 'GraphicPipelineConfig' for creating another pipeline.
+		/// Add a new shader to this pipeline configuration. 
+		/// </summary>
+		public void AddShader (VkShaderStageFlags stageFlags, VkShaderModule module, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			Shaders.Add (new ShaderInfo (stageFlags, module, specializationInfo, entryPoint));
+		}
+		/// <summary>
+		/// Add a new shader to this pipeline configuration. 
+		/// </summary>
+		public void AddShader (Device dev, VkShaderStageFlags stageFlags, string spirvShaderPath, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			Shaders.Add (new ShaderInfo (dev, stageFlags, spirvShaderPath, specializationInfo, entryPoint));
+		}
+		/// <summary>
+		/// Dispose ShaderInfo at index 'shaderIndex' in the Shaders list, and replace it
+		/// with the new 'ShaderInfo' given in arguments.
+		/// </summary>
+		/// <param name="shaderIndex">ShaderInfo index in the Shaders list of this configuration object</param>
+		/// <param name="info">the new Shader to use.</param>
+		public void ReplaceShader (int shaderIndex, ShaderInfo info) {
+			Shaders[shaderIndex].Dispose ();
+			Shaders[shaderIndex] = info;
+		}
+		/// <summary>
+		/// Dispose ShaderInfo at index 'shaderIndex' in the Shaders list, and replace it with a new one.
+		/// </summary>
+		public void ReplaceShader (int shaderIndex, VkShaderStageFlags stageFlags, VkShaderModule module, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			Shaders[shaderIndex].Dispose ();
+			Shaders[shaderIndex] = new ShaderInfo (stageFlags, module, specializationInfo, entryPoint);
+		}
+		/// <summary>
+		/// Dispose ShaderInfo at index 'shaderIndex' in the Shaders list, and replace it with a new one.
+		/// </summary>
+		public void ReplaceShader (int shaderIndex, Device dev, VkShaderStageFlags stageFlags, string spirvShaderPath, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			Shaders[shaderIndex].Dispose ();
+			Shaders[shaderIndex] = new ShaderInfo (dev, stageFlags, spirvShaderPath, specializationInfo, entryPoint);
+		}
+
+		/// <summary>
+		/// Dispose shaders and reset vertices in current configuration to ease reuse of
+		/// current 'GraphicPipelineConfig' for creating other similar pipeline.
 		/// </summary>
 		public void ResetShadersAndVerticesInfos () {
 			currentAttributeIndex = 0;
 			vertexBindings.Clear ();
 			vertexAttributes.Clear ();
-			ResetShaders ();
+			DisposeShaders ();
 		}
 		/// <summary>
 		/// Resets shaders in current config to ease reause of current 'GraphicPipelineConfig
 		/// for creating another similar pipeline with different shaders.
 		/// </summary>
-		public void ResetShaders () {
-			foreach (ShaderInfo shader in shaders)
+		public void DisposeShaders () {
+			foreach (ShaderInfo shader in Shaders)
 				shader.Dispose ();
-			shaders.Clear ();
+			Shaders.Clear ();
 		}
 	}
 }

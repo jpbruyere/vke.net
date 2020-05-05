@@ -186,12 +186,12 @@ namespace vke {
 		/// </summary>
 		/// <returns>the vulkan shader module.</returns>
 		/// <param name="filename">path of the spv shader.</param>
-        public VkShaderModule LoadSPIRVShader (string filename) {
+        public VkShaderModule CreateShaderModule (string filename) {
 			using (Stream stream = Utils.GetStreamFromPath (filename)) {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
 					UIntPtr shaderSize = (UIntPtr)shaderCode.Length;
-					VkShaderModule shaderModule = LoadSPIRVShader (shaderCode.Pin (), shaderSize);
+					VkShaderModule shaderModule = CreateShaderModule (shaderCode.Pin (), shaderSize);
 					shaderCode.Unpin ();
 					return shaderModule;
 				}
@@ -200,9 +200,10 @@ namespace vke {
         /// Load spirv code from unmanaged native pointer.
         /// </summary>
         /// <returns>the vulkan shader module.</returns>
-        /// <param name="code">unmanaged pointer holding the spirv code.</param>
+        /// <param name="code">unmanaged pointer holding the spirv code. Pointer must stay valid only during
+		/// the call to this method.</param>
         /// <param name="codeSize">spirv code byte size.</param>
-		public VkShaderModule LoadSPIRVShader (IntPtr code, UIntPtr codeSize) {
+		public VkShaderModule CreateShaderModule (IntPtr code, UIntPtr codeSize) {
 			VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
 			moduleCreateInfo.codeSize = codeSize;
 			moduleCreateInfo.pCode = code;

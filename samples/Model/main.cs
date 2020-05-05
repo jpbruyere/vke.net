@@ -1,14 +1,14 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using vke;
 using vke.glTF;
 using Vulkan;
 
-namespace ModelSample
-{
+namespace ModelSample {
 	class Program : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
@@ -82,10 +82,15 @@ namespace ModelSample
 			cfg.AddVertexBinding<Model.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.model.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.model.frag.spv");
+			using (shaderc.Compiler comp = new shaderc.Compiler()) {
+
+				cfg.AddShaders (comp.CreateShaderInfo (dev, "shaders/model.vert", shaderc.ShaderKind.VertexShader));
+				cfg.AddShaders (comp.CreateShaderInfo (dev, "shaders/model.frag", shaderc.ShaderKind.FragmentShader));
+			}
 
 			pipeline = new GraphicPipeline (cfg);
+
+			cfg.DisposeShaders ();
 
 			helmet = new SimpleModel (presentQueue, Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf");
 

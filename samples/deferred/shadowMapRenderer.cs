@@ -81,16 +81,18 @@ namespace deferred {
 
 			cfg.Layout = new PipelineLayout (dev, descLayoutShadow);
 			cfg.Layout.AddPushConstants (
-				new VkPushConstantRange (VkShaderStageFlags.Vertex|VkShaderStageFlags.Geometry, (uint)Marshal.SizeOf<Matrix4x4> ())
+				new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ())
 			);
 
 			cfg.AddVertexBinding<PbrModelTexArray.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.shadow.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Geometry, "#shaders.shadow.geom.spv");
+			using (ShaderInfo vs = new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#shaders.shadow.vert.spv"))
+			using (ShaderInfo fs = new ShaderInfo (dev, VkShaderStageFlags.Geometry, "#shaders.shadow.geom.spv")) {
+				cfg.AddShaders (vs, fs);
 
-			shadowPipeline = new GraphicPipeline (cfg);
+				shadowPipeline = new GraphicPipeline (cfg);
+			}
 
 			//shadow map image
 			shadowMap = new Image (dev, SHADOWMAP_FORMAT, VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled, VkMemoryPropertyFlags.DeviceLocal, SHADOWMAP_SIZE, SHADOWMAP_SIZE,

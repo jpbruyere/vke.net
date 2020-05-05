@@ -65,6 +65,7 @@ namespace deferred {
 		};
 		string[] modelPathes = {
 				"/mnt/devel/vkPinball/data/models/pinball.gltf",
+				"/mnt/devel/pinball.net/data/test.glb",
 				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
 				//Utils.DataDirectory + "models/shadow.glb",
 				Utils.DataDirectory + "models/Hubble.glb",
@@ -128,13 +129,15 @@ namespace deferred {
 
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, DeferredPbrRenderer.NUM_SAMPLES);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv");
+			using (ShaderInfo vs = new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv"))
+			using (ShaderInfo fs = new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv"))
+			{
+				cfg.AddShaders (vs, fs);
 
-			plToneMap = new GraphicPipeline (cfg);
+				plToneMap = new GraphicPipeline (cfg);
+			}
 
 			descriptorSet = descriptorPool.Allocate (cfg.Layout.DescriptorSetLayouts[0]);
-
 		}
 
 		void buildCommandBuffers () {
@@ -366,9 +369,9 @@ namespace deferred {
 			if (disposing) {
 				if (!isDisposed) {
 					frameBuffers?.Dispose();
-					renderer.Dispose ();
-					plToneMap.Dispose ();
-					descriptorPool.Dispose ();
+					renderer?.Dispose ();
+					plToneMap?.Dispose ();
+					descriptorPool?.Dispose ();
 					dbgmsg?.Dispose ();
 				}
 			}

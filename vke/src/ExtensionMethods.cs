@@ -166,5 +166,41 @@ namespace vke {
 			name.Unpin ();
 		}
 		#endregion
+
+		#region shaderc
+		public static ShaderInfo CreateShaderInfo (this shaderc.Compiler comp, Device dev, string shaderPath, shaderc.ShaderKind shaderKind,
+			SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+
+			using (shaderc.Result res = comp.Compile (shaderPath, shaderKind)) {
+				Console.WriteLine ($"SpirV generation: {shaderPath} {res.Status}");
+				if (res.Status != shaderc.Status.Success) 
+					throw new Exception ($"Shaderc compilation failure: {res.ErrorMessage}");
+				VkShaderStageFlags stageFlags;
+				switch (shaderKind) {
+				case shaderc.ShaderKind.VertexShader:
+					stageFlags = VkShaderStageFlags.Vertex;
+					break;
+				case shaderc.ShaderKind.FragmentShader:
+					stageFlags = VkShaderStageFlags.Fragment;
+					break;
+				case shaderc.ShaderKind.ComputeShader:
+					stageFlags = VkShaderStageFlags.Compute;
+					break;
+				case shaderc.ShaderKind.GeometryShader:
+					stageFlags = VkShaderStageFlags.Geometry;
+					break;
+				case shaderc.ShaderKind.TessControlShader:
+					stageFlags = VkShaderStageFlags.TessellationControl;
+					break;
+				case shaderc.ShaderKind.TessEvaluationShader:
+					stageFlags = VkShaderStageFlags.TessellationEvaluation;
+					break;
+				default:
+					throw new NotSupportedException ($"shaderc compilation: shaderKind {shaderKind} not handled");
+				}
+				return new ShaderInfo (dev, stageFlags, res.CodePointer, (UIntPtr)res.CodeLength, specializationInfo, entryPoint);
+			}
+		}
+		#endregion
 	}
 }

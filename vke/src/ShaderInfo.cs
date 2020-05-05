@@ -9,28 +9,48 @@ namespace vke {
 	/// This class is a helper class for VkPipelineShaderStageCreateInfo creation.
 	/// </summary>
 	public class ShaderInfo : IDisposable {
-		public VkShaderStageFlags StageFlags;
-		public string SpirvPath;
-		public FixedUtf8String EntryPoint;
-		public SpecializationInfo SpecializationInfo;
+		readonly FixedUtf8String EntryPoint;
 
-		public ShaderInfo (VkShaderStageFlags _stageFlags, string _spirvPath, SpecializationInfo specializationInfo = null, string _entryPoint = "main") {
-			StageFlags = _stageFlags;
-			SpirvPath = _spirvPath;
-			EntryPoint = new FixedUtf8String (_entryPoint);
-			SpecializationInfo = specializationInfo;
+		internal VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo.New ();
+		Device dev;
+		/// <summary>
+		/// Create a new 'ShaderInfo' object by providing a handle to an native memory holding the compiled SpirV code
+		/// and its size in byte.
+		/// </summary>
+		/// <param name="dev">Dev.</param>
+		/// <param name="stageFlags">Stage flags.</param>
+		/// <param name="code">a native pointer on the SpirV Code, typically a 'shaderc.Result.CodePointer</param>
+		/// <param name="codeSize">Code size in byte</param>
+		/// <param name="specializationInfo">Specialization info.</param>
+		/// <param name="entryPoint">shader entry point</param>
+		public ShaderInfo (Device dev, VkShaderStageFlags stageFlags, IntPtr code, UIntPtr codeSize, SpecializationInfo specializationInfo = null, string entryPoint = "main"):
+			this(stageFlags, dev.CreateShaderModule (code, codeSize), specializationInfo, entryPoint) {
+			this.dev = dev;//keep dev for destroying module created in this CTOR
 		}
 		/// <summary>
-		/// Create the VkPipelineShaderStageCreateInfo structure. Note that the ShaderModule is created here and has to be destroy after the pipeline creation
+		/// Create a new ShaderInfo object by providing the path to a compiled SpirV shader.
 		/// </summary>
-		public VkPipelineShaderStageCreateInfo GetStageCreateInfo (Device dev) {
-			return new VkPipelineShaderStageCreateInfo {
-				sType = VkStructureType.PipelineShaderStageCreateInfo,
-				stage = StageFlags,
-				pName = EntryPoint,
-				module = dev.LoadSPIRVShader (SpirvPath),
-				pSpecializationInfo = (SpecializationInfo == null) ? IntPtr.Zero : SpecializationInfo.InfosPtr
-			};
+		/// <param name="dev">vke Device</param>
+		/// <param name="_stageFlags">Stage flags.</param>
+		/// <param name="_spirvPath">path to a compiled SpirV Shader on disk or as embedded ressource if path starts with '#'</param>
+		/// <param name="specializationInfo">Specialization info</param>
+		/// <param name="entryPoint">shader entry point, 'main' by default.</param>
+		public ShaderInfo (Device dev, VkShaderStageFlags _stageFlags, string _spirvPath, SpecializationInfo specializationInfo = null, string entryPoint = "main"):
+			this(_stageFlags, dev.CreateShaderModule (_spirvPath), specializationInfo, entryPoint) {
+			this.dev = dev;//keep dev for destroying module created in this CTOR
+		}
+		/// <summary>
+		/// Create a new ShaderInfo object by providing directly a VkShaderModule. Note
+		/// that this module will not be own by this ShaderInfo, and so will not be
+		/// destroyed on Dispose.
+		/// </summary>
+		public ShaderInfo (VkShaderStageFlags stageFlags, VkShaderModule module, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			EntryPoint = new FixedUtf8String (entryPoint);
+
+			info.stage = stageFlags;
+			info.pName = EntryPoint;
+			info.module = module;
+			info.pSpecializationInfo = (specializationInfo == null) ? IntPtr.Zero : specializationInfo.InfosPtr;
 		}
 
 		#region IDisposable Support
@@ -38,9 +58,13 @@ namespace vke {
 
 		protected virtual void Dispose (bool disposing) {
 			if (!disposedValue) {
-				if (disposing) {
+				if (disposing) 
 					EntryPoint.Dispose ();
-				}
+				else
+					System.Diagnostics.Debug.WriteLine ("VKE ShaderInfo disposed by finalizer");
+
+				dev?.DestroyShaderModule (info.module);
+
 				disposedValue = true;
 			}
 		}

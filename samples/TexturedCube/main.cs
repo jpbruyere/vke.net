@@ -25,6 +25,10 @@ namespace TextureCube {
 			}
 		}
 
+		public override string[] EnabledInstanceExtensions => new string[] {
+			Ext.I.VK_EXT_debug_utils,
+		};
+
 		float rotSpeed = 0.01f, zoomSpeed = 0.01f;
 		float rotX, rotY, rotZ = 0f, zoom = 1f;
 
@@ -137,10 +141,12 @@ namespace TextureCube {
 			cfg.AddVertexBinding (0, 5 * sizeof (float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.skybox.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.skybox.frag.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.skybox.vert.spv");
+			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.skybox.frag.spv");
 
 			pipeline = new GraphicPipeline (cfg);
+
+			cfg.DisposeShaders ();
 
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 			uboMats.Map ();//permanent map
@@ -171,7 +177,12 @@ namespace TextureCube {
 				cmds[i].End ();				 
 			}
 		} 
-		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) { 
+		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) {
+#if WITH_VKVG
+			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
+				VkImageLayout.ColorAttachmentOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+				VkPipelineStageFlags.ColorAttachmentOutput, VkPipelineStageFlags.FragmentShader);
+#endif
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -186,9 +197,13 @@ namespace TextureCube {
 #if WITH_VKVG
 			cmd.BindDescriptorSet (pipeline.Layout, dsVkvg);
 			vkvgPipeline.RecordDraw (cmd);
-#endif
-
 			pipeline.RenderPass.End (cmd);
+			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
+				VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.ColorAttachmentOptimal,
+				VkPipelineStageFlags.FragmentShader, VkPipelineStageFlags.ColorAttachmentOutput);
+#else
+			pipeline.RenderPass.End (cmd);
+#endif
 		}
 
 		//in the thread of the keyboard
@@ -280,6 +295,12 @@ namespace TextureCube {
 
 #if WITH_VKVG
 			vkvgPipeline.Resize ((int)Width, (int)Height, new DescriptorSetWrites (dsVkvg, dsLayout.Bindings[1]));
+			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
+				VkImageLayout.Undefined, VkImageLayout.ColorAttachmentOptimal,
+				VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.ColorAttachmentOutput);
+			presentQueue.EndSubmitAndWait (cmd, true);
+
 #endif
 
 			updateMatrices ();

@@ -43,8 +43,8 @@ namespace vke {
 				Cache?.Activate ();
 
 				List<VkPipelineShaderStageCreateInfo> shaderStages = new List<VkPipelineShaderStageCreateInfo> ();
-				foreach (ShaderInfo shader in cfg.shaders)
-					shaderStages.Add (shader.GetStageCreateInfo (Dev));
+				foreach (ShaderInfo shader in cfg.Shaders)
+					shaderStages.Add (shader.info);
 
 				using (PinnedObjects pctx = new PinnedObjects ()) {
 
@@ -94,14 +94,11 @@ namespace vke {
 					info.pViewportState = viewportState.Pin (pctx);
 					info.pDepthStencilState = cfg.depthStencilState.Pin (pctx);
 					info.pDynamicState = dynStatesInfo.Pin (pctx);
-					info.stageCount = (uint)cfg.shaders.Count;
+					info.stageCount = (uint)cfg.Shaders.Count;
 					info.pStages = shaderStages.Pin (pctx);
 					info.subpass = cfg.SubpassIndex;
 
 					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
-
-					for (int i = 0; i < cfg.shaders.Count; i++)
-						Dev.DestroyShaderModule (shaderStages[i].module);
 				}
 			}
 			base.Activate ();

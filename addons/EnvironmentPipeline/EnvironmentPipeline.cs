@@ -33,13 +33,18 @@ namespace vke.Environment {
 				cfg.Layout = plLayout;
 				cfg.AddVertexBinding (0, 3 * sizeof (float));
 				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv");
-				cfg.AddShader (VkShaderStageFlags.Fragment, STR_FRAG_PATH);
+				cfg.AddShaders (
+					new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv"),
+					new ShaderInfo (Dev, VkShaderStageFlags.Fragment, STR_FRAG_PATH)
+				);
+
 				cfg.multisampleState.rasterizationSamples = Samples;
 
 				layout = cfg.Layout;
 
 				init (cfg);
+
+				cfg.DisposeShaders ();
 
 				generateBRDFLUT (staggingQ, cmdPool);
 				generateCubemaps (staggingQ, cmdPool);
@@ -119,10 +124,12 @@ namespace vke.Environment {
 			cfg.RenderPass.AddAttachment (format, VkImageLayout.ShaderReadOnlyOptimal);
 			cfg.RenderPass.ClearValues.Add (new VkClearValue { color = new VkClearColorValue (0, 0, 0) });
 			cfg.RenderPass.AddSubpass (new SubPass (VkImageLayout.ColorAttachmentOptimal));
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.genbrdflut.vert.spv");
-			cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.genbrdflut.frag.spv");
+			cfg.AddShaders (
+				new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.genbrdflut.vert.spv"),
+				new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#EnvironmentPipeline.genbrdflut.frag.spv"));
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
+				cfg.DisposeShaders ();
 				using (FrameBuffer fb = new FrameBuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
 					PrimaryCommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
@@ -138,6 +145,7 @@ namespace vke.Environment {
 					cmd.Free ();
 				}
 			}
+
 			lutBrdf.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 		}
 
@@ -191,11 +199,11 @@ namespace vke.Environment {
 			cfg.AddVertexBinding (0, 3 * sizeof (float));
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
 
-			cfg.AddShader (VkShaderStageFlags.Vertex, "#EnvironmentPipeline.filtercube.vert.spv");
+			cfg.AddShaders (new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.filtercube.vert.spv"));
 			if (target == CBTarget.PREFILTEREDENV)
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.prefilterenvmap.frag.spv");
+				cfg.AddShaders (new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#EnvironmentPipeline.prefilterenvmap.frag.spv"));
 			else
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#EnvironmentPipeline.irradiancecube.frag.spv");
+				cfg.AddShaders (new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#EnvironmentPipeline.irradiancecube.frag.spv"));
 
 			Matrix4x4[] matrices = {
 				// POSITIVE_X
@@ -215,7 +223,7 @@ namespace vke.Environment {
 			VkImageSubresourceRange subRes = new VkImageSubresourceRange (VkImageAspectFlags.Color, 0, numMips, 0, 6);
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
-
+				cfg.DisposeShaders ();
 				DescriptorSet dset = dsPool.Allocate (dsLayout);
 				DescriptorSetWrites dsUpdate = new DescriptorSetWrites (dsLayout);
 				dsUpdate.Write (Dev, dset, cubemap.Descriptor);
@@ -288,6 +296,7 @@ namespace vke.Environment {
 					cmd.Free ();
 				}
 			}
+
 			cmap.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 
 			dsLayout.Dispose ();
