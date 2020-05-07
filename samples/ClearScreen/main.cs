@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using vke;
 using Vulkan;
 
@@ -30,7 +31,10 @@ namespace ClearScreen {
 			//is handled automatically by the render pass.
 			renderPass = new RenderPass (dev, swapChain.ColorFormat);
 			//default clear values are automatically added for each attacments
-			renderPass.ClearValues[0] = new VkClearValue (0.1f, 0.2f, 1);
+			renderPass.ClearValues[0] = new VkClearValue (0.9f, 0.9f, 1);
+
+			Console.WriteLine ($"{renderPass.ClearValues[0].color.float32[0]}");
+
 			//bound to a pipeline, renderpasses are automatically activated, here we use
 			//a stand alone renderpass just to clear the screen, so we have to
 			//activate it manually

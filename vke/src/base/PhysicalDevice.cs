@@ -54,7 +54,10 @@ namespace vke {
 		public VkQueueFamilyProperties [] QueueFamilies { get; private set; }
 		public VkPhysicalDeviceProperties Properties {
 			get {
-				vkGetPhysicalDeviceProperties (phy, out VkPhysicalDeviceProperties pdp);
+				IntPtr ptr = Marshal.AllocHGlobal (Marshal.SizeOf<VkPhysicalDeviceProperties> ());
+				vkGetPhysicalDeviceProperties (phy, ptr);
+				VkPhysicalDeviceProperties pdp = Marshal.PtrToStructure<VkPhysicalDeviceProperties> (ptr);
+				Marshal.FreeHGlobal (ptr);
 				return pdp;
 			}
 		}

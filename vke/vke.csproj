@@ -56,7 +56,7 @@
 		
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-		<PackageReference Include="Vulkan" Version="0.2.2.2-beta" />
+		<PackageReference Include="Vulkan" Version="0.2.19-beta" />
 		<PackageReference Include="glfw-sharp" Version="0.2.2" />
 		<PackageReference Include="shaderc.net" Version="0.1.0" />
 	</ItemGroup>
