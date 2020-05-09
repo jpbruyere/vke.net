@@ -37,14 +37,14 @@ namespace vke {
 		protected VkSemaphore[] drawComplete;
 		protected Fence drawFence;
 
-		/// <summary>readonly GLFW window handle</summary>
-		protected IntPtr WindowHandle => hWin;
 		protected uint fps { get; private set; }
 		protected bool updateViewRequested = true;
 		protected double lastMouseX { get; private set; }
 		protected double lastMouseY { get; private set; }
 		protected bool[] MouseButton => buttons;
 
+		/// <summary>readonly GLFW window handle</summary>
+		public IntPtr WindowHandle => hWin;
 
 		/**Default camera initialized with a Field of view of 40° and and aspect ratio of 1. */
 		protected Camera camera = new Camera (Utils.DegreesToRadians (45f), 1f);

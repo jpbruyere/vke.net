@@ -6,7 +6,7 @@ using System.Numerics;
 using vke;
 using Vulkan;
 
-namespace vkeEditor {
+namespace vke {
 
 	public class FSQPipeline : GraphicPipeline {
 		public FSQPipeline (RenderPass renderPass, PipelineLayout pipelineLayout, int attachment = 0, PipelineCache pipelineCache = null)
@@ -16,7 +16,7 @@ namespace vkeEditor {
 			cfg.RenderPass = RenderPass;
 			cfg.Layout = pipelineLayout;
 			cfg.AddShader (Dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-			cfg.AddShader (Dev, VkShaderStageFlags.Fragment, "#vke.simpletexture.frag.spv");
+			cfg.AddShader (Dev, VkShaderStageFlags.Fragment, "#shaders.simpletexture.frag.spv");
 			cfg.multisampleState.rasterizationSamples = Samples;
 
 			cfg.blendAttachments[attachment] = new VkPipelineColorBlendAttachmentState (true);

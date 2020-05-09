@@ -10,15 +10,7 @@ using vke;
 using Vulkan;
 
 namespace vkeEditor {
-	public class Program : VkWindow, Crow.IValueChange {
-		#region IValueChange implementation
-		public event EventHandler<Crow.ValueChangeEventArgs> ValueChanged;
-		public virtual void NotifyValueChanged (string MemberName, object _value)
-		{
-			ValueChanged?.Invoke (this, new Crow.ValueChangeEventArgs (MemberName, _value));
-		}
-		#endregion
-
+	public class Program : CrowWindow { 
 		static void Main (string [] args)
 		{
 #if DEBUG
@@ -50,7 +42,6 @@ namespace vkeEditor {
 			}
 		}
 
-		public RenderPass RenderPass => pipeline.RenderPass;
 
 		Matrices matrices;
 
@@ -72,7 +63,6 @@ namespace vkeEditor {
 		};
 		ushort [] indices = new ushort [] { 0, 1, 2 };
 
-		CrowPipeline fsqPl;
 
 		string source;
 
@@ -100,16 +90,14 @@ namespace vkeEditor {
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 
 			descriptorPool = new DescriptorPool (dev, 1,
-				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer),
-				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler));
+				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 
 			dsLayout = new DescriptorSetLayout (dev,
-				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer),
-				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler)
+				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)
 			);
 
 			cfg.Layout = new PipelineLayout (dev, dsLayout);
-			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
+			cfg.RenderPass = renderPass;
 			cfg.AddVertexBinding<Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
 
@@ -121,9 +109,6 @@ namespace vkeEditor {
 			pipeline = new GraphicPipeline (cfg);
 
 			cfg.DisposeShaders ();
-
-
-			fsqPl = new CrowPipeline (this, cmdPool.AllocateCommandBuffer (), pipeline.RenderPass, pipeline.Layout, 0);
 			//note that descriptor set is allocated after the pipeline creation that use this layout, layout is activated
 			//automaticaly on pipeline creation, and will be disposed automatically when no longuer in use.
 			descriptorSet = descriptorPool.Allocate (dsLayout);
@@ -135,31 +120,19 @@ namespace vkeEditor {
 
 			UpdateFrequency = 20;
 
+			loadWindow ("#ui.testImage.crow", this);
+
+		}
+		protected override void OnResize () {
+			base.OnResize ();
+
+			frameBuffers?.Dispose ();
+			frameBuffers = pipeline.RenderPass.CreateFrameBuffers (swapChain);
+
+			buildCommandBuffers ();
 		}
 
-		protected override void render () {
 
-			int idx = swapChain.GetNextImage ();
-			if (idx < 0) {
-				OnResize ();
-				return;
-			}
-
-			if (cmds[idx] == null)
-				return;
-
-			drawFence.Wait ();
-			drawFence.Reset ();
-
-			fsqPl.releaseCrowUpdateMutex ();
-
-			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx], drawFence);
-			presentQueue.Present (swapChain, drawComplete[idx]);
-		}
-
-		public override void Update () {
-			fsqPl.updateCrow (presentQueue, drawFence);
-		}
 		void buildCommandBuffers () {
 			cmdPool.Reset ();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
@@ -172,34 +145,18 @@ namespace vkeEditor {
 
 				cmds[i].BindDescriptorSet (pipeline.Layout, descriptorSet);
 
-
 				cmds[i].BindPipeline (pipeline);
 
 				cmds[i].BindVertexBuffer (vbo);
 				cmds[i].BindIndexBuffer (ibo, VkIndexType.Uint16);
 				cmds[i].DrawIndexed ((uint)indices.Length);
 
+				RecordDraw (cmds[i]);
 
-				fsqPl.Bind (cmds[i]);
-				fsqPl.RecordDraw (cmds[i]);
-
-				fsqPl.RenderPass.End (cmds[i]);
-
+				pipeline.RenderPass.End (cmds[i]);
 
 				cmds[i].End ();
 			}
-
-			fsqPl.recordUpdateCrowCmd ();
-		}
-		protected override void OnResize () {
-			base.OnResize ();
-			UpdateView ();
-
-			fsqPl.initCrowSurface (descriptorSet, dsLayout.Bindings[1]);
-			frameBuffers?.Dispose ();
-			frameBuffers = pipeline.RenderPass.CreateFrameBuffers (swapChain);
-
-			buildCommandBuffers ();
 		}
 
 		public override void UpdateView ()
@@ -218,7 +175,8 @@ namespace vkeEditor {
 
 		protected override void onMouseMove (double xPos, double yPos)
 		{
-			if (fsqPl.OnMouseMove (xPos, yPos))
+			base.onMouseMove (xPos, yPos);
+			if (MouseIsInInterface)
 				return;
 
 			double diffX = lastMouseX - xPos;
@@ -232,31 +190,6 @@ namespace vkeEditor {
 				return;
 			updateViewRequested = true;
 		}
-		protected override void onMouseButtonDown (MouseButton button)
-		{
-			if (fsqPl.OnMouseButtonDown (button))
-				return;
-		}
-		protected override void onMouseButtonUp (MouseButton button)
-		{
-			if (fsqPl.OnMouseButtonUp (button))
-				return;
-		}
-		protected override void onKeyUp (Key key, int scanCode, Modifier modifiers) {
-			if (fsqPl.OnKeyUp (key))
-				return;
-			base.onKeyUp (key, scanCode, modifiers);
-		}
-		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
-			/*if (fsqPl.OnKeyDown (key))
-				return;*/
-			base.onKeyDown (key, scanCode, modifiers);
-		}
-		protected override void onChar (CodePoint cp) {
-			if (fsqPl.OnKeyPress (cp.ToChar ()))
-				return;
-			base.onChar (cp);
-		}
 
 
 		protected override void Dispose (bool disposing)
@@ -264,7 +197,6 @@ namespace vkeEditor {
 			dev.WaitIdle ();
 			if (disposing) {
 				if (!isDisposed) {
-					fsqPl.Dispose ();
 					pipeline.Dispose ();
 
 					frameBuffers?.Dispose ();
@@ -276,6 +208,5 @@ namespace vkeEditor {
 			}
 			base.Dispose (disposing);
 		}
-
 	}
 }

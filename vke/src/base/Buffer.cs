@@ -93,7 +93,7 @@ namespace vke {
 		/// <param name="cmd">a command buffer to handle the operation.</param>
 		/// <param name="img">The Image to copy the buffer to.</param>
 		/// <param name="finalLayout">The final layout to setup for the destination image.</param>
-		public void CopyTo (PrimaryCommandBuffer cmd, Image img, VkImageLayout finalLayout = VkImageLayout.ShaderReadOnlyOptimal) {
+		public void CopyTo (CommandBuffer cmd, Image img, VkImageLayout finalLayout = VkImageLayout.ShaderReadOnlyOptimal) {
 			img.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.TransferDstOptimal);
 
 			VkBufferImageCopy bufferCopyRegion = new VkBufferImageCopy {
@@ -113,7 +113,7 @@ namespace vke {
 		/// <param name="size">size of the copy operation in byte.</param>
 		/// <param name="srcOffset">a source offset for the copy operation.</param>
 		/// <param name="dstOffset">an offset in the destination buffer for the copy operation.</param>
-		public void CopyTo (PrimaryCommandBuffer cmd, Buffer buff, ulong size = 0, ulong srcOffset = 0, ulong dstOffset = 0) {
+		public void CopyTo (CommandBuffer cmd, Buffer buff, ulong size = 0, ulong srcOffset = 0, ulong dstOffset = 0) {
 			VkBufferCopy bufferCopy = new VkBufferCopy {
 				size = (size == 0) ? AllocatedDeviceMemorySize : size,
 				srcOffset = srcOffset,
@@ -128,7 +128,7 @@ namespace vke {
 		/// <param name="data">an unsigned integer to fill the buffer with.</param>
 		/// <param name="size">size in byte to fill.</param>
 		/// <param name="offset">an offset in byte in the buffer for the fill operation.</param>
-		public void Fill (PrimaryCommandBuffer cmd, uint data, ulong size = 0, ulong offset = 0) {
+		public void Fill (CommandBuffer cmd, uint data, ulong size = 0, ulong offset = 0) {
 			vkCmdFillBuffer (cmd.Handle, handle, offset, (size == 0) ? AllocatedDeviceMemorySize : size, data);
 		}
 
