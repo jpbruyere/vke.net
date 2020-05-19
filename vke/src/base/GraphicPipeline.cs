@@ -44,7 +44,7 @@ namespace vke {
 
 				List<VkPipelineShaderStageCreateInfo> shaderStages = new List<VkPipelineShaderStageCreateInfo> ();
 				foreach (ShaderInfo shader in cfg.Shaders)
-					shaderStages.Add (shader.info);
+					shaderStages.Add (shader.Info);
 
 				using (PinnedObjects pctx = new PinnedObjects ()) {
 

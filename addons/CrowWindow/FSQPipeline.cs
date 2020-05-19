@@ -9,7 +9,7 @@ using Vulkan;
 namespace vke {
 
 	public class FSQPipeline : GraphicPipeline {
-		public static string FragPath = "#shaders.simpletexture.frag.spv";
+		public static string FragPath = "#CrowWindow.simpletexture.frag.spv";
 		public FSQPipeline (RenderPass renderPass, PipelineLayout pipelineLayout, int attachment = 0, PipelineCache pipelineCache = null)
 		: base (renderPass, pipelineCache, "FSQ pipeline") {
 

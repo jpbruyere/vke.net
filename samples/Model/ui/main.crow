@@ -1,0 +1,34 @@
+﻿<?xml version="1.0"?>
+<Window Width="50%" Height="50%" Background="0.1,0.1,0.1,0.7">
+	<HorizontalStack>
+		<ListBox Name="shaders" Data="{Shaders}" Width="30%" Height="Stretched" Background="Transparent"
+						 SelectionColoring="true" SelectionBackground="RoyalBlue">
+			<ItemTemplate>
+				<VerticalStack Height="Fit" Margin="5">
+					<Label Text="{Stage}" Width="Stretched" />
+				</VerticalStack>
+			</ItemTemplate>
+		</ListBox>
+		<Splitter/>
+		<VerticalStack DataSource="{../shaders.SelectedItem}">
+			<!--<TextBox Text="{²Source}" Multiline="True" Height="Stretched" TextAlignment="TopLeft" Background="0.0,0.0,0.0,0.7" Foreground="White"/>
+			<Scroller Height="Stretched" Background="White">
+				<Label Height="Fit" Text="{Error}" Visible="{HasError}" Width="Stretched" Background="DarkRed" Foreground="White" Multiline="true"/>
+			</Scroller>-->
+			<HorizontalStack>
+				<Scroller Name="scroller1" Background="White"
+						Margin="2" ScrollY="{../scrollbar1.Value}"
+						ValueChanged="./_scroller_ValueChanged">
+					<TextBox VerticalAlignment="Top"
+						Text="{²Source}" Multiline="true" TextAlignment="TopLeft"
+						Font="Courriernew 10"/>
+				</Scroller>
+				<ScrollBar Name="scrollbar1" Value="{../scroller1.ScrollY}"
+					LargeIncrement="{../scroller1.PageHeight}" SmallIncrement="30"
+					CursorSize="{../scroller1.ChildHeightRatio}"
+					Maximum="{../scroller1.MaxScrollY}" Orientation="Vertical"
+					Width="14" />
+			</HorizontalStack>			
+		</VerticalStack>
+	</HorizontalStack>
+</Window>

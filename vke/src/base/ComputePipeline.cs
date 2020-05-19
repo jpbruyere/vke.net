@@ -34,7 +34,7 @@ namespace vke {
 				using (ShaderInfo shader = new ShaderInfo (Dev, VkShaderStageFlags.Compute, SpirVPath)) {
 					VkComputePipelineCreateInfo info = VkComputePipelineCreateInfo.New ();
 					info.layout = layout.Handle;
-					info.stage = shader.info;
+					info.stage = shader.Info;
 					info.basePipelineHandle = 0;
 					info.basePipelineIndex = 0;
 

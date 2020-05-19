@@ -16,8 +16,9 @@ layout (binding = 0) uniform UBO
 
 layout (location = 0) out vec2 outUV;
 layout (location = 1) out vec3 outN;
-layout (location = 2) out vec3 outV;//ViewDir
+layout (location = 2) out vec3 outV;
 layout (location = 3) out vec3 outL;
+layout (location = 4) out vec3 outP;
 
 out gl_PerVertex 
 {
@@ -41,10 +42,11 @@ void main()
     //outN = normalize(transpose(inverse(mat3(mod))) * inNormal);    
     outN = mat3(mod)* inNormal;    
     
-    //mat4 viewInv = inverse(ubo.viewMatrix);
-    
-    outV = -pos.xyz;//normalize(vec3(viewInv * vec4(0.0, 0.0, 0.0, 1.0) - pos));
+    mat4 vi = inverse(ubo.viewMatrix);
+    vec4 vit = vi[3];
+    outV = vec3(vit[0],vit[1],vit[2]); //normalize(vec3(viewInv * vec4(0.0, 0.0, 0.0, 1.0) - pos));
     outL = lPos - pos.xyz;
+    outP = -pos.xyz;
     
 	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * pos;    
 }

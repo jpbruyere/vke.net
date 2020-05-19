@@ -10,25 +10,25 @@ using vke.glTF;
 using Glfw;
 using Vulkan;
 
-namespace deferred {
+namespace glow {
 	/// <summary>
 	/// Deferred PBR rendering.
 	/// </summary>
-	class Deferred : VkWindow {
+	class Glow : VkWindow {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			//Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
-			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount8;
+			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
 			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 
 			PbrModelTexArray.TEXTURE_DIM = 1024;
 
-			using (Deferred vke = new Deferred ()) {
+			using (Glow vke = new Glow ()) {
 				vke.Run ();
 			}
 		}
@@ -65,8 +65,6 @@ namespace deferred {
 		};
 		string[] modelPathes = {
 				"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				"/mnt/devel/tests/FidelityFX-SSSR/sample/media/Chess/scene.gltf",
-				"/mnt/devel/tests/FidelityFX-SSSR/sample/media/Chess/scene.bin",
 				"/mnt/devel/pinball.net/data/test.glb",
 				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
 				//Utils.DataDirectory + "models/shadow.glb",

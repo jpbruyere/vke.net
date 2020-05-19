@@ -399,5 +399,88 @@ namespace Vulkan {
 				0, 0, zNear * zFar / (zNear - zFar), 0
 			);
 		}
+
+		public static VkShaderStageFlags ShaderKindToStageFlag (shaderc.ShaderKind shaderKind) {
+			switch (shaderKind) {
+			case shaderc.ShaderKind.VertexShader:
+			case shaderc.ShaderKind.GlslDefaultVertexShader:
+				return VkShaderStageFlags.Vertex;
+			case shaderc.ShaderKind.FragmentShader:
+			case shaderc.ShaderKind.GlslDefaultFragmentShader:
+				return VkShaderStageFlags.Fragment;
+			case shaderc.ShaderKind.ComputeShader:
+			case shaderc.ShaderKind.GlslDefaultComputeShader:
+				return VkShaderStageFlags.Compute;
+			case shaderc.ShaderKind.GeometryShader:
+			case shaderc.ShaderKind.GlslDefaultGeometryShader:
+				return VkShaderStageFlags.Geometry;
+			case shaderc.ShaderKind.TessControlShader:
+			case shaderc.ShaderKind.GlslDefaultTessControlShader:
+				return VkShaderStageFlags.TessellationControl;
+			case shaderc.ShaderKind.TessEvaluationShader:
+			case shaderc.ShaderKind.GlslDefaultTessEvaluationShader:
+				return VkShaderStageFlags.TessellationEvaluation;
+			case shaderc.ShaderKind.RaygenShader:
+			case shaderc.ShaderKind.GlslDefaultRaygenShader:
+				return VkShaderStageFlags.RaygenKHR;
+			case shaderc.ShaderKind.AnyhitShader:
+			case shaderc.ShaderKind.GlslDefaultAnyhitShader:
+				return VkShaderStageFlags.AnyHitKHR;
+			case shaderc.ShaderKind.ClosesthitShader:
+			case shaderc.ShaderKind.GlslDefaultClosesthitShader:
+				return VkShaderStageFlags.ClosestHitKHR;
+			case shaderc.ShaderKind.MissShader:
+			case shaderc.ShaderKind.GlslDefaultMissShader:
+				return VkShaderStageFlags.MissKHR;
+			case shaderc.ShaderKind.IntersectionShader:
+			case shaderc.ShaderKind.GlslDefaultIntersectionShader:
+				return VkShaderStageFlags.IntersectionKHR;
+			case shaderc.ShaderKind.CallableShader:
+			case shaderc.ShaderKind.GlslDefaultCallableShader:
+				return VkShaderStageFlags.CallableKHR;
+			case shaderc.ShaderKind.TaskShader:
+			case shaderc.ShaderKind.GlslDefaultTaskShader:
+				return VkShaderStageFlags.TaskNV;
+			case shaderc.ShaderKind.MeshShader:
+			case shaderc.ShaderKind.GlslDefaultMeshShader:
+				return VkShaderStageFlags.MeshNV;
+			default:
+				throw new NotSupportedException ($"shaderc shaderKind {shaderKind} conversion to VK StageFlag  not handled");
+			}
+		}
+		public static shaderc.ShaderKind ShaderStageToShaderKind (VkShaderStageFlags stageFlag) {
+			switch (stageFlag) {
+			case VkShaderStageFlags.Vertex:
+				return shaderc.ShaderKind.VertexShader;
+			case VkShaderStageFlags.TessellationControl:
+				return shaderc.ShaderKind.TessControlShader;
+			case VkShaderStageFlags.TessellationEvaluation:
+				return shaderc.ShaderKind.TessEvaluationShader;
+			case VkShaderStageFlags.Geometry:
+				return shaderc.ShaderKind.GeometryShader;
+			case VkShaderStageFlags.Fragment:
+				return shaderc.ShaderKind.FragmentShader;
+			case VkShaderStageFlags.Compute:
+				return shaderc.ShaderKind.ComputeShader;
+			case VkShaderStageFlags.RaygenKHR:
+				return shaderc.ShaderKind.RaygenShader;
+			case VkShaderStageFlags.AnyHitKHR:
+				return shaderc.ShaderKind.AnyhitShader;
+			case VkShaderStageFlags.ClosestHitKHR:
+				return shaderc.ShaderKind.ClosesthitShader;
+			case VkShaderStageFlags.MissKHR:
+				return shaderc.ShaderKind.MissShader;
+			case VkShaderStageFlags.IntersectionKHR:
+				return shaderc.ShaderKind.IntersectionShader;
+			case VkShaderStageFlags.CallableKHR:
+				return shaderc.ShaderKind.CallableShader;
+			case VkShaderStageFlags.TaskNV:
+				return shaderc.ShaderKind.TaskShader;
+			case VkShaderStageFlags.MeshNV:
+				return shaderc.ShaderKind.MeshShader;
+			default:
+				throw new NotSupportedException ($"Error Shader Stage flag conversion to ShaderKind: {stageFlag}");
+			}
+		}
 	}
 }

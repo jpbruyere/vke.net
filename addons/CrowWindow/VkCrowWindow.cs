@@ -2,10 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Glfw;
-using vke;
 using Vulkan;
 using Crow;
 using System.Threading;
@@ -29,9 +26,9 @@ namespace vke {
 		public bool MouseIsInInterface =>
 			iFace.HoverWidget != null;
 
-		FSQPipeline fsqPl;
+		protected FSQPipeline fsqPl;
 		DescriptorPool dsPool;
-		DescriptorSet descSet;
+		protected DescriptorSet descSet;
 		CommandPool cmdPoolCrow;
 		PrimaryCommandBuffer cmdUpdateCrow;
 		Image crowImage;
@@ -86,6 +83,11 @@ namespace vke {
 			if (iFace.OnMouseButtonUp (button))
 				return;
 			base.onMouseButtonUp (button);
+		}
+		protected override void onScroll (double xOffset, double yOffset) {
+			if (iFace.OnMouseWheelChanged ((float)yOffset))
+				return;
+			base.onScroll (xOffset, yOffset);
 		}
 		protected override void onChar (CodePoint cp) {
 			if (iFace.OnKeyPress (cp.ToChar()))
@@ -144,9 +146,7 @@ namespace vke {
 			iFace.ProcessResize (new Rectangle (0, 0, (int)Width, (int)Height));
 		}
 
-		public void RecordDraw (CommandBuffer cmd) {
-			//fsqPl.Bind (cmd);
-			//cmd.BindDescriptorSet()
+		protected virtual void recordUICmd (CommandBuffer cmd) {
 			fsqPl.BindDescriptorSet (cmd, descSet, 0);
 			fsqPl.RecordDraw (cmd);
 		}
@@ -220,7 +220,14 @@ namespace vke {
 				w.DataSource = dataSource;
 
 			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine (ex.ToString ());
+				System.Diagnostics.Debug.WriteLine (ex.Message);
+			}
+		}
+		protected void loadIMLFragment (string imlFragment, object dataSource = null) {
+			try {
+				iFace.LoadIMLFragment (imlFragment).DataSource = dataSource;
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine (ex.Message);
 			}
 		}
 		protected void closeWindow (string path) {
