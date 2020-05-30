@@ -64,10 +64,8 @@ namespace deferred {
 			Utils.DataDirectory + "textures/uffizi_cube.ktx",
 		};
 		string[] modelPathes = {
-				"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				"/mnt/devel/tests/FidelityFX-SSSR/sample/media/Chess/scene.gltf",
-				"/mnt/devel/tests/FidelityFX-SSSR/sample/media/Chess/scene.bin",
-				"/mnt/devel/pinball.net/data/test.glb",
+				//"/mnt/devel/vkPinball/data/models/pinball.gltf",
+				//"/mnt/devel/pinball.net/data/test.glb",
 				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
 				//Utils.DataDirectory + "models/shadow.glb",
 				Utils.DataDirectory + "models/Hubble.glb",
@@ -75,7 +73,7 @@ namespace deferred {
 				Utils.DataDirectory + "models/ISS_stationary.glb",
 			};
 
-		int curModelIndex = 1;
+		int curModelIndex = 0;
 		bool reloadModel;
 		bool rebuildBuffers;
 

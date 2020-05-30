@@ -14,6 +14,11 @@ namespace vke {
 	/// such imported image will not be disposed with the sampler and the view.
 	/// </summary>
 	public class Image : Resource {
+#if STB_SHARP
+		public static bool USE_STB_SHARP = true;
+#else
+		public static bool USE_STB_SHARP = false;
+#endif
 		/// <summary>Default format to use if not defined by constructor parameters.</summary>
 		public static VkFormat DefaultTextureFormat = VkFormat.R8g8b8a8Unorm;
 
@@ -187,7 +192,20 @@ namespace vke {
 				usage |= VkImageUsageFlags.TransferDst;
 			if (generateMipmaps)
 				usage |= (VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst);
-
+#if STB_SHARP
+			
+			StbImageSharp.ImageResult stbi = StbImageSharp.ImageResult.FromMemory (stream, StbImageSharp.ColorComponents.RedGreenBlueAlpha);
+			uint mipLevels = generateMipmaps ? ComputeMipLevels (stbi.Width, stbi.Height) : 1;
+			image = new byte [stbi.Data.Length];
+			//rgba to argb for cairo.
+			for (int i = 0; i < stbi.Data.Length; i += 4) {
+				image [i] = stbi.Data[i + 2];
+				image [i + 1] = stbi.Data [i + 1];
+				image [i + 2] = stbi.Data [i];
+				image [i + 3] = stbi.Data [i + 3];
+			}
+			Dimensions = new Size (stbi.Width, stbi.Height);
+#else
 			using (StbImage stbi = new StbImage (bitmap, bitmapByteCount)) {
 				uint mipLevels = generateMipmaps ? ComputeMipLevels (stbi.Width, stbi.Height) : 1;
 
@@ -198,6 +216,7 @@ namespace vke {
 
 				return img;
 			}
+#endif
 		}
 
 		/// <summary>

@@ -6,8 +6,17 @@
 		<SpirVTasksPackageVersion>$(SpirVTasksReleaseVersion)-beta</SpirVTasksPackageVersion>
 		<VkeReleaseVersion>0.1.20</VkeReleaseVersion>
 		<VkePackageVersion>$(VkeReleaseVersion)-beta</VkePackageVersion>
-		
+		<UseStbSharp>true</UseStbSharp>
+		<UseMemoryPools>true</UseMemoryPools>
 		<LangVersion>7.2</LangVersion>
 
 	</PropertyGroup>
+	
+	<PropertyGroup Condition=" '$(UseMemoryPools)' == 'true'">
+		<DefineConstants>$(DefineConstants);MEMORY_POOLS</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(UseStbSharp)' == 'true'">
+		<DefineConstants>$(DefineConstants);STB_SHARP</DefineConstants>
+	</PropertyGroup>
+	
 </Project>

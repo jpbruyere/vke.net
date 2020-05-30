@@ -8,6 +8,7 @@ using Glfw;
 using vke;
 using Vulkan;
 using Buffer = vke.Buffer;
+using Image = vke.Image;
 
 namespace TextureCube {
 	/// <summary>

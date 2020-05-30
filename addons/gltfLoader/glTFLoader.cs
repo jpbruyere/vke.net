@@ -11,8 +11,7 @@ using GL = glTFLoader.Schema;
 using Vulkan;
 using System.Collections.Generic;
 using System.IO;
-
-
+using System.Linq;
 
 namespace vke.glTF {
 	using static Vulkan.Utils;
@@ -516,7 +515,11 @@ namespace vke.glTF {
 				if (img.BufferView != null) {//load image from gltf buffer view
 					GL.BufferView bv = gltf.BufferViews[(int)img.BufferView];
 					ensureBufferIsLoaded (bv.Buffer);
-					vkimg = Image.Load (dev, transferQ, cmdPool, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength);
+					if (Image.USE_STB_SHARP)
+						vkimg = Image.Load (dev, transferQ, cmdPool, loadedBuffers[bv.Buffer].Skip(bv.ByteOffset).Take(bv.ByteLength).ToArray());
+					else
+						vkimg = Image.Load (dev, transferQ, cmdPool, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength);
+
 				} else if (img.Uri.StartsWith ("data:", StringComparison.Ordinal)) {//load base64 encoded image
 					Debug.WriteLine ("loading embedded image {0} : {1}", img.Name, img.MimeType);
 					vkimg = Image.Load (dev, transferQ, cmdPool, glTFLoader.loadDataUri (img));
@@ -606,7 +609,7 @@ namespace vke.glTF {
 		}
 
 
-		#region IDisposable Support
+#region IDisposable Support
 		private bool isDisposed = false; // Pour détecter les appels redondants
 
 		protected virtual void Dispose (bool disposing) {
@@ -631,6 +634,6 @@ namespace vke.glTF {
 			Dispose (true);
 			GC.SuppressFinalize (this);
 		}
-		#endregion
+#endregion
 	}
 }

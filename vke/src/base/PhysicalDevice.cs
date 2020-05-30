@@ -138,10 +138,13 @@ namespace vke {
 		public VkPresentModeKHR[] GetSurfacePresentModes (VkSurfaceKHR surf) {
 			vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out uint count, IntPtr.Zero);
 			if (Type.GetType ("Mono.Runtime") == null) {
-				int[] modes = new int[count];//this cause an error on mono
+				uint[] modes = new uint[count];//this cause an error on mono
 				vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());
 				modes.Unpin ();
-				return modes.Cast<VkPresentModeKHR> ().ToArray ();
+				VkPresentModeKHR[] mds = new VkPresentModeKHR[count];
+				for (int i = 0; i < count; i++)
+					mds[i] = (VkPresentModeKHR)modes[i];				
+				return mds;
 			} else {
 				VkPresentModeKHR[] modes = new VkPresentModeKHR[count];//enums not blittable on ms.Net
 				vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());

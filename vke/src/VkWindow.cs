@@ -85,7 +85,7 @@ namespace vke {
 		/// <param name="_width">Width.</param>
 		/// <param name="_height">Height.</param>
 		/// <param name="vSync">Vertical synchronisation status for creating the swapchain.</param>
-		public VkWindow (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = false) {
+		public VkWindow (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = true) {
 
 			Width = _width;
 			Height = _height;

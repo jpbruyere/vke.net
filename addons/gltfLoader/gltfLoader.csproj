@@ -13,7 +13,7 @@
     <License>MIT</License>
     <PackageReleaseNotes></PackageReleaseNotes>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>    
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>	  	
   </PropertyGroup>
   <ItemGroup>    
     <PackageReference Include="glTF2Loader" Version="1.1.3-alpha" />

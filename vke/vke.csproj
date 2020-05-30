@@ -30,35 +30,26 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		
 		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>		
-    <LangVersion>7.2</LangVersion>
+		<LangVersion>7.2</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>    
-		<NoWarn>$(NoWarn);1591</NoWarn>
+		<NoWarn>$(NoWarn);1591</NoWarn>		
 		
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
-	
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<WarningLevel>4</WarningLevel>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-		<DefineConstants>_MEMORY_POOLS;NETSTANDARD;NETSTANDARD2_0;DEBUG</DefineConstants>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<Optimize>true</Optimize>
-		<DefineConstants>_MEMORY_POOLS;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-	</PropertyGroup>
-	
+		
 	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />		
 	</ItemGroup>
 		
+	<ItemGroup Condition=" '$(UseStbSharp)' == 'true'">
+		<PackageReference Include="StbImageSharp" Version="2.22.4" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
 		<PackageReference Include="Vulkan" Version="0.2.2.2-beta" />
 		<PackageReference Include="shaderc.net" Version="0.1.0" />
-		<PackageReference Include="glfw-sharp" Version="0.2.5" />
+		<PackageReference Include="glfw-sharp" Version="0.2.6-beta" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />

@@ -52,10 +52,8 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
-		protected override void initVulkan () {
+		protected override void initVulkan () {			
 			base.initVulkan ();
-
-			test ();
 
 			//first create the needed buffers
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
@@ -105,25 +103,6 @@ namespace Triangle {
 
 			//allocate the default VkWindow buffers, one per swapchain image. Their will be only reset when rebuilding and not reallocated.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
-		}
-
-		void test()
-		{
-			if (Vk.vkEnumerateInstanceLayerProperties (out var count, IntPtr.Zero) != VkResult.Success) return;
-			var sizeStruct = Marshal.SizeOf<VkLayerProperties> ();
-			var ptrSupLayers = Marshal.AllocHGlobal (sizeStruct * (int)count);
-			if (Vk.vkEnumerateInstanceLayerProperties (out count, ptrSupLayers) != VkResult.Success) return;
-			VkLayerProperties[] result = new VkLayerProperties [count];
-			var tmp = ptrSupLayers;
-			for (var i = 0; i < count; i++) {
-				result [i] = Marshal.PtrToStructure<VkLayerProperties> (tmp);
-				tmp += sizeStruct;
-			}
-			Marshal.FreeHGlobal (ptrSupLayers);
-			unsafe {
-				foreach (VkLayerProperties p in result) 
-					Console.WriteLine ($"{p.layerName} ({p.specVersion}) : {p.description}");
-			}
 		}
 
 		//view update override, see base method for more informations.
