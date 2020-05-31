@@ -66,6 +66,10 @@ namespace deferred {
 		string[] modelPathes = {
 				//"/mnt/devel/vkPinball/data/models/pinball.gltf",
 				//"/mnt/devel/pinball.net/data/test.glb",
+				//Utils.DataDirectory + "models/Box.gltf",
+				//Utils.DataDirectory + "models/cubeOnPlane.glb",
+				//Utils.DataDirectory + "models/shadow.glb",
+				Utils.DataDirectory + "models/cube.gltf",
 				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
 				//Utils.DataDirectory + "models/shadow.glb",
 				Utils.DataDirectory + "models/Hubble.glb",

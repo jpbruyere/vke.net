@@ -6,6 +6,7 @@ using Glfw;
 using Vulkan;
 using vke;
 using vke.DistanceFieldFont;
+using Image = vke.Image;
 
 namespace DistanceFieldFontTest {
 

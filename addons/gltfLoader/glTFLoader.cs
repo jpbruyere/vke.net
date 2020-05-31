@@ -16,6 +16,7 @@ using System.Linq;
 namespace vke.glTF {
 	using static Vulkan.Utils;
 	using static vke.Model;
+	using System.Runtime.CompilerServices;
 
 	/// <summary>
 	/// Loading context with I as the vertex index type (uint16,uint32)
@@ -76,8 +77,7 @@ namespace vke.glTF {
 		public GL.Gltf gltf;
 		public string baseDirectory;
 
-		public byte[][] loadedBuffers;
-		public GCHandle[] bufferHandles;
+		public Memory<byte>[] loadedBuffers;
 
 		List<Mesh> meshes;
 		string path;
@@ -88,8 +88,7 @@ namespace vke.glTF {
 			cmdPool = _cmdPool;
 			baseDirectory = Path.GetDirectoryName (path);
 			gltf = Interface.LoadModel (path);
-			loadedBuffers = new byte [gltf.Buffers.Length] [];
-			bufferHandles = new GCHandle [gltf.Buffers.Length];
+			loadedBuffers = new Memory<byte> [gltf.Buffers.Length];
 		}
 
 		static byte[] loadDataUri (GL.Image img) {
@@ -102,7 +101,7 @@ namespace vke.glTF {
 		}
 
 		void ensureBufferIsLoaded (int bufferIdx) {
-			if (loadedBuffers[bufferIdx] == null) {
+			if (loadedBuffers[bufferIdx].IsEmpty) {
 				//load full buffer
 				string uri = gltf.Buffers[bufferIdx].Uri;
 				if (string.IsNullOrEmpty(uri))//glb
@@ -111,7 +110,6 @@ namespace vke.glTF {
 					loadedBuffers[bufferIdx] = loadDataUri (gltf.Buffers[bufferIdx]);//TODO:check this func=>System.Buffers.Text.Base64.EncodeToUtf8InPlace
 				else
 					loadedBuffers[bufferIdx] = File.ReadAllBytes (Path.Combine (baseDirectory, gltf.Buffers[bufferIdx].Uri));
-				bufferHandles[bufferIdx] = GCHandle.Alloc (loadedBuffers[bufferIdx], GCHandleType.Pinned);
 			}
 		}
 
@@ -159,10 +157,10 @@ namespace vke.glTF {
 				stagging.Map ();
 
 				unsafe {
-					byte* stagVertPtrInit = (byte*)stagging.MappedData.ToPointer ();
-					byte* stagIdxPtrInit = (byte*)(stagging.MappedData.ToPointer ()) + vertSize;
-					byte* stagVertPtr = stagVertPtrInit;
-					byte* stagIdxPtr = stagIdxPtrInit;
+
+					Span<byte> stagVertPtrInit = new Span<byte>(stagging.MappedData.ToPointer (), (int)vertSize);
+					Span<byte> stagIdxPtrInit = new Span<byte>((byte*)stagging.MappedData.ToPointer() + vertSize, (int)idxSize);
+					Span<byte> stagVertPtr = stagVertPtrInit, stagIdxPtr = stagIdxPtrInit;
 
 					foreach (GL.Mesh mesh in gltf.Meshes) {
 
@@ -206,90 +204,92 @@ namespace vke.glTF {
 							prim.bb.isValid = true;
 
 							//Interleaving vertices
-							byte * inPosPtr = null, inNormPtr = null, inUvPtr = null, inUv1Ptr = null;
+							Span<byte> inPosPtr = Span<byte>.Empty, inNormPtr = Span<byte>.Empty, inUvPtr = Span<byte>.Empty, inUv1Ptr = Span<byte>.Empty;
 
 							GL.BufferView bv = gltf.BufferViews[(int)AccPos.BufferView];
-							inPosPtr = (byte*)bufferHandles[bv.Buffer].AddrOfPinnedObject ().ToPointer ();
-							inPosPtr += AccPos.ByteOffset + bv.ByteOffset;
+							inPosPtr = loadedBuffers[bv.Buffer].Span.Slice (AccPos.ByteOffset + bv.ByteOffset);
 
 							if (AccNorm != null) {
 								bv = gltf.BufferViews[(int)AccNorm.BufferView];
-								inNormPtr = (byte*)bufferHandles[bv.Buffer].AddrOfPinnedObject ().ToPointer ();
-								inNormPtr += AccNorm.ByteOffset + bv.ByteOffset;
+								inNormPtr = loadedBuffers[bv.Buffer].Span.Slice (AccNorm.ByteOffset + bv.ByteOffset);
 							}
 							if (AccUv != null) {
 								bv = gltf.BufferViews[(int)AccUv.BufferView];
-								inUvPtr = (byte*)bufferHandles[bv.Buffer].AddrOfPinnedObject ().ToPointer ();
-								inUvPtr += AccUv.ByteOffset + bv.ByteOffset;
+								inUvPtr = loadedBuffers[bv.Buffer].Span.Slice (AccUv.ByteOffset + bv.ByteOffset);
 							}
 							if (AccUv1 != null) {
 								bv = gltf.BufferViews[(int)AccUv1.BufferView];
-								inUv1Ptr = (byte*)bufferHandles[bv.Buffer].AddrOfPinnedObject ().ToPointer ();
-								inUv1Ptr += AccUv1.ByteOffset + bv.ByteOffset;
+								inUv1Ptr = loadedBuffers[bv.Buffer].Span.Slice (AccUv1.ByteOffset + bv.ByteOffset);
 							}
 
 							//TODO: use vertex attributes scan for copying data if they exists
 							for (int j = 0; j < prim.vertexCount; j++) {
-								System.Buffer.MemoryCopy (inPosPtr, stagVertPtr, 12, 12);
-								inPosPtr += 12;
-								if (inNormPtr != null) {
-									System.Buffer.MemoryCopy (inNormPtr, stagVertPtr + 12, 12, 12);
-									inNormPtr += 12;
+								inPosPtr.Slice (0, 12).CopyTo (stagVertPtr);
+								inPosPtr = inPosPtr.Slice(12);
+								if (!inNormPtr.IsEmpty) {
+									inNormPtr.Slice (0, 12).CopyTo (stagVertPtr.Slice (12));
+									inNormPtr = inNormPtr.Slice (12);
 								}
 								if (inUvPtr != null) {
-									System.Buffer.MemoryCopy (inUvPtr, stagVertPtr + 24, 8, 8);
-									inUvPtr += 8;
+									inUvPtr.Slice (0, 8).CopyTo (stagVertPtr.Slice (24));
+									inUvPtr = inUvPtr.Slice (8);
 								}
 								if (inUv1Ptr != null) {
-									System.Buffer.MemoryCopy (inUv1Ptr, stagVertPtr + 32, 8, 8);
-									inUv1Ptr += 8;
+									inUv1Ptr.Slice (0, 8).CopyTo (stagVertPtr.Slice (32));
+									inUv1Ptr = inUvPtr.Slice (8);
 								}
-								stagVertPtr += vertexByteSize;
+								stagVertPtr = stagVertPtr.Slice (vertexByteSize);
 							}
+
+							/*Span<byte> s = stagVertPtrInit;
+							for (int i = 0; i < s.Length; i++)
+								Console.Write (s[i].ToString ("X2") + (i % 32 == 0 ? "\n" : " "));*/
+
 
 							//indices loading
 							if (p.Indices != null) {
 								GL.Accessor acc = gltf.Accessors[(int)p.Indices];
 								bv = gltf.BufferViews[(int)acc.BufferView];
 
-								byte* inIdxPtr = (byte*)bufferHandles[bv.Buffer].AddrOfPinnedObject ().ToPointer ();
-								inIdxPtr += acc.ByteOffset + bv.ByteOffset;
+								Span<byte> inIdxPtr = loadedBuffers[bv.Buffer].Span.Slice (acc.ByteOffset + bv.ByteOffset);
 
 								//TODO:double check this, I dont seems to increment stag pointer
 								if (acc.ComponentType == GL.Accessor.ComponentTypeEnum.UNSIGNED_SHORT) {
 									if (indexType == VkIndexType.Uint16) {
-										System.Buffer.MemoryCopy (inIdxPtr, stagIdxPtr, (long)acc.Count * 2, (long)acc.Count * 2);
-										stagIdxPtr += (long)acc.Count * 2;
+										inIdxPtr.Slice (0, acc.Count * 2).CopyTo (stagIdxPtr);
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 2);
 									} else {
-										uint* usPtr = (uint*)stagIdxPtr;
-										ushort* inPtr = (ushort*)inIdxPtr;
-										for (int i = 0; i < acc.Count; i++) 
-											usPtr[i] = inPtr[i];										
-										stagIdxPtr += (long)acc.Count * 4;
+
+										Span<uint> usPtr = MemoryMarshal.Cast<byte, uint> (stagIdxPtr);
+										Span<ushort> inPtr = MemoryMarshal.Cast < byte, ushort> (inIdxPtr);
+										for (int i = 0; i < acc.Count; i++)
+											usPtr[i] = inPtr[i];
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 4);
 									}
 								} else if (acc.ComponentType == GL.Accessor.ComponentTypeEnum.UNSIGNED_INT) {
 									if (indexType == VkIndexType.Uint32) {
-										System.Buffer.MemoryCopy (inIdxPtr, stagIdxPtr, (long)acc.Count * 4, (long)acc.Count * 4);
-										stagIdxPtr += (long)acc.Count * 4;
+										inIdxPtr.Slice (0, acc.Count * 4).CopyTo (stagIdxPtr);
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 4);
 									} else {
-										ushort* usPtr = (ushort*)stagIdxPtr;
-										uint* inPtr = (uint*)inIdxPtr;
+										Span<ushort> usPtr = MemoryMarshal.Cast<byte, ushort> (stagIdxPtr);
+										Span<uint> inPtr = MemoryMarshal.Cast<byte, uint> (inIdxPtr);
+
 										for (int i = 0; i < acc.Count; i++) 
 											usPtr[i] = (ushort)inPtr[i];
-										stagIdxPtr += (long)acc.Count * 2;
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 2);
 									}
 								} else if (acc.ComponentType == GL.Accessor.ComponentTypeEnum.UNSIGNED_BYTE) {
 									//convert
 									if (indexType == VkIndexType.Uint16) {
-										ushort* usPtr = (ushort*)stagIdxPtr;
+										Span<ushort> usPtr = MemoryMarshal.Cast<byte, ushort> (stagIdxPtr);
 										for (int i = 0; i < acc.Count; i++)
 											usPtr[i] = (ushort)inIdxPtr[i];
-										stagIdxPtr += (long)acc.Count * 2;
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 2);
 									} else {
-										uint* usPtr = (uint*)stagIdxPtr;
+										Span<uint> usPtr = MemoryMarshal.Cast<byte, uint> (stagIdxPtr);
 										for (int i = 0; i < acc.Count; i++)
 											usPtr[i] = (uint)inIdxPtr[i];
-										stagIdxPtr += (long)acc.Count * 4;
+										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 4);
 									}
 								} else
 									throw new NotImplementedException ();
@@ -304,6 +304,10 @@ namespace vke.glTF {
 						}
 						meshes.Add (m);
 					}
+
+					/*ReadOnlySpan<byte> tmp = new ReadOnlySpan<byte> (stagging.MappedData.ToPointer (), (int)size);
+					Memory<byte> mtmp = new Memory<byte> (tmp.ToArray());
+					mtmp.Dump();*/
 				}
 
 				stagging.Unmap ();
@@ -433,7 +437,7 @@ namespace vke.glTF {
 				if (img.BufferView != null) {//load image from gltf buffer view
 					GL.BufferView bv = gltf.BufferViews[(int)img.BufferView];
 					ensureBufferIsLoaded (bv.Buffer);
-					vkimg = Image.Load (dev, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength, VkImageUsageFlags.TransferSrc);
+					vkimg = Image.Load (dev, loadedBuffers[bv.Buffer].Slice (bv.ByteOffset), (ulong)bv.ByteLength, VkImageUsageFlags.TransferSrc);
 				} else if (img.Uri.StartsWith ("data:", StringComparison.Ordinal)) {//load base64 encoded image
 					Debug.WriteLine ("loading embedded image {0} : {1}", img.Name, img.MimeType);
 					vkimg = Image.Load (dev, glTFLoader.loadDataUri (img), VkImageUsageFlags.TransferSrc);
@@ -515,11 +519,7 @@ namespace vke.glTF {
 				if (img.BufferView != null) {//load image from gltf buffer view
 					GL.BufferView bv = gltf.BufferViews[(int)img.BufferView];
 					ensureBufferIsLoaded (bv.Buffer);
-					if (Image.USE_STB_SHARP)
-						vkimg = Image.Load (dev, transferQ, cmdPool, loadedBuffers[bv.Buffer].Skip(bv.ByteOffset).Take(bv.ByteLength).ToArray());
-					else
-						vkimg = Image.Load (dev, transferQ, cmdPool, bufferHandles[bv.Buffer].AddrOfPinnedObject () + bv.ByteOffset, (ulong)bv.ByteLength);
-
+					vkimg = Image.Load (dev, transferQ, cmdPool, loadedBuffers[bv.Buffer].Slice (bv.ByteOffset, bv.ByteLength));
 				} else if (img.Uri.StartsWith ("data:", StringComparison.Ordinal)) {//load base64 encoded image
 					Debug.WriteLine ("loading embedded image {0} : {1}", img.Name, img.MimeType);
 					vkimg = Image.Load (dev, transferQ, cmdPool, glTFLoader.loadDataUri (img));
@@ -619,8 +619,8 @@ namespace vke.glTF {
 				}
 
 				for (int i = 0; i < gltf.Buffers.Length; i++) {
-					if (bufferHandles[i].IsAllocated)
-						bufferHandles[i].Free ();
+					//if (bufferHandles[i].IsAllocated)
+						//bufferHandles[i].Free ();
 				}
 
 				isDisposed = true;

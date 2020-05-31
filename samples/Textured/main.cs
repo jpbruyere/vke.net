@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Glfw;
 using vke;
 using Vulkan;
+using Image = vke.Image;
 
 namespace Textured {
 	/// <summary>

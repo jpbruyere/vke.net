@@ -181,5 +181,14 @@ namespace vke {
 			}
 		}
 		#endregion
+
+		#region temp
+		public static void Dump (this Memory<byte> mem) {
+			Span<byte> s = mem.Span;
+			for (int i = 0; i < s.Length; i++) 
+				Console.Write (s[i].ToString("X2") + (i % 32 == 0 ? "\n" : " "));
+		}
+		#endregion
+
 	}
 }

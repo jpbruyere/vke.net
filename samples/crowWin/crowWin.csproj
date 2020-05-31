@@ -3,7 +3,7 @@
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Crow" Version="0.8.11-beta" />
+		<PackageReference Include="Crow" Version="0.9.0-beta" />
 	</ItemGroup>
 	<ItemGroup>
 <!--		<GLSLShader Remove="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />-->
