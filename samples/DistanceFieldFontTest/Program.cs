@@ -68,7 +68,7 @@ namespace DistanceFieldFontTest {
 
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 
-			font = new BMFont (Utils.DataDirectory + "font.fnt");
+			font = new BMFont (System.IO.Path.Combine (vke.samples.Utils.DataDirectory, "font.fnt"));
 
 			vbo = new GPUBuffer<float> (dev, VkBufferUsageFlags.VertexBuffer | VkBufferUsageFlags.TransferDst, 1024);
 			ibo = new GPUBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer | VkBufferUsageFlags.TransferDst, 2048);

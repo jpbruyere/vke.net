@@ -19,7 +19,7 @@
 		
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 		
-		<DefineConstants>_WITH_SHADOWS;_WITH_VKVG</DefineConstants>
+		<DefineConstants>WITH_SHADOWS;_WITH_VKVG</DefineConstants>
 	</PropertyGroup>
     		
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'BuildPackages|AnyCPU' ">
