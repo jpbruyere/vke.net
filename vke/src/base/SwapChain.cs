@@ -77,7 +77,7 @@ namespace vke {
 				}
 			}
 			if (createInfos.presentMode != presentMode)
-				throw new Exception ("Invalid presentMode for swapchain: " + presentMode);
+				throw new Exception ("Unsuported presentMode for swapchain: " + presentMode);
 
 			createInfos.surface = presentQueue.Surface;
 			createInfos.imageExtent = new VkExtent2D (width, height);

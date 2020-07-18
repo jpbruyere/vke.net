@@ -6,7 +6,7 @@
     <AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
     <Description>vke.net glTF addons</Description>
     <PackageTags>vulkan C# gltf</PackageTags>    
-    <PackageVersion>$(AssemblyVersion)</PackageVersion>
+    <PackageVersion>$(VkePackageVersion)</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>

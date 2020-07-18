@@ -6,24 +6,24 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 namespace vke {
-    public class StbImage : IDisposable {
+	public class StbImage : IDisposable {
 #if STB_SHARP
 		GCHandle gcHandle;
 		public IntPtr Handle => gcHandle.AddrOfPinnedObject ();
 #else
 		const string stblib = "stb";
 
-        [DllImport (stblib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "stbi_load")]
-        static extern IntPtr Load ([MarshalAs (UnmanagedType.LPStr)] string filename, out int x, out int y, out int channels_in_file, int desired_channels);
+		[DllImport (stblib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "stbi_load")]
+		static extern IntPtr Load ([MarshalAs (UnmanagedType.LPStr)] string filename, out int x, out int y, out int channels_in_file, int desired_channels);
 
 		[DllImport (stblib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "stbi_load_from_memory")]
-        static extern IntPtr Load (IntPtr bitmap, int byteCount, out int x, out int y, out int channels_in_file, int desired_channels);
+		static extern IntPtr Load (IntPtr bitmap, int byteCount, out int x, out int y, out int channels_in_file, int desired_channels);
 
 		[DllImport (stblib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "stbi_load_from_memory")]
 		static extern IntPtr Load (ref byte bitmap, int byteCount, out int x, out int y, out int channels_in_file, int desired_channels);
 
 		[DllImport (stblib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "stbi_image_free")]
-        static extern void FreeImage (IntPtr img);
+		static extern void FreeImage (IntPtr img);
 
 		public IntPtr Handle { get; private set; }
 #endif
@@ -95,7 +95,7 @@ namespace vke {
 			Channels = (int)stbi.Comp;
 			gcHandle = GCHandle.Alloc (stbi.Data, GCHandleType.Pinned);
 #else
-			Handle = StbImage.Load (ref MemoryMarshal.GetReference(bitmap.Span), bitmap.Length, out Width, out Height, out Channels, requestedChannels);
+			Handle = StbImage.Load (ref MemoryMarshal.GetReference (bitmap.Span), bitmap.Length, out Width, out Height, out Channels, requestedChannels);
 			if (Handle == IntPtr.Zero)
 				throw new Exception ($"STBI image loading error.");
 #endif

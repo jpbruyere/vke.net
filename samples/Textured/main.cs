@@ -59,11 +59,11 @@ namespace Textured {
 		ushort[] indices = { 0, 1, 2, 2, 0, 3 };
 		int currentImgIndex = 0;
 		string[] imgPathes = {
-			Utils.DataDirectory + "models/Bricks16_col.jpg",
-			Utils.DataDirectory + "textures/texturearray_rocks_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/texture.jpg",
-			Utils.DataDirectory + "textures/tex256.jpg",
-			Utils.DataDirectory + "font.ktx",
+			vke.samples.Utils.DataDirectory + "models/Bricks16_col.jpg",
+			vke.samples.Utils.DataDirectory + "textures/texturearray_rocks_bc3_unorm.ktx",
+			vke.samples.Utils.DataDirectory + "textures/texture.jpg",
+			vke.samples.Utils.DataDirectory + "textures/tex256.jpg",
+			vke.samples.Utils.DataDirectory + "font.ktx",
 		};
 
 		protected override void initVulkan () {

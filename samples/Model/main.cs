@@ -101,7 +101,7 @@ namespace Model{
 
 			buildModelPipeline ();
 
-			helmet = new SimpleModel (presentQueue, Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf");
+			helmet = new SimpleModel (presentQueue, vke.samples.Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf");
 
 			dsMatrices = descriptorPool.Allocate (descLayoutMatrix);
 			dsTextures = descriptorPool.Allocate (descLayoutTextures);

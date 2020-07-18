@@ -19,6 +19,7 @@ namespace vkeEditor {
 #endif
 
 			using (Program vke = new Program ()) {
+				vke.CrowUpdateInterval = 15;
 				vke.Run ();
 			}
 		}
@@ -151,7 +152,7 @@ namespace vkeEditor {
 				cmds[i].BindIndexBuffer (ibo, VkIndexType.Uint16);
 				cmds[i].DrawIndexed ((uint)indices.Length);
 
-				RecordDraw (cmds[i]);
+				this.recordUICmd (cmds[i]);
 
 				pipeline.RenderPass.End (cmds[i]);
 

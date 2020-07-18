@@ -2,18 +2,22 @@
 	<PropertyGroup>
 		<RootDirectory>$(MSBuildThisFileDirectory)</RootDirectory>
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
+		
 		<SpirVTasksReleaseVersion>0.1.44</SpirVTasksReleaseVersion>
 		<SpirVTasksPackageVersion>$(SpirVTasksReleaseVersion)-beta</SpirVTasksPackageVersion>
-		<VkeReleaseVersion>0.1.20</VkeReleaseVersion>
+		<VkeReleaseVersion>0.1.21</VkeReleaseVersion>
 		<VkePackageVersion>$(VkeReleaseVersion)-beta</VkePackageVersion>
-		<UseStbSharp>true</UseStbSharp>
-		<UseMemoryPools>false</UseMemoryPools>
+
 		<LangVersion>7.2</LangVersion>
+		
+		<UseStbSharp>false</UseStbSharp>
+		<UseMemoryPools>false</UseMemoryPools>
+		
 
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(UseMemoryPools)' == 'true'">
-		<DefineConstants>$(DefineConstants);_MEMORY_POOLS</DefineConstants>
+		<DefineConstants>$(DefineConstants);MEMORY_POOLS</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(UseStbSharp)' == 'true'">
 		<DefineConstants>$(DefineConstants);STB_SHARP</DefineConstants>

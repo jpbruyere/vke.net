@@ -7,6 +7,7 @@ using System.Threading;
 using Glfw;
 using vke;
 using Vulkan;
+using Image = vke.Image;
 
 namespace vkeEditor {
 

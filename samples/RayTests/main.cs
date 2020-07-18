@@ -6,6 +6,7 @@ using vke.glTF;
 using Glfw;
 using Vulkan;
 using vke.Environment;
+using Image = vke.Image;
 
 namespace deferred {
 	class Deferred : VkWindow {
@@ -51,21 +52,6 @@ namespace deferred {
 			transferQ = new Queue (dev, VkQueueFlags.Transfer);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 		}
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-		string[] modelPathes = {
-				"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-				Utils.DataDirectory + "models/shadow.glb",
-				Utils.DataDirectory + "models/Hubble.glb",
-				Utils.DataDirectory + "models/MER_static.glb",
-				Utils.DataDirectory + "models/ISS_stationary.glb",
-			};
 
 		public enum DebugView {
 			none,
@@ -150,6 +136,11 @@ namespace deferred {
 
 
 		Deferred () : base("deferred") {
+
+
+		}
+		protected override void initVulkan () {
+			base.initVulkan ();
 			dbgmsg = new vke.DebugUtils.Messenger (instance, VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT | VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT | VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT,
 				VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT |
 				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT | VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT | VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
@@ -161,11 +152,8 @@ namespace deferred {
 
 			init ();
 
-			LoadModel (transferQ, modelPathes [curModelIndex]);
-
-			//dev.WaitIdle ();
+			LoadModel (transferQ, vke.samples.Utils.GltfFiles[curModelIndex]);
 		}
-
 
 		void LoadModel (Queue transferQ, string path)
 		{
@@ -241,8 +229,8 @@ namespace deferred {
 						new SpecializationConstant<float> (1, camera.FarPlane),
 						new SpecializationConstant<float> (2, MAX_MATERIAL_COUNT))) {
 
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#RayTests.GBuffPbr.vert.spv");
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#RayTests.GBuffPbrTexArray.frag.spv", constants);
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#RayTests.GBuffPbr.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#RayTests.GBuffPbrTexArray.frag.spv", constants);
 
 				plGBuff = new GraphicPipeline (cfg);
 			}
@@ -265,8 +253,8 @@ namespace deferred {
 
 			using (SpecializationInfo constants = new SpecializationInfo (
 				new SpecializationConstant<uint> (0, (uint)lights.Length))) {
-				cfg.AddShader (VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#RayTests.compose.frag.spv", constants);
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#RayTests.compose.frag.spv", constants);
 				plLighting = new GraphicPipeline (cfg);
 			}
 		}
@@ -307,7 +295,7 @@ namespace deferred {
 			dsMain.Handle.SetDebugMarkerName (dev, "dsLighting");
 
 			EnvironmentCube.STR_FRAG_PATH = "#RayTests.skybox.frag.spv";
-			envCube = new EnvironmentCube (cubemapPathes[2], plLighting.Layout, presentQueue, plLighting.RenderPass);
+			envCube = new EnvironmentCube (vke.samples.Utils.CubeMaps[2], plLighting.Layout, presentQueue, plLighting.RenderPass);
 
 			matrices.prefilteredCubeMipLevels = envCube.prefilterCube.CreateInfo.mipLevels;
 
@@ -367,7 +355,7 @@ namespace deferred {
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i]?.Free ();
 				cmds[i] = cmdPool.AllocateAndStart ();
-				CommandBuffer cmd = cmds [i];
+				PrimaryCommandBuffer cmd = cmds [i];
 
 				rpGBuff.Begin (cmd, fbGBuff);
 
@@ -416,7 +404,7 @@ namespace deferred {
 
 		public override void Update () {
 			if (reloadModel) {
-				LoadModel (transferQ, modelPathes[curModelIndex]);
+				LoadModel (transferQ, vke.samples.Utils.GltfFiles [curModelIndex]);
 
 				updateViewRequested = true;
 				rebuildBuffers = true;

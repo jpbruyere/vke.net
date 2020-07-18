@@ -25,7 +25,8 @@ namespace vke {
 
 		public bool MouseIsInInterface =>
 			iFace.HoverWidget != null;
-
+		/// <summary>Duration in millisecond of the interval between interface update.</summary>
+		protected int CrowUpdateInterval = 5;
 		protected FSQPipeline fsqPl;
 		DescriptorPool dsPool;
 		protected DescriptorSet descSet;
@@ -33,13 +34,15 @@ namespace vke {
 		PrimaryCommandBuffer cmdUpdateCrow;
 		Image crowImage;
 		HostBuffer crowBuffer;
-		Interface iFace;
+		protected Interface iFace;
 		protected RenderPass renderPass;
 
 		volatile bool running;
 
-
 		VkDescriptorSetLayoutBinding dslBinding = new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler);
+
+		public CrowWindow (string name = "VkCrowWindow", uint _width = 800, uint _height = 600, bool vSync = true)
+			: base (name, _width, _height, vSync) { }
 
 		protected override void initVulkan () {
 			base.initVulkan ();
@@ -158,7 +161,7 @@ namespace vke {
 			running = true;
 			while (running) {
 				iFace.Update ();
-				Thread.Sleep (10);
+				Thread.Sleep (CrowUpdateInterval);
 			}
 		}
 		void initCrowSurface () {

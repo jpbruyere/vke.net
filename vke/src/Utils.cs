@@ -10,7 +10,6 @@ using System.Xml.Serialization;
 
 namespace Vulkan {
 	public static partial class Utils {
-		public static string DataDirectory => "../../../datas/";
 		/// <summary>Throw an erro if VkResult != Success.</summary>
 		public static void CheckResult (VkResult result, string errorString = "Call failed") {
             if (result != VkResult.Success)

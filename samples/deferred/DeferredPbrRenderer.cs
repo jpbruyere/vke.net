@@ -330,6 +330,10 @@ namespace deferred {
 			dev.WaitIdle ();
 			model?.Dispose ();
 
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+			Console.WriteLine ($"Loading:{path}");
+			Console.ResetColor ();
+
 			if (TEXTURE_ARRAY) {
 				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);
 				if (mod.texArray != null) {

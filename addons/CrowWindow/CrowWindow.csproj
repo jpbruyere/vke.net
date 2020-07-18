@@ -6,7 +6,7 @@
     <AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
     <Description>vke.net addon to creaet a vulkan window with crow gui support.</Description>
     <PackageTags>vulkan gui ui c# vke.net</PackageTags>    
-    <PackageVersion>$(AssemblyVersion)</PackageVersion>
+    <PackageVersion>$(VkePackageVersion)</PackageVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Crow" Version="0.9.0-beta" />
+    <PackageReference Include="Crow" Version="0.9.1-beta" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="main.cs" />
