@@ -97,7 +97,7 @@ namespace KTX {
 					uint blockSize = blockW * blockH;
 
 					if (memoryProperty.HasFlag (VkMemoryPropertyFlags.DeviceLocal)) {
-						ulong staggingSize = (ulong)ktxStream.Length + 256;//img.AllocatedDeviceMemorySize;
+						ulong staggingSize = img.AllocatedDeviceMemorySize;
 						Console.WriteLine ($"KtxStream size = {ktxStream.Length}, img Allocation = {img.AllocatedDeviceMemorySize}");
 
 						using (HostBuffer stagging = new HostBuffer (staggingQ.Dev, VkBufferUsageFlags.TransferSrc, staggingSize)) {

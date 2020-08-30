@@ -36,7 +36,7 @@ cfg.AddVertexBinding<Vertex> (0);
 cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat,	//position
                             VkFormat.R32g32b32Sfloat);//color
 ```
-shader are automatically compiled by [`SpirVTacks`](../../SpirVTasks/README.md) if added to the project. The resulting shaders are automatically embedded in the assembly. To specifiy that the shader path is a resource name, put the **'#'** prefix. Else the path will be search on disk.
+shader are automatically compiled by [`SpirVTasks`](../../SpirVTasks/README.md) if added to the project. The resulting shaders are automatically embedded in the assembly. To specifiy that the shader path is a resource name, put the **'#'** prefix. Else the path will be search on disk.
 ```csharp
 cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
 cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");

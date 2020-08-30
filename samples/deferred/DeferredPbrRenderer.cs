@@ -58,13 +58,13 @@ namespace deferred {
 		};
 		public Light[] lights = {
 			new Light {
-				position = new Vector4(1.5f,2.5f,1.5f,0f),
+				position = new Vector4(1.5f,0.5f,0.5f,0f),
 				color = new Vector4(1,1.0f,1.0f,1)
-			},
+			}/*,
 			new Light {
 				position = new Vector4(-1.5f,2.5f,1.5f,0f),
 				color = new Vector4(0.8f,0.8f,1,1)
-			}
+			}*/
 		};
 
 		FrameBuffer frameBuffer;

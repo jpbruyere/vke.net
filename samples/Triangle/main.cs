@@ -16,6 +16,7 @@ namespace Triangle {
 				vke.Run ();
 			}
 		}
+		Program () : base ("triangle", 800, 600, false) { }
 
 		const float rotSpeed = 0.01f, zoomSpeed = 0.01f;
 		float rotX, rotY, zoom = 1f;
@@ -119,10 +120,10 @@ namespace Triangle {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton [0]) {
+			if (GetButton(Glfw.MouseButton.Left) == Glfw.InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton [1]) {
+			} else if (GetButton (Glfw.MouseButton.Right) == Glfw.InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			} else
 				return;

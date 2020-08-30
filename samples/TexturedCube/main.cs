@@ -265,10 +265,10 @@ namespace TextureCube {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			}
 

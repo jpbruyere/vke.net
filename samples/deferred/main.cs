@@ -18,7 +18,7 @@ namespace deferred {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
@@ -221,9 +221,9 @@ namespace deferred {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				camera.Rotate ((float)-diffY, (float)-diffX, 0);
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
 			} else
 				return;

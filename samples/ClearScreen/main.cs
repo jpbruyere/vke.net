@@ -15,7 +15,7 @@ namespace ClearScreen {
 			}
 		}
 
-		//frame buffer collection to handle on fb per swapchain image.
+		//frame buffer collection to handle one frame buffer per swapchain image.
 		FrameBuffers frameBuffers;
 		RenderPass renderPass;
 

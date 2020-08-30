@@ -1,8 +1,6 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-using System;
-using System.Numerics;
 using vke;
 using Vulkan;
 
@@ -60,6 +58,7 @@ namespace VkvgPipeline {
 			cmd.Draw (3, 1, 0, 0);
 
 		}
+#if MEMORY_POOLs
 		public void DrawResources (vkvg.Context ctx, int width, int height) {
 			ResourceManager rm = Dev.resourceManager;
 
@@ -121,6 +120,7 @@ namespace VkvgPipeline {
 				y += memPoolHeight;
 			}
 		}
+#endif
 		protected override void Dispose (bool disposing) {
 			Texture?.Dispose ();
 			vkvgSurf?.Dispose ();
