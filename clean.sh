@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -fr build && find . -iname bin -o -iname obj | xargs rm -rf
+rm -fr build && find . -iname bin -o -iname obj -o -iname build | xargs rm -rf

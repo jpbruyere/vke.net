@@ -35,6 +35,7 @@
 		<NoWarn>$(NoWarn);1591</NoWarn>		
 		
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
+		<AppConfig>App.config</AppConfig>
 	</PropertyGroup>
 		
 	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
@@ -49,7 +50,7 @@
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
 		<PackageReference Include="Vulkan" Version="0.2.3-beta" />
 		<PackageReference Include="shaderc.net" Version="0.1.0" />
-		<PackageReference Include="glfw-sharp" Version="0.2.8-beta" />
+		<PackageReference Include="glfw-sharp" Version="0.2.9-beta" />		
 	</ItemGroup>
 	
 	<ItemGroup>
