@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
                 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <!--<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>_WITH_SHADOWS;_WITH_VKVG;TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
+  </PropertyGroup>-->
   <ItemGroup>
     <GLSLShader Update="shaders/simpletexture.frag">
 		   <LogicalName>vke.simpletexture.frag.spv</LogicalName>		

@@ -2,6 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
+using System.Buffers;
 using System.Diagnostics;
 using Vulkan;
 
@@ -14,6 +15,11 @@ namespace vke {
 	/// such imported image will not be disposed with the sampler and the view.
 	/// </summary>
 	public class Image : Resource {
+#if STB_SHARP
+		public static bool USE_STB_SHARP = true;
+#else
+		public static bool USE_STB_SHARP = false;
+#endif
 		/// <summary>Default format to use if not defined by constructor parameters.</summary>
 		public static VkFormat DefaultTextureFormat = VkFormat.R8g8b8a8Unorm;
 
@@ -154,6 +160,63 @@ namespace vke {
 				return false;*/
 			return true;
 		}
+		/// <summary>
+		/// Load image from byte array containing full image file (jpg, png,...)
+		/// </summary>
+		public static Image Load (Device dev, Queue staggingQ, CommandPool staggingCmdPool,
+			Memory<byte> bitmap, VkFormat format = VkFormat.Undefined,
+			VkMemoryPropertyFlags memoryProps = VkMemoryPropertyFlags.DeviceLocal,
+			VkImageTiling tiling = VkImageTiling.Optimal, bool generateMipmaps = true,
+			VkImageType imageType = VkImageType.Image2D,
+			VkImageUsageFlags usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst) {
+
+			if (format == VkFormat.Undefined)
+				format = DefaultTextureFormat;
+			if (tiling == VkImageTiling.Optimal)
+				usage |= VkImageUsageFlags.TransferDst;
+			if (generateMipmaps)
+				usage |= (VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst);
+
+			using (StbImage stbi = new StbImage (bitmap)) {
+				uint mipLevels = generateMipmaps ? ComputeMipLevels (stbi.Width, stbi.Height) : 1;
+
+				Image img = new Image (dev, format, usage, memoryProps, (uint)stbi.Width, (uint)stbi.Height, imageType,
+					VkSampleCountFlags.SampleCount1, tiling, mipLevels);
+
+				img.load (staggingQ, staggingCmdPool, stbi.Handle, generateMipmaps);
+
+				return img;
+			}
+		}
+		/// <summary>
+		/// create host visible linear image without command from data pointed by IntPtr pointer containing full image file (jpg, png,...)
+		/// </summary>
+		public static Image Load (Device dev,
+			Memory<byte> bitmap, ulong bitmapByteCount, VkImageUsageFlags usage = VkImageUsageFlags.TransferSrc,
+			VkFormat format = VkFormat.Undefined,
+			VkMemoryPropertyFlags memoryProps = VkMemoryPropertyFlags.HostVisible | VkMemoryPropertyFlags.HostCoherent,
+			VkImageTiling tiling = VkImageTiling.Linear, bool generateMipmaps = false,
+			VkImageType imageType = VkImageType.Image2D) {
+
+			if (format == VkFormat.Undefined)
+				format = DefaultTextureFormat;
+			if (generateMipmaps)
+				usage |= (VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst);
+
+			using (StbImage stbi = new StbImage (bitmap)) {
+				uint mipLevels = generateMipmaps ? ComputeMipLevels (stbi.Width, stbi.Height) : 1;
+
+				Image img = new Image (dev, format, usage, memoryProps, (uint)stbi.Width, (uint)stbi.Height, imageType,
+					VkSampleCountFlags.SampleCount1, tiling, mipLevels);
+
+				img.Map ();
+				stbi.CoptyTo (img.MappedData);
+				img.Unmap ();
+
+				return img;
+			}
+		}
+
 		/// <summary>
 		/// Load image from byte array containing full image file (jpg, png,...)
 		/// </summary>

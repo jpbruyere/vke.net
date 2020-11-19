@@ -4,7 +4,7 @@
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
 
-		<TargetFrameworks>net472</TargetFrameworks>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<License>MIT</License>
@@ -18,25 +18,24 @@
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
 		
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
-	</PropertyGroup>
-    
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">    
-		<DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;WITH_SHADOWS;_WITH_VKVG</DefineConstants>    
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DefineConstants>NETSTANDARD;NETSTANDARD2_0;WITH_SHADOWS;_WITH_VKVG</DefineConstants>    
-	</PropertyGroup>
 		
+		<DefineConstants>WITH_SHADOWS;_WITH_VKVG</DefineConstants>
+	</PropertyGroup>
+    		
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'BuildPackages|AnyCPU' ">
 		<ProjectReference Include="..\..\vke\vke.csproj" />
-	</ItemGroup>
-	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'BuildPackages|AnyCPU' ">
-		<PackageReference Include="vke" Version="$(VkePackageVersion)" />
-	</ItemGroup>
-			
-	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-	</ItemGroup>    
+		<PackageReference Include="DllMapCore" Version="0.1.0" Condition="$(TargetFramework.StartsWith('netcoreapp'))" />
+	</ItemGroup>
+	<!--<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'BuildPackages|AnyCPU' ">
+		<PackageReference Include="vke" Version="$(VkePackageVersion)" />
+	</ItemGroup>-->
+			
+	
+	<ItemGroup>
+		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs"/>
+	</ItemGroup>
+	
 
 	<ItemGroup>    
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
@@ -45,5 +44,6 @@
 		<EmbeddedResource Include="ui\**\*.*">
 			<LogicalName>ui.%(Filename)%(Extension)</LogicalName>
 		</EmbeddedResource>
-	</ItemGroup>     
+	</ItemGroup>
+	
 </Project>

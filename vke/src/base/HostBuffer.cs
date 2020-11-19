@@ -52,7 +52,8 @@ namespace vke {
 		public HostBuffer (Device device, VkBufferUsageFlags usage, T[] data, bool keepMapped = false, bool coherentMem = true)
 			: base (device, usage, (ulong)(Marshal.SizeOf<T> () * data.Length), keepMapped, coherentMem) {
 			TSize = Marshal.SizeOf<T> ();
-			Map ();
+			if (!keepMapped)
+				Map ();
 			Update (data, createInfo.size);
 			if (!keepMapped)
 				Unmap ();

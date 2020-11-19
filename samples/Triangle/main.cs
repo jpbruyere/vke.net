@@ -9,13 +9,17 @@ using vke;
 using Vulkan;
 
 //the traditional triangle sample
-namespace Triangle {
+namespace Circle {
 	class Program : VkWindow {
 		static void Main (string[] args) {
+#if NETCOREAPP
+			DllMapCore.Resolve.Enable (true);
+#endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}
 		}
+		Program () : base ("triangle", 800, 600, false) { }
 
 		const float rotSpeed = 0.01f, zoomSpeed = 0.01f;
 		float rotX, rotY, zoom = 1f;
@@ -52,10 +56,8 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
-		protected override void initVulkan () {
+		protected override void initVulkan () {			
 			base.initVulkan ();
-
-			test ();
 
 			//first create the needed buffers
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
@@ -107,25 +109,6 @@ namespace Triangle {
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 		}
 
-		void test()
-		{
-			if (Vk.vkEnumerateInstanceLayerProperties (out var count, IntPtr.Zero) != VkResult.Success) return;
-			var sizeStruct = Marshal.SizeOf<VkLayerProperties> ();
-			var ptrSupLayers = Marshal.AllocHGlobal (sizeStruct * (int)count);
-			if (Vk.vkEnumerateInstanceLayerProperties (out count, ptrSupLayers) != VkResult.Success) return;
-			VkLayerProperties[] result = new VkLayerProperties [count];
-			var tmp = ptrSupLayers;
-			for (var i = 0; i < count; i++) {
-				result [i] = Marshal.PtrToStructure<VkLayerProperties> (tmp);
-				tmp += sizeStruct;
-			}
-			Marshal.FreeHGlobal (ptrSupLayers);
-			unsafe {
-				foreach (VkLayerProperties p in result) 
-					Console.WriteLine ($"{p.layerName} ({p.specVersion}) : {p.description}");
-			}
-		}
-
 		//view update override, see base method for more informations.
 		public override void UpdateView () {
 			mvp =
@@ -140,10 +123,10 @@ namespace Triangle {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton [0]) {
+			if (GetButton(Glfw.MouseButton.Left) == Glfw.InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton [1]) {
+			} else if (GetButton (Glfw.MouseButton.Right) == Glfw.InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			} else
 				return;

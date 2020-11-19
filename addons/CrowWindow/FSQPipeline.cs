@@ -9,6 +9,7 @@ using Vulkan;
 namespace vke {
 
 	public class FSQPipeline : GraphicPipeline {
+		public static string FragPath = "#CrowWindow.simpletexture.frag.spv";
 		public FSQPipeline (RenderPass renderPass, PipelineLayout pipelineLayout, int attachment = 0, PipelineCache pipelineCache = null)
 		: base (renderPass, pipelineCache, "FSQ pipeline") {
 
@@ -16,7 +17,7 @@ namespace vke {
 			cfg.RenderPass = RenderPass;
 			cfg.Layout = pipelineLayout;
 			cfg.AddShader (Dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
-			cfg.AddShader (Dev, VkShaderStageFlags.Fragment, "#shaders.simpletexture.frag.spv");
+			cfg.AddShader (Dev, VkShaderStageFlags.Fragment, FragPath);
 			cfg.multisampleState.rasterizationSamples = Samples;
 
 			cfg.blendAttachments[attachment] = new VkPipelineColorBlendAttachmentState (true);

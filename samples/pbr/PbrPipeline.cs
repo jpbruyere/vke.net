@@ -43,13 +43,7 @@ namespace vke {
 
 		public PbrModel2 model;
 		public vke.Environment.EnvironmentCube envCube;
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
+		string[] cubemapPathes = samples.Utils.CubeMaps;
 		public PBRPipeline (Queue staggingQ, RenderPass renderPass, PipelineCache pipelineCache = null) :
 			base (renderPass, pipelineCache, "pbr pipeline") {
 

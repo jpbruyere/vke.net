@@ -58,21 +58,6 @@ namespace deferred {
 			transferQ = new Queue (dev, VkQueueFlags.Transfer);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 		}
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-		string[] modelPathes = {
-				Utils.DataDirectory + "models/cubeOnPlane.glb",
-				//"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-				Utils.DataDirectory + "models/Hubble.glb",
-				Utils.DataDirectory + "models/MER_static.glb",
-				Utils.DataDirectory + "models/ISS_stationary.glb",
-			};
 
 		int curModelIndex = 0;
 		bool reloadModel;

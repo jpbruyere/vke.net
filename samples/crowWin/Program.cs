@@ -19,6 +19,7 @@ namespace vkeEditor {
 #endif
 
 			using (Program vke = new Program ()) {
+				vke.CrowUpdateInterval = 15;
 				vke.Run ();
 			}
 		}
@@ -78,7 +79,7 @@ namespace vkeEditor {
 
 		GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, true);
 
-		Program () : base () {}
+		Program () : base ("crow", 800,600, false) {}
 
 		protected override void initVulkan () {
 			base.initVulkan ();
@@ -151,7 +152,7 @@ namespace vkeEditor {
 				cmds[i].BindIndexBuffer (ibo, VkIndexType.Uint16);
 				cmds[i].DrawIndexed ((uint)indices.Length);
 
-				RecordDraw (cmds[i]);
+				this.recordUICmd (cmds[i]);
 
 				pipeline.RenderPass.End (cmds[i]);
 
@@ -181,10 +182,10 @@ namespace vkeEditor {
 
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton [0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton [1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			} else
 				return;

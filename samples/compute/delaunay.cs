@@ -2,6 +2,7 @@
 using Glfw;
 using Vulkan;
 using vke;
+using Image = vke.Image;
 
 namespace delaunay {
 	class Program : VkWindow {

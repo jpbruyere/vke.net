@@ -8,6 +8,7 @@ using Glfw;
 using vke;
 using Vulkan;
 using Buffer = vke.Buffer;
+using Image = vke.Image;
 
 namespace TextureCube {
 	/// <summary>
@@ -95,11 +96,11 @@ namespace TextureCube {
 		};
 		int currentImgIndex = 4;
 		string[] imgPathes = {
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
+			vke.samples.Utils.DataDirectory + "textures/uffizi_cube.ktx",
+			vke.samples.Utils.DataDirectory + "textures/papermill.ktx",
+			vke.samples.Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
+			vke.samples.Utils.DataDirectory + "textures/gcanyon_cube.ktx",
+			vke.samples.Utils.DataDirectory + "textures/pisa_cube.ktx",
 		};
 
 		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
@@ -264,10 +265,10 @@ namespace TextureCube {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			}
 

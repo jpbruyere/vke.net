@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<ItemGroup>
 		<ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
+		<ProjectReference Include="..\..\addons\CrowWindow\CrowWindow.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<GLSLShader Remove="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />

@@ -49,29 +49,7 @@ namespace pbrSample {
 			roughness
 		}
 
-		string[] modelPathes = {
-			Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-			Utils.DataDirectory + "models/Hubble.glb",
-			Utils.DataDirectory + "models/ISS_stationary.glb",
-			Utils.DataDirectory + "models/MER_static.glb",
-			Utils.DataDirectory + "models/Box.gltf",
-
-			/*"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Avocado/glTF/Avocado.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BarramundiFish/glTF/BarramundiFish.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Box/glTF/Box.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/EnvironmentTest/glTF/EnvironmentTest.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/MetalRoughSpheres/glTF/MetalRoughSpheres.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/OrientationTest/glTF/OrientationTest.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Buggy/glTF/Buggy.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/2CylinderEngine/glTF-Embedded/2CylinderEngine.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/FlightHelmet/glTF/FlightHelmet.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/GearboxAssy/glTF/GearboxAssy.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Lantern/glTF/Lantern.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/SciFiHelmet/glTF/SciFiHelmet.gltf",
-			"/mnt/devel/vulkan/glTF-Sample-Models-master/2.0/Sponza/glTF/Sponza.gltf",
-			"/mnt/devel/vkChess/data/chess.gltf"*/
-		};
+		string[] modelPathes = vke.samples.Utils.GltfFiles;
 
 		DebugView currentDebugView = DebugView.none;
 
@@ -198,6 +176,7 @@ namespace pbrSample {
 		bool rebuildBuffers, reloadModel;
 
 		void buildCommandBuffers () {
+			dev.WaitIdle ();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i]?.Free ();
 				cmds[i] = cmdPool.AllocateAndStart ();
@@ -248,6 +227,8 @@ namespace pbrSample {
 			pbrPipeline.matrices.camPos = new Vector4 (inv.M41, inv.M42, inv.M43, 0);
 			pbrPipeline.matrices.debugViewInputs = (float)currentDebugView;
 
+			dev.WaitIdle ();
+
 			pbrPipeline.uboMats.Update (pbrPipeline.matrices, (uint)Marshal.SizeOf<PBRPipeline.Matrices> ());
 
 			updateViewRequested = false;
@@ -295,9 +276,9 @@ namespace pbrSample {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
-				camera.Rotate ((float)-diffY, (float)-diffX,0);
-			} else if (MouseButton[1]) {
+			if (GetButton(MouseButton.Left)== InputAction.Press) {
+				camera.Rotate ((float)-diffY, (float)-diffX, 0);
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
 			} else
 				return;

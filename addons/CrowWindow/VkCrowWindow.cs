@@ -2,10 +2,7 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Glfw;
-using vke;
 using Vulkan;
 using Crow;
 using System.Threading;
@@ -19,7 +16,7 @@ namespace vke {
 	/// </summary>
 	public class CrowWindow : VkWindow, IValueChange {
 		#region IValueChange implementation
-		public event EventHandler<Crow.ValueChangeEventArgs> ValueChanged;
+		public event EventHandler<ValueChangeEventArgs> ValueChanged;
 		public virtual void NotifyValueChanged (string MemberName, object _value)
 		{
 			ValueChanged?.Invoke (this, new ValueChangeEventArgs (MemberName, _value));
@@ -28,21 +25,24 @@ namespace vke {
 
 		public bool MouseIsInInterface =>
 			iFace.HoverWidget != null;
-
-		FSQPipeline fsqPl;
+		/// <summary>Duration in millisecond of the interval between interface update.</summary>
+		protected int CrowUpdateInterval = 5;
+		protected FSQPipeline fsqPl;
 		DescriptorPool dsPool;
-		DescriptorSet descSet;
+		protected DescriptorSet descSet;
 		CommandPool cmdPoolCrow;
 		PrimaryCommandBuffer cmdUpdateCrow;
 		Image crowImage;
 		HostBuffer crowBuffer;
-		Interface iFace;
+		protected Interface iFace;
 		protected RenderPass renderPass;
 
 		volatile bool running;
 
-
 		VkDescriptorSetLayoutBinding dslBinding = new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler);
+
+		public CrowWindow (string name = "VkCrowWindow", uint _width = 800, uint _height = 600, bool vSync = true)
+			: base (name, _width, _height, vSync) { }
 
 		protected override void initVulkan () {
 			base.initVulkan ();
@@ -86,6 +86,11 @@ namespace vke {
 			if (iFace.OnMouseButtonUp (button))
 				return;
 			base.onMouseButtonUp (button);
+		}
+		protected override void onScroll (double xOffset, double yOffset) {
+			if (iFace.OnMouseWheelChanged ((float)yOffset))
+				return;
+			base.onScroll (xOffset, yOffset);
 		}
 		protected override void onChar (CodePoint cp) {
 			if (iFace.OnKeyPress (cp.ToChar()))
@@ -141,12 +146,10 @@ namespace vke {
 			base.OnResize ();
 			dev.WaitIdle ();
 			initCrowSurface ();
-			iFace.ProcessResize (new Crow.Rectangle (0, 0, (int)Width, (int)Height));
+			iFace.ProcessResize (new Rectangle (0, 0, (int)Width, (int)Height));
 		}
 
-		public void RecordDraw (CommandBuffer cmd) {
-			//fsqPl.Bind (cmd);
-			//cmd.BindDescriptorSet()
+		protected virtual void recordUICmd (CommandBuffer cmd) {
 			fsqPl.BindDescriptorSet (cmd, descSet, 0);
 			fsqPl.RecordDraw (cmd);
 		}
@@ -158,7 +161,7 @@ namespace vke {
 			running = true;
 			while (running) {
 				iFace.Update ();
-				Thread.Sleep (10);
+				Thread.Sleep (CrowUpdateInterval);
 			}
 		}
 		void initCrowSurface () {
@@ -220,7 +223,14 @@ namespace vke {
 				w.DataSource = dataSource;
 
 			} catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine (ex.ToString ());
+				System.Diagnostics.Debug.WriteLine (ex.Message);
+			}
+		}
+		protected void loadIMLFragment (string imlFragment, object dataSource = null) {
+			try {
+				iFace.LoadIMLFragment (imlFragment).DataSource = dataSource;
+			} catch (Exception ex) {
+				System.Diagnostics.Debug.WriteLine (ex.Message);
 			}
 		}
 		protected void closeWindow (string path) {

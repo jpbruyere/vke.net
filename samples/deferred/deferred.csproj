@@ -4,12 +4,6 @@
 		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<!--    <EnableDefaultNoneItems>false</EnableDefaultNoneItems>     -->
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DefineConstants>TRACE;NETSTANDARD;NETSTANDARD2_0;MEMORY_POOLS;WITH_SHADOWS;_WITH_VKVG;DEBUG;NETFRAMEWORK;NET472</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugCrow|AnyCPU' ">
-		<DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;MEMORY_POOLS;WITH_SHADOWS;_WITH_VKVG</DefineConstants>
-	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="DeferredPbrRenderer.cs;shadowMapRenderer.cs" />
 	</ItemGroup>

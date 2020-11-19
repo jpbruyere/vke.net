@@ -18,11 +18,11 @@ namespace deferred {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			//Instance.RENDER_DOC_CAPTURE = true;
+			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
-			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount8;
+			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount4;
 			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 
@@ -56,25 +56,11 @@ namespace deferred {
 			transferQ = new Queue (dev, VkQueueFlags.Transfer);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 		}
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-		string[] modelPathes = {
-				"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				"/mnt/devel/pinball.net/data/test.glb",
-				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-				//Utils.DataDirectory + "models/shadow.glb",
-				Utils.DataDirectory + "models/Hubble.glb",
-				Utils.DataDirectory + "models/MER_static.glb",
-				Utils.DataDirectory + "models/ISS_stationary.glb",
-			};
 
-		int curModelIndex = 1;
-		bool reloadModel;
+		string[] modelPathes = vke.samples.Utils.GltfFiles;
+
+		int curModelIndex = 0, curCubeMap = 2;
+		bool reloadModel, reloadCubeMap;
 		bool rebuildBuffers;
 
 		Queue transferQ, computeQ;
@@ -99,18 +85,18 @@ namespace deferred {
 				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
 #endif
 
-			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
+			camera = new Camera (Utils.DegreesToRadians (60f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, -2);
 
 			//renderer = new DeferredPbrRenderer (presentQueue, cubemapPathes[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
-			renderer = new DeferredPbrRenderer (presentQueue, cubemapPathes[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
+			renderer = new DeferredPbrRenderer (presentQueue, vke.samples.Utils.CubeMaps[curCubeMap], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
 			renderer.LoadModel (transferQ, modelPathes[curModelIndex]);
 			camera.Model = Matrix4x4.CreateScale (1f / Math.Max (Math.Max (renderer.modelAABB.Width, renderer.modelAABB.Height), renderer.modelAABB.Depth));
 
 			init_final_pl ();
 		}
 
-		void init_final_pl() {
+		void init_final_pl () {
 			descriptorPool = new DescriptorPool (dev, 3,
 				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler, 2),
 				new VkDescriptorPoolSize (VkDescriptorType.StorageImage, 4)
@@ -130,8 +116,7 @@ namespace deferred {
 			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, DeferredPbrRenderer.NUM_SAMPLES);
 
 			using (ShaderInfo vs = new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv"))
-			using (ShaderInfo fs = new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv"))
-			{
+			using (ShaderInfo fs = new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv")) {
 				cfg.AddShaders (vs, fs);
 
 				plToneMap = new GraphicPipeline (cfg);
@@ -177,6 +162,21 @@ namespace deferred {
 		}
 
 		public override void Update () {
+			if (reloadCubeMap) {
+				dev.WaitIdle ();
+				renderer.Dispose ();
+				renderer = new DeferredPbrRenderer (presentQueue, vke.samples.Utils.CubeMaps[curCubeMap], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
+				renderer.Resize (Width, Height);
+				DescriptorSetWrites dsUpdate = new DescriptorSetWrites (plToneMap.Layout.DescriptorSetLayouts[0].Bindings[0]);
+				dsUpdate.Write (dev, descriptorSet, renderer.hdrImgResolved.Descriptor);
+				renderer.LoadModel (transferQ, modelPathes[curModelIndex]);
+				reloadCubeMap = reloadModel = false;
+				updateViewRequested = true;
+				rebuildBuffers = true;
+#if WITH_SHADOWS
+				renderer.shadowMapRenderer.updateShadowMap = true;
+#endif
+			}
 			if (reloadModel) {
 				renderer.LoadModel (transferQ, modelPathes[curModelIndex]);
 				reloadModel = false;
@@ -204,8 +204,8 @@ namespace deferred {
 
 			UpdateView ();
 
-			frameBuffers?.Dispose();
-			frameBuffers = plToneMap.RenderPass.CreateFrameBuffers(swapChain);
+			frameBuffers?.Dispose ();
+			frameBuffers = plToneMap.RenderPass.CreateFrameBuffers (swapChain);
 
 			DescriptorSetWrites dsUpdate = new DescriptorSetWrites (plToneMap.Layout.DescriptorSetLayouts[0].Bindings[0]);
 			dsUpdate.Write (dev, descriptorSet, renderer.hdrImgResolved.Descriptor);
@@ -221,9 +221,9 @@ namespace deferred {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				camera.Rotate ((float)-diffY, (float)-diffX, 0);
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
 			} else
 				return;
@@ -232,133 +232,145 @@ namespace deferred {
 		}
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {
-				case Key.F:
-					if (modifiers.HasFlag (Modifier.Shift)) {
-						renderer.debugFace--;
-						if (renderer.debugFace < 0)
-							renderer.debugFace = 5;
-					} else {
-						renderer.debugFace++;
-						if (renderer.debugFace >= 5)
-							renderer.debugFace = 0;
-					}
+			case Key.F:
+				if (modifiers.HasFlag (Modifier.Shift)) {
+					renderer.debugFace--;
+					if (renderer.debugFace < 0)
+						renderer.debugFace = 5;
+				} else {
+					renderer.debugFace++;
+					if (renderer.debugFace >= 5)
+						renderer.debugFace = 0;
+				}
+				rebuildBuffers = true;
+				break;
+			case Key.M:
+				if (modifiers.HasFlag (Modifier.Shift)) {
+					renderer.debugMip--;
+					if (renderer.debugMip < 0)
+						renderer.debugMip = (int)renderer.envCube.prefilterCube.CreateInfo.mipLevels - 1;
+				} else {
+					renderer.debugMip++;
+					if (renderer.debugMip >= renderer.envCube.prefilterCube.CreateInfo.mipLevels)
+						renderer.debugMip = 0;
+				}
+				rebuildBuffers = true;
+				break;
+			case Key.L:
+				if (modifiers.HasFlag (Modifier.Shift)) {
+					renderer.lightNumDebug--;
+					if (renderer.lightNumDebug < 0)
+						renderer.lightNumDebug = (int)renderer.lights.Length - 1;
+				} else {
+					renderer.lightNumDebug++;
+					if (renderer.lightNumDebug >= renderer.lights.Length)
+						renderer.lightNumDebug = 0;
+				}
+				rebuildBuffers = true;
+				break;
+			case Key.Keypad0:
+			case Key.Keypad1:
+			case Key.Keypad2:
+			case Key.Keypad3:
+			case Key.Keypad4:
+			case Key.Keypad5:
+			case Key.Keypad6:
+			case Key.Keypad7:
+			case Key.Keypad8:
+			case Key.Keypad9:
+				renderer.currentDebugView = (DeferredPbrRenderer.DebugView)(int)key - 320;
+				rebuildBuffers = true;
+				break;
+			case Key.KeypadDivide:
+				renderer.currentDebugView = DeferredPbrRenderer.DebugView.irradiance;
+				rebuildBuffers = true;
+				break;
+			case Key.S:
+				if (modifiers.HasFlag (Modifier.Control)) {
+					renderer.pipelineCache.Save ();
+					Console.WriteLine ($"Pipeline Cache saved.");
+				} else {
+					renderer.currentDebugView = DeferredPbrRenderer.DebugView.shadowMap;
 					rebuildBuffers = true;
-					break;
-				case Key.M:
-					if (modifiers.HasFlag (Modifier.Shift)) {
-						renderer.debugMip--;
-						if (renderer.debugMip < 0)
-							renderer.debugMip = (int)renderer.envCube.prefilterCube.CreateInfo.mipLevels - 1;
-					} else {
-						renderer.debugMip++;
-						if (renderer.debugMip >= renderer.envCube.prefilterCube.CreateInfo.mipLevels)
-							renderer.debugMip = 0;
-					}
-					rebuildBuffers = true;
-					break;
-				case Key.L:
-					if (modifiers.HasFlag (Modifier.Shift)) {
-						renderer.lightNumDebug--;
-						if (renderer.lightNumDebug < 0)
-							renderer.lightNumDebug = (int)renderer.lights.Length - 1;
-					} else {
-						renderer.lightNumDebug++;
-						if (renderer.lightNumDebug >= renderer.lights.Length)
-							renderer.lightNumDebug = 0;
-					}
-					rebuildBuffers = true;
-					break;
-				case Key.Keypad0:
-				case Key.Keypad1:
-				case Key.Keypad2:
-				case Key.Keypad3:
-				case Key.Keypad4:
-				case Key.Keypad5:
-				case Key.Keypad6:
-				case Key.Keypad7:
-				case Key.Keypad8:
-				case Key.Keypad9:
-					renderer.currentDebugView = (DeferredPbrRenderer.DebugView)(int)key-320;
-					rebuildBuffers = true;
-					break;
-				case Key.KeypadDivide:
-					renderer.currentDebugView = DeferredPbrRenderer.DebugView.irradiance;
-					rebuildBuffers = true;
-					break;
-				case Key.S:
-					if (modifiers.HasFlag (Modifier.Control)) {
-						renderer.pipelineCache.Save ();
-						Console.WriteLine ($"Pipeline Cache saved.");
-					} else {
-						renderer.currentDebugView = DeferredPbrRenderer.DebugView.shadowMap;
-						rebuildBuffers = true; 
-					}
-					break;
-				case Key.Up:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight(-Vector4.UnitZ);
-					else
-						camera.Move (0, 0, 1);
-					break;
-				case Key.Down:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight (Vector4.UnitZ);
-					else
-						camera.Move (0, 0, -1);
-					break;
-				case Key.Left:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight (-Vector4.UnitX);
-					else
-						camera.Move (1, 0, 0);
-					break;
-				case Key.Right:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight (Vector4.UnitX);
-					else
-						camera.Move (-1, 0, 0);
-					break;
-				case Key.PageUp:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight (Vector4.UnitY);
-					else
-						camera.Move (0, 1, 0);
-					break;
-				case Key.PageDown:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.MoveLight (-Vector4.UnitY);
-					else
-						camera.Move (0, -1, 0);
-					break;
-				case Key.F2:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.exposure -= 0.3f;
-					else
-						renderer.exposure += 0.3f;
-					rebuildBuffers = true;
-					break;
-				case Key.F3:
-					if (modifiers.HasFlag (Modifier.Shift))
-						renderer.gamma -= 0.1f;
-					else
-						renderer.gamma += 0.1f;
-					rebuildBuffers = true;
-					break;
-				case Key.KeypadAdd:
+				}
+				break;
+			case Key.Up:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (-Vector4.UnitZ);
+				else
+					camera.Move (0, 0, 1);
+				break;
+			case Key.Down:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (Vector4.UnitZ);
+				else
+					camera.Move (0, 0, -1);
+				break;
+			case Key.Left:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (-Vector4.UnitX);
+				else
+					camera.Move (1, 0, 0);
+				break;
+			case Key.Right:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (Vector4.UnitX);
+				else
+					camera.Move (-1, 0, 0);
+				break;
+			case Key.PageUp:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (Vector4.UnitY);
+				else
+					camera.Move (0, 1, 0);
+				break;
+			case Key.PageDown:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.MoveLight (-Vector4.UnitY);
+				else
+					camera.Move (0, -1, 0);
+				break;
+			case Key.F2:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.exposure -= 0.3f;
+				else
+					renderer.exposure += 0.3f;
+				rebuildBuffers = true;
+				break;
+			case Key.F3:
+				if (modifiers.HasFlag (Modifier.Shift))
+					renderer.gamma -= 0.1f;
+				else
+					renderer.gamma += 0.1f;
+				rebuildBuffers = true;
+				break;
+			case Key.Space:
+				if (modifiers.HasFlag (Modifier.Control)) {
+					curModelIndex--;
+					if (curModelIndex < 0)
+						curModelIndex = modelPathes.Length - 1;
+				} else {
 					curModelIndex++;
 					if (curModelIndex >= modelPathes.Length)
 						curModelIndex = 0;
-					reloadModel = true;
-					break;
-				case Key.KeypadSubtract:
-					curModelIndex--;
-					if (curModelIndex < 0)
-						curModelIndex = modelPathes.Length -1;
-					reloadModel = true;
-					break;
-				default:
-					base.onKeyDown (key, scanCode, modifiers);
-					return;
+				}
+				reloadModel = true;
+				break;
+			case Key.C:
+				if (modifiers.HasFlag (Modifier.Control)) {
+					curCubeMap--;
+					if (curCubeMap < 0)
+						curCubeMap = vke.samples.Utils.CubeMaps.Length - 1;
+				} else {
+					curCubeMap++;
+					if (curCubeMap >= vke.samples.Utils.CubeMaps.Length)
+						curCubeMap = 0;
+				}
+				reloadCubeMap = true;
+				break;
+			default:
+				base.onKeyDown (key, scanCode, modifiers);
+				return;
 			}
 			updateViewRequested = true;
 		}
@@ -368,7 +380,7 @@ namespace deferred {
 			dev.WaitIdle ();
 			if (disposing) {
 				if (!isDisposed) {
-					frameBuffers?.Dispose();
+					frameBuffers?.Dispose ();
 					renderer?.Dispose ();
 					plToneMap?.Dispose ();
 					descriptorPool?.Dispose ();

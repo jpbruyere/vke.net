@@ -16,7 +16,6 @@ namespace vke {
 	/// Provide default swapchain with its command pool and buffers per image and the main present queue
 	/// </summary>
 	public abstract class VkWindow : IDisposable {
-
 		/** GLFW callback may return a custom pointer, this list makes the link between the GLFW window pointer and the
 			manage VkWindow instance. */		
 		static Dictionary<IntPtr,VkWindow> windows = new Dictionary<IntPtr, VkWindow>();
@@ -41,7 +40,6 @@ namespace vke {
 		protected bool updateViewRequested = true;
 		protected double lastMouseX { get; private set; }
 		protected double lastMouseY { get; private set; }
-		protected bool[] MouseButton => buttons;
 
 		/// <summary>readonly GLFW window handle</summary>
 		public IntPtr WindowHandle => hWin;
@@ -49,7 +47,6 @@ namespace vke {
 		/**Default camera initialized with a Field of view of 40° and and aspect ratio of 1. */
 		protected Camera camera = new Camera (Utils.DegreesToRadians (45f), 1f);
 
-		bool[] buttons = new bool[10];
 		public Modifier KeyModifiers = 0;
 		IntPtr currentCursor;
 		uint frameCount;
@@ -85,7 +82,7 @@ namespace vke {
 		/// <param name="_width">Width.</param>
 		/// <param name="_height">Height.</param>
 		/// <param name="vSync">Vertical synchronisation status for creating the swapchain.</param>
-		public VkWindow (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = false) {
+		public VkWindow (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = true) {
 
 			Width = _width;
 			Height = _height;
@@ -155,8 +152,9 @@ namespace vke {
 			configureEnabledFeatures (phy.Features, ref enabledFeatures);
 
 			//First create the c# device class
-			dev = new Device (phy);
-			dev.debugUtilsEnabled = instance.debugUtilsEnabled;//store a boolean to prevent testing against the extension string presence.
+			dev = new Device (phy) {
+				debugUtilsEnabled = instance.debugUtilsEnabled//store a boolean to prevent testing against the extension string presence.
+			};
 
 			//create queue class
 			createQueues ();
@@ -207,8 +205,8 @@ namespace vke {
 		}
 
 		/// <summary>
-		/// Main render method called each frame. get next swapchain image, process resize if needed, submit and present to the presentQueue.
-		/// Wait QueueIdle after presenting.
+		/// Main render method called each frame.
+		/// First get next swapchain image, process resize if needed, submit and present to the presentQueue.
 		/// </summary>
 		protected virtual void render () {
 			int idx = swapChain.GetNextImage ();
@@ -225,18 +223,16 @@ namespace vke {
 
 			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx], drawFence);
 			presentQueue.Present (swapChain, drawComplete[idx]);
-
-			//presentQueue.WaitIdle ();
 		}
 
 		protected virtual void onScroll (double xOffset, double yOffset) { }
 		protected virtual void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[(int)Glfw.MouseButton.Left]) {
+			if (GetButton(MouseButton.Left) == InputAction.Press) {
 				camera.Rotate ((float)-diffX, (float)-diffY);
 				updateViewRequested = true;
-			} else if (MouseButton[(int)Glfw.MouseButton.Right]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.Move ((float)diffX,0,0);
 				camera.Move (0, 0, (float)-diffY);
 				updateViewRequested = true;
@@ -283,32 +279,30 @@ namespace vke {
 		protected virtual void onKeyUp (Key key, int scanCode, Modifier modifiers) { }
 		protected virtual void onChar (CodePoint cp) { }
 
-		#region events delegates
+		protected InputAction GetButton (MouseButton button) =>
+			Glfw3.GetMouseButton (hWin, button);
 
+		#region events delegates
 		static CursorPosDelegate HandleCursorPosDelegate = (window, xPosition, yPosition) => {
 			windows[window].onMouseMove (xPosition, yPosition);
 			windows[window].lastMouseX = xPosition;
 			windows[window].lastMouseY = yPosition;
 		};
 		static MouseButtonDelegate HandleMouseButtonDelegate = (IntPtr window, Glfw.MouseButton button, InputAction action, Modifier mods) => {
-			if (action == InputAction.Press) {
-				windows[window].buttons[(int)button] = true;
+			if (action == InputAction.Press) 
 				windows[window].onMouseButtonDown (button);
-			} else {
-				windows[window].buttons[(int)button] = false;
+			 else
 				windows[window].onMouseButtonUp (button);
-			}
 		};
 		static ScrollDelegate HandleScrollDelegate = (IntPtr window, double xOffset, double yOffset) => {
 			windows[window].onScroll (xOffset, yOffset);
 		};
 		static KeyDelegate HandleKeyDelegate = (IntPtr window, Key key, int scanCode, InputAction action, Modifier modifiers) => {
 			windows[window].KeyModifiers = modifiers;
-			if (action == InputAction.Press || action == InputAction.Repeat) {
+			if (action == InputAction.Press || action == InputAction.Repeat) 
 				windows[window].onKeyDown (key, scanCode, modifiers);
-			} else {
+			else
 				windows[window].onKeyUp (key, scanCode, modifiers);
-			}
 		};
 		static CharDelegate HandleCharDelegate = (IntPtr window, CodePoint codepoint) => {
 			windows[window].onChar (codepoint);

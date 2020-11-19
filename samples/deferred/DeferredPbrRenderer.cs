@@ -58,13 +58,13 @@ namespace deferred {
 		};
 		public Light[] lights = {
 			new Light {
-				position = new Vector4(1.5f,2.5f,1.5f,0f),
+				position = new Vector4(1.5f,0.5f,0.5f,0f),
 				color = new Vector4(1,1.0f,1.0f,1)
-			},
+			}/*,
 			new Light {
 				position = new Vector4(-1.5f,2.5f,1.5f,0f),
 				color = new Vector4(0.8f,0.8f,1,1)
-			}
+			}*/
 		};
 
 		FrameBuffer frameBuffer;
@@ -288,7 +288,7 @@ namespace deferred {
 #if WITH_SHADOWS
 				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
 #else
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
 #endif
 				composePipeline = new GraphicPipeline (cfg);
 			}
@@ -329,6 +329,10 @@ namespace deferred {
 		public void LoadModel (Queue transferQ, string path) {
 			dev.WaitIdle ();
 			model?.Dispose ();
+
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+			Console.WriteLine ($"Loading:{path}");
+			Console.ResetColor ();
 
 			if (TEXTURE_ARRAY) {
 				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);

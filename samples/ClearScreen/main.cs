@@ -4,18 +4,24 @@
 using vke;
 using Vulkan;
 
+
 //Most simple example of the `VkWindow` class usage to output something on screen.
 namespace ClearScreen {
 	class Program : VkWindow {
+
+
 		//excutable entry point
 		static void Main (string[] args) {
+#if NETCOREAPP
+			DllMapCore.Resolve.Enable (true);
+#endif
 			//the base constructor will create the window with GLFW
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}
 		}
 
-		//frame buffer collection to handle on fb per swapchain image.
+		//frame buffer collection to handle one frame buffer per swapchain image.
 		FrameBuffers frameBuffers;
 		RenderPass renderPass;
 

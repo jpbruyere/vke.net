@@ -54,8 +54,8 @@ namespace vke {
 			memory = memoryPool.vkMemory,
 			offset = poolOffset,
 #else
-				memory = vkMemory,
-				offset = 0,
+			memory = vkMemory,
+			offset = 0,
 #endif
 			size = AllocatedDeviceMemorySize
 		};

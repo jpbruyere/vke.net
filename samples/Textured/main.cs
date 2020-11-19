@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Glfw;
 using vke;
 using Vulkan;
+using Image = vke.Image;
 
 namespace Textured {
 	/// <summary>
@@ -18,10 +19,10 @@ namespace Textured {
 				vke.Run ();
 			}
 		}
-		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures features) {
-			base.configureEnabledFeatures (available_features, ref features);
-			features.textureCompressionBC = available_features.textureCompressionBC;
-			features.textureCompressionASTC_LDR = available_features.textureCompressionASTC_LDR;
+		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features) {
+			base.configureEnabledFeatures (available_features, ref enabled_features);
+			enabled_features.textureCompressionBC = available_features.textureCompressionBC;
+			enabled_features.textureCompressionASTC_LDR = available_features.textureCompressionASTC_LDR;
 		}
 
 		float rotSpeed = 0.01f, zoomSpeed = 0.01f;
@@ -58,11 +59,10 @@ namespace Textured {
 		ushort[] indices = { 0, 1, 2, 2, 0, 3 };
 		int currentImgIndex = 0;
 		string[] imgPathes = {
-			Utils.DataDirectory + "models/Bricks16_col.jpg",
-			Utils.DataDirectory + "textures/texturearray_rocks_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/texture.jpg",
-			Utils.DataDirectory + "textures/tex256.jpg",
-			Utils.DataDirectory + "font.ktx",
+			vke.samples.Utils.DataDirectory + "textures/texturearray_rocks_bc3_unorm.ktx",
+			vke.samples.Utils.DataDirectory + "textures/texture.jpg",
+			vke.samples.Utils.DataDirectory + "textures/tex256.jpg",
+			vke.samples.Utils.DataDirectory + "font.ktx",
 		};
 
 		protected override void initVulkan () {
@@ -97,9 +97,7 @@ namespace Textured {
 
 			pipeline = new GraphicPipeline (cfg);
 
-
-			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
-			uboMats.Map ();//permanent map
+			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices, true);
 
 			descriptorSet = descriptorPool.Allocate (dsLayout);
 
@@ -197,10 +195,10 @@ namespace Textured {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			}
 

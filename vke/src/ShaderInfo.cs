@@ -11,8 +11,19 @@ namespace vke {
 	public class ShaderInfo : IDisposable {
 		readonly FixedUtf8String EntryPoint;
 
-		internal VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo.New ();
-		Device dev;
+		protected VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo.New ();
+		protected Device dev;
+
+		public VkShaderStageFlags Stage => info.stage;
+		public VkPipelineShaderStageCreateInfo Info => info;
+
+		public void RecreateModule(IntPtr code, UIntPtr codeSize) {
+			if (dev == null)
+				throw new Exception ("[ShaderInfo]Trying to recreate unowned shader module.");
+			dev.DestroyShaderModule (info.module);
+			info.module = dev.CreateShaderModule (code, codeSize);
+		}
+
 		/// <summary>
 		/// Create a new 'ShaderInfo' object by providing a handle to an native memory holding the compiled SpirV code
 		/// and its size in byte.
