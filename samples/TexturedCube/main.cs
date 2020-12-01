@@ -105,19 +105,6 @@ namespace TextureCube {
 
 		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
 
-#if WITH_VKVG
-		VkvgPipeline.VkvgPipeline vkvgPipeline;
-
-		void vkvgDraw () {
-			using (vkvg.Context ctx = vkvgPipeline.CreateContext()) {
-				ctx.Clear ();
-				vkvgPipeline.DrawResources (ctx, (int)swapChain.Width, (int)swapChain.Height);
-			}
-		}
-
-
-#endif
-
 		protected override void initVulkan () {
 			base.initVulkan ();
 
@@ -159,15 +146,6 @@ namespace TextureCube {
 			loadTexture (imgPathes[currentImgIndex]);
 			if (nextTexture != null)
 				updateTextureSet ();
-
-#if WITH_VKVG
-			dsVkvg = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
-			vkvgPipeline = new VkvgPipeline.VkvgPipeline (instance, dev, presentQueue, pipeline);
-		}
-
-		public override void Update () {
-			vkvgDraw ();
-#endif
 		}
 
 		void buildCommandBuffers () {
@@ -179,11 +157,6 @@ namespace TextureCube {
 			}
 		} 
 		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) {
-#if WITH_VKVG
-			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
-				VkImageLayout.ColorAttachmentOptimal, VkImageLayout.ShaderReadOnlyOptimal,
-				VkPipelineStageFlags.ColorAttachmentOutput, VkPipelineStageFlags.FragmentShader);
-#endif
 			pipeline.RenderPass.Begin (cmd, fb);
 
 			cmd.SetViewport (fb.Width, fb.Height);
@@ -195,16 +168,7 @@ namespace TextureCube {
 			cmd.BindVertexBuffer (vbo, 0);
 			cmd.Draw (36);
 
-#if WITH_VKVG
-			cmd.BindDescriptorSet (pipeline.Layout, dsVkvg);
-			vkvgPipeline.RecordDraw (cmd);
 			pipeline.RenderPass.End (cmd);
-			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
-				VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.ColorAttachmentOptimal,
-				VkPipelineStageFlags.FragmentShader, VkPipelineStageFlags.ColorAttachmentOutput);
-#else
-			pipeline.RenderPass.End (cmd);
-#endif
 		}
 
 		//in the thread of the keyboard
@@ -293,17 +257,6 @@ namespace TextureCube {
 			base.OnResize ();
 
 			dev.WaitIdle();
-
-#if WITH_VKVG
-			vkvgPipeline.Resize ((int)Width, (int)Height, new DescriptorSetWrites (dsVkvg, dsLayout.Bindings[1]));
-			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
-			vkvgPipeline.Texture.SetLayout (cmd, VkImageAspectFlags.Color,
-				VkImageLayout.Undefined, VkImageLayout.ColorAttachmentOptimal,
-				VkPipelineStageFlags.AllCommands, VkPipelineStageFlags.ColorAttachmentOutput);
-			presentQueue.EndSubmitAndWait (cmd, true);
-
-#endif
-
 			updateMatrices ();
 
 			frameBuffers?.Dispose();
@@ -322,10 +275,6 @@ namespace TextureCube {
 					texture.Dispose ();
 					uboMats.Dispose ();
 					vbo.Dispose ();
-
-#if WITH_VKVG
-					vkvgPipeline.Dispose ();
-#endif
 				}
 			}
 

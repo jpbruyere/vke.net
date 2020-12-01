@@ -1,18 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">                
+	<ItemGroup>
+		<GLSLShader Update="shaders/simpletexture.frag">
+			<LogicalName>vke.simpletexture.frag.spv</LogicalName>		
+		</GLSLShader>
+	</ItemGroup>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);WITH_SHADOWS</DefineConstants>
+	</PropertyGroup>
 
-                
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>_WITH_SHADOWS;_WITH_VKVG;TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <GLSLShader Update="shaders/simpletexture.frag">
-		   <LogicalName>vke.simpletexture.frag.spv</LogicalName>		
-	   </GLSLShader>
-  </ItemGroup>    
-	
-  <ItemGroup>
-    <ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
-	<ProjectReference Include="..\..\addons\EnvironmentPipeline\EnvironmentPipeline.csproj" />
-  </ItemGroup>    
+	<ItemGroup>
+		<ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
+		<ProjectReference Include="..\..\addons\EnvironmentPipeline\EnvironmentPipeline.csproj" />
+	</ItemGroup>    
   
 </Project>

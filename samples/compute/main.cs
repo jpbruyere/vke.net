@@ -1,13 +1,19 @@
-﻿using System;
+﻿// Copyright (c) 2020  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+//
+// This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using System.Runtime.InteropServices;
-using CVKL;
-using VK;
 using System.Linq;
+using Vulkan;
+using vke;
 
+//very simple compute example that just do an addition on every items of a random list of numbers.
 namespace SimpleCompute {
-	class Program : IDisposable {	
-		VkPhysicalDeviceFeatures enabledFeatures = default (VkPhysicalDeviceFeatures);
-		string[] enabledExtensions = { Ext.D.VK_KHR_swapchain };
+	class Program : IDisposable {
+		static void Main (string[] args) {
+			using (Program vke = new Program ())
+				vke.Run ();
+		}		
 
 		Instance instance;
 		PhysicalDevice phy;
@@ -21,34 +27,27 @@ namespace SimpleCompute {
 
 		ComputePipeline plCompute;
 
-		DebugReport dbgReport;
 
-		const uint data_size = 256;
+		//random datas generation
+		const uint data_size = 16;
 		int[] datas;
+		void createRandomDatas () {
+			datas = new int[data_size];
+			Random rnd = new Random ();
+			for (uint i = 0; i < data_size; i++)
+				datas[i] = rnd.Next ();
+		}
+
 
 		public Program () {
 			instance = new Instance ();
-
-#if DEBUG
-			dbgReport = new DebugReport (instance,
-				VkDebugReportFlagsEXT.ErrorEXT
-				| VkDebugReportFlagsEXT.DebugEXT
-				| VkDebugReportFlagsEXT.WarningEXT
-				| VkDebugReportFlagsEXT.PerformanceWarningEXT
-			
-			);
-#endif
-
 			phy = instance.GetAvailablePhysicalDevice ().FirstOrDefault ();
 			dev = new Device (phy);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
-			dev.Activate (enabledFeatures, enabledExtensions);
 
-			datas = new int[data_size];
-			Random rnd = new Random ();
-			for (uint i = 0; i < data_size; i++) {
-				datas[i] = rnd.Next ();
-			}
+			dev.Activate (default (VkPhysicalDeviceFeatures));
+
+			createRandomDatas ();
 
 			inBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, datas);
 			outBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, data_size);
@@ -59,25 +58,19 @@ namespace SimpleCompute {
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Compute, VkDescriptorType.StorageBuffer)
 			);
 
-			plCompute = new ComputePipeline (new PipelineLayout (dev, dsLayout), "shaders/compute.comp.spv" );
+			plCompute = new ComputePipeline (new PipelineLayout (dev, dsLayout), "#shaders.compute.comp.spv" );
 
 			dset = dsPool.Allocate (dsLayout);
 			DescriptorSetWrites dsUpdate = new DescriptorSetWrites (dset, dsLayout);
 			dsUpdate.Write (dev, inBuff.Descriptor, outBuff.Descriptor);
 		}
 
-
-
 		public void Run () {
 			using (CommandPool cmdPool = new CommandPool (dev, computeQ.qFamIndex)) {
-
-				CommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
-
+				PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 				plCompute.Bind (cmd);
 				plCompute.BindDescriptorSet (cmd, dset);
-
 				cmd.Dispatch (data_size * sizeof (int));
-
 				cmd.End ();
 
 				computeQ.Submit (cmd);
@@ -93,16 +86,16 @@ namespace SimpleCompute {
 			outBuff.Map ();
 			Marshal.Copy (outBuff.MappedData, results, 0, results.Length);
 
-			Console.ForegroundColor = ConsoleColor.DarkBlue;
 			Console.Write ("IN :");
-			for (int i = 0; i < data_size; i++) {
-				Console.Write ($" {datas[i]} ");
-			}
-			Console.WriteLine ();
+			for (int i = 0; i < data_size; i++)
+				Console.Write ($"{datas[i]} ");
+			
+			Console.WriteLine ();Console.WriteLine ();
+
 			Console.Write ("OUT:");
-			for (int i = 0; i < data_size; i++) {
-				Console.Write ($" {results[i]} ");
-			}
+			for (int i = 0; i < data_size; i++)
+				Console.Write ($"{results[i]} ");
+			
 			Console.WriteLine ();
 			outBuff.Unmap ();
 		}
@@ -118,16 +111,7 @@ namespace SimpleCompute {
 			outBuff.Dispose ();
 
 			dev.Dispose ();
-
-#if DEBUG
-			dbgReport.Dispose ();
-#endif
 			instance.Dispose ();
-		}
-
-		static void Main (string[] args) {
-			using (Program vke = new Program ())
-				vke.Run ();
 		}
 	}
 }

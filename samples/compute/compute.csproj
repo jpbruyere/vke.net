@@ -4,6 +4,6 @@
   </PropertyGroup>
               
   <ItemGroup>    
-    <Compile Include="delaunay.cs" /> 
+    <Compile Include="main.cs" /> 
   </ItemGroup>     
 </Project>

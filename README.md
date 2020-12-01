@@ -35,7 +35,6 @@ vke is in early development stage.
 
 ### Requirements
 - [GLFW](https://www.glfw.org/) if you use the `VkWindow` class.
-- If you want to use `jpg`, `jpeg`, `png` image [libstb](https://github.com/nothings/stb) (on debian install **libstb-dev**). Note that `ktx` image loading has no dependencies.
 - [Vulkan Sdk](https://www.lunarg.com/vulkan-sdk/), **glslc** has to be in the path.
 - optionaly for ui, you will need [vkvg](https://github.com/jpbruyere/vkvg).
 
