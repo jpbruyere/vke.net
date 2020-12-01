@@ -7,6 +7,8 @@
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>		
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
 		<License>MIT</License>
 		<Authors>Jean-Philippe Bruyère</Authors>
 
@@ -41,5 +43,8 @@
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />
 	</ItemGroup>
-	
+	<ItemGroup>
+		<None Include="$(SolutionDir)vke\icon.png" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
+
 </Project>

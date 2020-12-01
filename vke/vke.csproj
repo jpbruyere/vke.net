@@ -16,6 +16,8 @@
 		
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
 		<License>MIT</License>
 		<Authors>Jean-Philippe Bruyère</Authors>
 		<PackageReleaseNotes>			
@@ -63,5 +65,8 @@
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />
 		<Compile Remove="build\**\*.cs;Properties\AssemblyInfo.cs;src\Renderer.cs;src\QueueFamily.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="icon.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
 </Project>
