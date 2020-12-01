@@ -6,6 +6,9 @@ using System.Collections.ObjectModel;
 
 namespace vke
 {
+	/// <summary>
+	/// Collection of FrameBuffers, useful to handle multiple framebuffers for a swapchain.
+	/// </summary>
 	public class FrameBuffers : Collection<FrameBuffer>, IDisposable
 	{
 		//public Framebuffer this[int index] => Items[index];

@@ -19,10 +19,10 @@ namespace Textured {
 				vke.Run ();
 			}
 		}
-		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures features) {
-			base.configureEnabledFeatures (available_features, ref features);
-			features.textureCompressionBC = available_features.textureCompressionBC;
-			features.textureCompressionASTC_LDR = available_features.textureCompressionASTC_LDR;
+		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features) {
+			base.configureEnabledFeatures (available_features, ref enabled_features);
+			enabled_features.textureCompressionBC = available_features.textureCompressionBC;
+			enabled_features.textureCompressionASTC_LDR = available_features.textureCompressionASTC_LDR;
 		}
 
 		float rotSpeed = 0.01f, zoomSpeed = 0.01f;
@@ -198,10 +198,10 @@ namespace Textured {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton[1]) {
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
 			}
 

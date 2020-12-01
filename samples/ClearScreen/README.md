@@ -4,8 +4,10 @@ To build a minimal vulkan application, add the [vke](https://www.nuget.org/packa
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
-    <TargetFrameworks>net472</TargetFrameworks>
-    <OutputType>Exe</OutputType>
+    <PropertyGroup>
+        <TargetFrameworks>net472</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
     <ItemGroup>    
         <GLSLShader Include="shaders\*.*" />		
     </ItemGroup>
@@ -33,7 +35,7 @@ class Program : VkWindow {
 
 ### Vulkan Initialization
 
-`initVulkan` is the first method called by the 'Run' method. Default initialization will provide a vulkan window, a default swap chain bound to it, and a draw and present semaphore to sync the rendering.
+**`initVulkan`** is the first method called by the **'Run'** method. Default initialization will provide a vulkan window, a default swap chain bound to it, and a draw and present semaphore to sync the rendering.
 ```csharp
 protected override void initVulkan () {
     base.initVulkan ();
@@ -52,7 +54,7 @@ Note that because we only reset the command buffers when rebuilding these, we ne
 
 ### Frame buffer creation
 
-The resize method is called at least once before any rendering, so it's a safe place to initialize output size related vulkan objects like the frame buffers. vke provide a FrameBuffer collection object to ease handling of multiple related buffers like those used for a swap chain for example..
+The **`OnResize`** method is called at least once before any rendering, so it's a safe place to initialize output size related vulkan objects like the frame buffers. vke provide a FrameBuffer collection object to ease handling of multiple related buffers like those used for a swap chain for example..
 ```csharp
 FrameBuffers frameBuffers;
 

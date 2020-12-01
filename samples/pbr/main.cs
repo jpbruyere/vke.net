@@ -26,7 +26,7 @@ namespace pbrSample {
 				vke.Run ();
 			}
 		}
-		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
+		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount4;
 
 		FrameBuffers frameBuffers;
 		PBRPipeline pbrPipeline;
@@ -48,6 +48,14 @@ namespace pbrSample {
 			Utils.DataDirectory + "models/MER_static.glb",
 			Utils.DataDirectory + "models/Box.gltf",
 		};
+		string[] cubemapPathes = {
+			Utils.DataDirectory + "textures/papermill.ktx",
+			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
+			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
+			Utils.DataDirectory + "textures/pisa_cube.ktx",
+			Utils.DataDirectory + "textures/uffizi_cube.ktx",
+		};
+
 
 		DebugView currentDebugView = DebugView.none;
 
@@ -64,7 +72,7 @@ namespace pbrSample {
 			camera.SetPosition (0, 0, -2);
 
 			pbrPipeline = new PBRPipeline (presentQueue,
-				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples));
+				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples), cubemapPathes[0]);
 
 			loadCurrentModel ();
 		}
@@ -147,14 +155,13 @@ namespace pbrSample {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
-				camera.Rotate ((float)-diffY, (float)-diffX,0);
-			} else if (MouseButton[1]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
+				camera.Rotate ((float)-diffY, (float)-diffX);
+				updateViewRequested = true;
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
-			} else
-				return;
-
-			updateViewRequested = true;
+				updateViewRequested = true;
+			}			
 		}
 
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {

@@ -41,15 +41,13 @@ namespace vke {
 		protected bool updateViewRequested = true;
 		protected double lastMouseX { get; private set; }
 		protected double lastMouseY { get; private set; }
-		protected bool[] MouseButton => buttons;
 
 		/// <summary>readonly GLFW window handle</summary>
 		public IntPtr WindowHandle => hWin;
 
 		/**Default camera initialized with a Field of view of 40° and and aspect ratio of 1. */
 		protected Camera camera = new Camera (Utils.DegreesToRadians (45f), 1f);
-
-		bool[] buttons = new bool[10];
+		
 		public Modifier KeyModifiers = 0;
 		IntPtr currentCursor;
 		uint frameCount;
@@ -233,10 +231,10 @@ namespace vke {
 		protected virtual void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[(int)Glfw.MouseButton.Left]) {
+			if (GetButton(MouseButton.Left) == InputAction.Press) {
 				camera.Rotate ((float)-diffX, (float)-diffY);
 				updateViewRequested = true;
-			} else if (MouseButton[(int)Glfw.MouseButton.Right]) {
+			} else if (GetButton(MouseButton.Right) == InputAction.Press) {
 				camera.Move ((float)diffX,0,0);
 				camera.Move (0, 0, (float)-diffY);
 				updateViewRequested = true;
@@ -283,6 +281,9 @@ namespace vke {
 		protected virtual void onKeyUp (Key key, int scanCode, Modifier modifiers) { }
 		protected virtual void onChar (CodePoint cp) { }
 
+		protected InputAction GetButton (MouseButton button) =>
+			Glfw3.GetMouseButton (hWin, button);
+
 		#region events delegates
 
 		static CursorPosDelegate HandleCursorPosDelegate = (window, xPosition, yPosition) => {
@@ -291,13 +292,10 @@ namespace vke {
 			windows[window].lastMouseY = yPosition;
 		};
 		static MouseButtonDelegate HandleMouseButtonDelegate = (IntPtr window, Glfw.MouseButton button, InputAction action, Modifier mods) => {
-			if (action == InputAction.Press) {
-				windows[window].buttons[(int)button] = true;
+			if (action == InputAction.Press)
 				windows[window].onMouseButtonDown (button);
-			} else {
-				windows[window].buttons[(int)button] = false;
+			else
 				windows[window].onMouseButtonUp (button);
-			}
 		};
 		static ScrollDelegate HandleScrollDelegate = (IntPtr window, double xOffset, double yOffset) => {
 			windows[window].onScroll (xOffset, yOffset);

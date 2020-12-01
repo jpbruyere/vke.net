@@ -4,9 +4,9 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-//using System.Text;
 using vke;
 using Vulkan;
+using Glfw;
 
 //the traditional triangle sample
 namespace Triangle {
@@ -119,16 +119,14 @@ namespace Triangle {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton [0]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
-			} else if (MouseButton [1]) {
+				updateViewRequested = true;
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
-			} else
-				return;
-			//VkWindow has a boolean for requesting a call to 'UpdateView', it will be
-			//reset by the 'UpdateView' base method or the custom override.
-			updateViewRequested = true;
+				updateViewRequested = true;
+			}
 		}
 
 		void buildCommandBuffers() {

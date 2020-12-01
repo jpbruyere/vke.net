@@ -22,7 +22,7 @@ namespace deferred {
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
-			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
+			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount4;
 			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 
@@ -222,14 +222,13 @@ namespace deferred {
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
 			double diffY = lastMouseY - yPos;
-			if (MouseButton[0]) {
-				camera.Rotate ((float)-diffY, (float)-diffX, 0);
-			} else if (MouseButton[1]) {
+			if (GetButton (MouseButton.Left) == InputAction.Press) {
+				camera.Rotate ((float)-diffY, (float)-diffX);
+				updateViewRequested = true;
+			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
-			} else
-				return;
-
-			updateViewRequested = true;
+				updateViewRequested = true;
+			}
 		}
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {

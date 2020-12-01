@@ -115,7 +115,7 @@ namespace vke {
 		/// <param name="dstOffset">an offset in the destination buffer for the copy operation.</param>
 		public void CopyTo (CommandBuffer cmd, Buffer buff, ulong size = 0, ulong srcOffset = 0, ulong dstOffset = 0) {
 			VkBufferCopy bufferCopy = new VkBufferCopy {
-				size = (size == 0) ? AllocatedDeviceMemorySize : size,
+				size = (size == 0) ? createInfo.size : size,
 				srcOffset = srcOffset,
 				dstOffset = dstOffset
 			};

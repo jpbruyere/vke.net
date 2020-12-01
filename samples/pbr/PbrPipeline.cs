@@ -5,11 +5,40 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using vke;
+using vke.glTF;
+using vke.Environment;
 using Vulkan;
 
-namespace vke {
+namespace pbrSample
+{
 	class PBRPipeline : GraphicPipeline {
+		public class PbrModel : PbrModelSeparatedTextures
+		{
+			public PbrModel (Queue transferQ, string path, DescriptorSetLayout layout, params AttachmentType[] attachments)
+			: base (transferQ, path, layout, attachments) { }
 
+			//TODO:destset for binding must be variable
+			//TODO: ADD REFAULT MAT IF NO MAT DEFINED
+			public override void RenderNode (CommandBuffer cmd, PipelineLayout pipelineLayout, Node node, Matrix4x4 currentTransform, bool shadowPass = false) {
+				Matrix4x4 localMat = node.localMatrix * currentTransform;
+
+				cmd.PushConstant (pipelineLayout, VkShaderStageFlags.Vertex, localMat);
+
+				if (node.Mesh != null) {
+					foreach (Primitive p in node.Mesh.Primitives) {
+						cmd.PushConstant (pipelineLayout, VkShaderStageFlags.Fragment, (int)p.material, (uint)Marshal.SizeOf<Matrix4x4> ());
+						if (descriptorSets[p.material] != null)
+							cmd.BindDescriptorSet (pipelineLayout, descriptorSets[p.material], 1);
+						cmd.DrawIndexed (p.indexCount, 1, p.indexBase, p.vertexBase, 0);
+					}
+				}
+				if (node.Children == null)
+					return;
+				foreach (Node child in node.Children)
+					RenderNode (cmd, pipelineLayout, child, localMat);
+			}
+		}
 		public struct Matrices {
 			public Matrix4x4 projection;
 			public Matrix4x4 model;
@@ -41,16 +70,9 @@ namespace vke {
 		DescriptorSetLayout descLayoutTextures;
 		public DescriptorSet dsMain;
 
-		public PbrModel2 model;
-		public vke.Environment.EnvironmentCube envCube;
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-		public PBRPipeline (Queue staggingQ, RenderPass renderPass, PipelineCache pipelineCache = null) :
+		public PbrModel model;
+		public EnvironmentCube envCube;
+		public PBRPipeline (Queue staggingQ, RenderPass renderPass, string cubeMapPath, PipelineCache pipelineCache = null) :
 			base (renderPass, pipelineCache, "pbr pipeline") {
 
 			descriptorPool = new DescriptorPool (Dev, 2,
@@ -80,7 +102,7 @@ namespace vke {
 				new VkPushConstantRange (VkShaderStageFlags.Fragment, sizeof(int), 64)
 			);
 			cfg.RenderPass = renderPass;
-			cfg.AddVertexBinding<PbrModel2.Vertex> (0);
+			cfg.AddVertexBinding<PbrModel.Vertex> (0);
 			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat, VkFormat.R32g32Sfloat);
 
 			cfg.AddShader (Dev, VkShaderStageFlags.Vertex, "#shaders.pbr.vert.spv");
@@ -94,7 +116,7 @@ namespace vke {
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 
-			envCube = new Environment.EnvironmentCube (cubemapPathes[0], layout, staggingQ, RenderPass);
+			envCube = new EnvironmentCube (cubeMapPath, layout, staggingQ, RenderPass);
 
 			matrices.prefilteredCubeMipLevels = envCube.prefilterCube.CreateInfo.mipLevels;
 			uboMats = new HostBuffer (Dev, VkBufferUsageFlags.UniformBuffer, matrices, true);
@@ -110,7 +132,7 @@ namespace vke {
 		public void LoadModel (Queue staggingQ, string path) {
 			model?.Dispose ();
 
-			model = new PbrModel2 (staggingQ, path, descLayoutTextures,
+			model = new PbrModel (staggingQ, path, descLayoutTextures,
 				AttachmentType.Color,
 				AttachmentType.PhysicalProps,
 				AttachmentType.Normal,
