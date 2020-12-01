@@ -174,8 +174,9 @@ namespace vke {
             throw new InvalidOperationException ("Could not find a suitable memory type!");
         }
         public VkFormat GetSuitableDepthFormat () {
-            VkFormat[] formats = new VkFormat[] { VkFormat.D32SfloatS8Uint, VkFormat.D32Sfloat, VkFormat.D24UnormS8Uint, VkFormat.D16UnormS8Uint, VkFormat.D16Unorm };
+            VkFormat[] formats = new VkFormat[] {VkFormat.D32SfloatS8Uint, VkFormat.D32Sfloat, VkFormat.D24UnormS8Uint, VkFormat.D16UnormS8Uint, VkFormat.D16Unorm };
             foreach (VkFormat f in formats) {
+				Console.WriteLine ( (int)phy.GetFormatProperties (f).optimalTilingFeatures);
                 if (phy.GetFormatProperties (f).optimalTilingFeatures.HasFlag(VkFormatFeatureFlags.DepthStencilAttachment))
                     return f;
             }

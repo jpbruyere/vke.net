@@ -39,8 +39,6 @@ namespace vke {
 					info.basePipelineIndex = 0;
 
 					Utils.CheckResult (Vk.vkCreateComputePipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
-
-					Dev.DestroyShaderModule (info.stage.module);
 				}
 			}
 			base.Activate ();

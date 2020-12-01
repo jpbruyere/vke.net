@@ -26,15 +26,7 @@ namespace pbrSample {
 				vke.Run ();
 			}
 		}
-		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features) {
-			base.configureEnabledFeatures (available_features, ref enabled_features);
-#if PIPELINE_STATS
-			features.pipelineStatisticsQuery = true;
-#endif
-			enabled_features.samplerAnisotropy = available_features.samplerAnisotropy;
-		}
-
-		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount8;
+		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
 
 		FrameBuffers frameBuffers;
 		PBRPipeline pbrPipeline;
@@ -75,94 +67,7 @@ namespace pbrSample {
 
 		DebugView currentDebugView = DebugView.none;
 
-#if PIPELINE_STATS
-		PipelineStatisticsQueryPool statPool;
-		TimestampQueryPool timestampQPool;
-		ulong[] results;
-#endif
 		bool queryUpdatePrefilCube, showDebugImg;
-
-#if WITH_VKVG
-		//DescriptorSet dsDebugImg;
-		//void initDebugImg () {
-		//	dsDebugImg = descriptorPool.Allocate (descLayoutMain);
-		//	pbrPipeline.envCube.debugImg.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
-		//	DescriptorSetWrites uboUpdate = new DescriptorSetWrites (dsDebugImg, descLayoutMain);
-		//	uboUpdate.Write (dev, pbrPipeline.envCube.debugImg.Descriptor);
-		//}
-
-		VkvgPipeline.VkvgPipeline vkvgPipeline;
-
-		void vkvgDraw () {
-			using (vkvg.Context ctx = vkvgPipeline.CreateContext ()) {
-				ctx.Clear ();
-
-				ctx.LineWidth = 1;
-				ctx.SetSource (0.1, 0.1, 0.1, 0.8);
-				ctx.Rectangle (5.5, 5.5, 320, 300);
-				ctx.FillPreserve ();
-				ctx.Flush ();
-				ctx.SetSource (0.8, 0.8, 0.8);
-				ctx.Stroke ();
-
-				ctx.FontFace = "mono";
-				ctx.FontSize = 8;
-				int x = 16;
-				int y = 40, dy = 16;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"fps:     {fps,5} "));
-				ctx.MoveTo (x + 200, y - 0.5);
-				ctx.Rectangle (x + 200, y - 8.5, 0.1 * fps, 10);
-				ctx.SetSource (0.1, 0.9, 0.1);
-				ctx.Fill ();
-				ctx.SetSource (0.8, 0.8, 0.8);
-				y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"Exposure:{pbrPipeline.matrices.exposure,5} "));
-				y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"Gamma:   {pbrPipeline.matrices.gamma,5} "));
-				y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"Light pos:   {lightPos.ToString ()} "));
-
-#if PIPELINE_STATS
-				if (results == null)
-					return;
-
-				y += dy*2;
-				ctx.MoveTo (x, y);
-				ctx.ShowText ("Pipeline Statistics");
-				ctx.MoveTo (x-2, 4.5+y);
-				ctx.LineTo (x+160, 4.5+y);
-				ctx.Stroke ();
-				y += 4;
-				x += 20;
-
-				for (int i = 0; i < statPool.RequestedStats.Length; i++) {
-					y += dy;
-					ctx.MoveTo (x, y);
-					ctx.ShowText (string.Format ($"{statPool.RequestedStats[i].ToString(),-30} :{results[i],12:0,0} "));
-				}
-				/*y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"{"Elapsed microsecond",-20} :{timestampQPool.ElapsedMiliseconds:0.0000} "));*/
-#endif
-				y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"{"Debug draw (numpad 0->6)",-30} : {currentDebugView.ToString ()} "));
-				/*y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"{"Debug Prefil Face: (f)",-30} : {pbrPipeline.envCube.debugFace.ToString ()} "));
-				y += dy;
-				ctx.MoveTo (x, y);
-				ctx.ShowText (string.Format ($"{"Debug Prefil Mip: (m)",-30} : {pbrPipeline.envCube.debugMip.ToString ()} "));
-				*/
-				vkvgPipeline.DrawResources (ctx, (int)Width, (int)Height);
-			}
-		}
-#endif
-
 
 		Vector4 lightPos = new Vector4 (1, 0, 0, 0);
 		uint curModelIndex = 0;
@@ -178,21 +83,6 @@ namespace pbrSample {
 				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples));
 
 			loadCurrentModel ();
-
-#if PIPELINE_STATS
-			statPool = new PipelineStatisticsQueryPool (dev,
-				VkQueryPipelineStatisticFlags.InputAssemblyVertices |
-				VkQueryPipelineStatisticFlags.InputAssemblyPrimitives |
-				VkQueryPipelineStatisticFlags.ClippingInvocations |
-				VkQueryPipelineStatisticFlags.ClippingPrimitives |
-				VkQueryPipelineStatisticFlags.FragmentShaderInvocations);
-
-			timestampQPool = new TimestampQueryPool (dev);
-#endif
-
-#if WITH_VKVG
-			vkvgPipeline = new VkvgPipeline.VkvgPipeline (instance, dev, presentQueue, pbrPipeline);
-#endif
 		}
 
 		bool rebuildBuffers, reloadModel;
@@ -201,14 +91,7 @@ namespace pbrSample {
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i]?.Free ();
 				cmds[i] = cmdPool.AllocateAndStart ();
-#if PIPELINE_STATS
-				statPool.Begin (cmds[i]);
 				recordDraw (cmds[i], frameBuffers[i]);
-				statPool.End (cmds[i]);
-#else
-				recordDraw (cmds[i], frameBuffers[i]);
-#endif
-
 				cmds[i].End ();
 			}
 		}
@@ -219,10 +102,6 @@ namespace pbrSample {
 			cmd.SetScissor (fb.Width, fb.Height);
 
 			pbrPipeline.RecordDraw (cmd);
-
-#if WITH_VKVG
-			vkvgPipeline.RecordDraw (cmd);
-#endif
 			pbrPipeline.RenderPass.End (cmd);
 		}
 
@@ -259,16 +138,10 @@ namespace pbrSample {
 				reloadModel = false;
 				rebuildBuffers = true;
 			}
-#if PIPELINE_STATS
-			results = statPool.GetResults ();
-#endif
 			if (rebuildBuffers) {
 				buildCommandBuffers ();
 				rebuildBuffers = false;
 			}
-#if WITH_VKVG
-			vkvgDraw ();
-#endif
 		}
 		#endregion
 
@@ -277,11 +150,6 @@ namespace pbrSample {
 			base.OnResize ();
 
 			dev.WaitIdle ();
-#if WITH_VKVG
-			vkvgPipeline.Resize ((int)swapChain.Width, (int)swapChain.Height,
-				new DescriptorSetWrites (pbrPipeline.dsMain, pbrPipeline.Layout.DescriptorSetLayouts[0].Bindings[5]));
-#endif
-
 			UpdateView ();
 
 			frameBuffers?.Dispose ();
@@ -313,32 +181,7 @@ namespace pbrSample {
 				else
 					curModelIndex = curModelIndex < (uint)modelPathes.Length - 1 ? curModelIndex + 1 : 0;
 				reloadModel = true;
-				break;
-			/*
-				case Key.F:
-					if (modifiers.HasFlag (Modifier.Shift)) {
-						pbrPipeline.envCube.debugFace --;
-						if (pbrPipeline.envCube.debugFace < 0)
-							pbrPipeline.envCube.debugFace = 5;
-					} else {
-						pbrPipeline.envCube.debugFace ++;
-						if (pbrPipeline.envCube.debugFace > 5)
-							pbrPipeline.envCube.debugFace = 0;
-					}
-					queryUpdatePrefilCube = updateViewRequested = true;
-					break;
-				case Key.M:
-					if (modifiers.HasFlag (Modifier.Shift)) {
-						pbrPipeline.envCube.debugMip --;
-						if (pbrPipeline.envCube.debugMip < 0)
-							pbrPipeline.envCube.debugMip = (int)pbrPipeline.envCube.prefilterCube.CreateInfo.mipLevels - 1;
-					} else {
-						pbrPipeline.envCube.debugMip ++;
-						if (pbrPipeline.envCube.debugMip > pbrPipeline.envCube.prefilterCube.CreateInfo.mipLevels)
-							pbrPipeline.envCube.debugMip = 0;
-					}
-					queryUpdatePrefilCube = updateViewRequested = true;
-					break;*/
+				break;			
 			case Key.P:
 				showDebugImg = !showDebugImg;
 				queryUpdatePrefilCube = updateViewRequested = true;
@@ -439,14 +282,6 @@ namespace pbrSample {
 					dev.WaitIdle ();
 					frameBuffers?.Dispose ();
 					pbrPipeline.Dispose ();
-#if WITH_VKVG
-					vkvgPipeline.Dispose ();
-#endif
-
-#if PIPELINE_STATS
-					timestampQPool?.Dispose ();
-					statPool?.Dispose ();
-#endif
 				}
 			}
 

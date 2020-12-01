@@ -55,7 +55,7 @@ namespace vke {
 
 			descriptorPool = new DescriptorPool (Dev, 2,
 				new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer, 2),
-				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler, 9)
+				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler, 8)
 			);
 
 			descLayoutMain = new DescriptorSetLayout (Dev,
@@ -63,8 +63,7 @@ namespace vke {
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 				new VkDescriptorSetLayoutBinding (2, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 				new VkDescriptorSetLayoutBinding (3, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
-				new VkDescriptorSetLayoutBinding (4, VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer),
-				new VkDescriptorSetLayoutBinding (5, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));//ui image
+				new VkDescriptorSetLayoutBinding (4, VkShaderStageFlags.Fragment, VkDescriptorType.UniformBuffer));				
 
 			descLayoutTextures = new DescriptorSetLayout (Dev,
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
@@ -90,6 +89,8 @@ namespace vke {
 			layout = cfg.Layout;
 
 			init (cfg);
+
+			cfg.DisposeShaders ();
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 

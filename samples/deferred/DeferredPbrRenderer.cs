@@ -12,7 +12,7 @@ namespace deferred {
 		Queue gQueue;
 		public static int MAX_MATERIAL_COUNT = 4;
 		public static VkSampleCountFlags NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
-		public static VkFormat HDR_FORMAT = VkFormat.R16g16b16a16Sfloat;
+		public static VkFormat HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 		public static VkFormat MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 		public static bool TEXTURE_ARRAY;
 
@@ -216,7 +216,6 @@ namespace deferred {
 
 			if (TEXTURE_ARRAY) {
 				descLayoutMain.Bindings.Add (new VkDescriptorSetLayoutBinding (7, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));//texture array
-				//descLayoutMain.Bindings.Add (new VkDescriptorSetLayoutBinding (8, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));//down sampled hdr
 			} else { 
 				descLayoutTextures = new DescriptorSetLayout (dev,
 					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
@@ -288,7 +287,7 @@ namespace deferred {
 #if WITH_SHADOWS
 				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
 #else
-				cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
 #endif
 				composePipeline = new GraphicPipeline (cfg);
 			}

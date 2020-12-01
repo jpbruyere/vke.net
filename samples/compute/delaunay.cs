@@ -2,6 +2,7 @@
 using Glfw;
 using Vulkan;
 using vke;
+using Image = vke.Image;
 
 namespace delaunay {
 	class Program : VkWindow {
@@ -18,7 +19,7 @@ namespace delaunay {
 		FrameBuffer[] frameBuffers;
 		GraphicPipeline grPipeline;
 
-		Image imgResult;
+        Image imgResult;
 
 		Queue computeQ, transferQ;
 
@@ -93,6 +94,8 @@ namespace delaunay {
 			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
 
 			grPipeline = new GraphicPipeline (cfg);
+			
+			cfg.DisposeShaders ();
 
 			plCompute = new ComputePipeline (
 				new PipelineLayout (dev, new VkPushConstantRange (VkShaderStageFlags.Compute, 2 * sizeof (int)), dslCompute),

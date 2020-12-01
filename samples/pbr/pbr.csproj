@@ -12,8 +12,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\..\addons\gltfLoader\gltfLoader.csproj" />
-    <ProjectReference Include="..\..\addons\VkvgPipeline\VkvgPipeline.csproj" />
-		<ProjectReference Include="..\..\addons\EnvironmentPipeline\EnvironmentPipeline.csproj" />
+	<ProjectReference Include="..\..\addons\EnvironmentPipeline\EnvironmentPipeline.csproj" />
   </ItemGroup>    
   
 </Project>

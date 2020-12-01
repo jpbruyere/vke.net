@@ -18,11 +18,11 @@ namespace deferred {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			Instance.RENDER_DOC_CAPTURE = false;
 #endif
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			DeferredPbrRenderer.TEXTURE_ARRAY = true;
-			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount8;
+			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount1;
 			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
 
@@ -37,9 +37,6 @@ namespace deferred {
 			Ext.I.VK_EXT_debug_utils,
 		};
 
-		public override string[] EnabledDeviceExtensions => new string[] {
-			Ext.D.VK_KHR_swapchain,
-		};
 
 		protected override void configureEnabledFeatures (VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features) {
 			base.configureEnabledFeatures (available_features, ref enabled_features);
@@ -69,7 +66,7 @@ namespace deferred {
 				//Utils.DataDirectory + "models/Box.gltf",
 				//Utils.DataDirectory + "models/cubeOnPlane.glb",
 				//Utils.DataDirectory + "models/shadow.glb",
-				Utils.DataDirectory + "models/cube.gltf",
+				//Utils.DataDirectory + "models/cube.gltf",
 				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
 				//Utils.DataDirectory + "models/shadow.glb",
 				Utils.DataDirectory + "models/Hubble.glb",
