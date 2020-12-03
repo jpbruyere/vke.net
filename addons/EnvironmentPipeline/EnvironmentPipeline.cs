@@ -28,23 +28,22 @@ namespace vke.Environment {
 				cubemap.SetName ("skybox Texture");
 				cubemap.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 
-				GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples, false);
-				cfg.RenderPass = renderPass;
-				cfg.Layout = plLayout;
-				cfg.AddVertexBinding (0, 3 * sizeof (float));
-				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
-				cfg.AddShaders (
-					new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv"),
-					new ShaderInfo (Dev, VkShaderStageFlags.Fragment, STR_FRAG_PATH)
-				);
+				using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples, false)) {
+					cfg.RenderPass = renderPass;
+					cfg.Layout = plLayout;
+					cfg.AddVertexBinding (0, 3 * sizeof (float));
+					cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
+					cfg.AddShaders (
+						new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv"),
+						new ShaderInfo (Dev, VkShaderStageFlags.Fragment, STR_FRAG_PATH)
+					);
 
-				cfg.multisampleState.rasterizationSamples = Samples;
+					cfg.multisampleState.rasterizationSamples = Samples;
 
-				layout = cfg.Layout;
+					layout = cfg.Layout;
 
-				init (cfg);
-
-				cfg.DisposeShaders ();
+					init (cfg);
+				}
 
 				generateBRDFLUT (staggingQ, cmdPool);
 				generateCubemaps (staggingQ, cmdPool);
@@ -129,7 +128,7 @@ namespace vke.Environment {
 				new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#EnvironmentPipeline.genbrdflut.frag.spv"));
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
-				cfg.DisposeShaders ();
+				cfg.Dispose ();
 				using (FrameBuffer fb = new FrameBuffer (cfg.RenderPass, dim, dim, lutBrdf)) {
 					PrimaryCommandBuffer cmd = cmdPool.AllocateCommandBuffer ();
 					cmd.Start (VkCommandBufferUsageFlags.OneTimeSubmit);
@@ -223,7 +222,7 @@ namespace vke.Environment {
 			VkImageSubresourceRange subRes = new VkImageSubresourceRange (VkImageAspectFlags.Color, 0, numMips, 0, 6);
 
 			using (GraphicPipeline pl = new GraphicPipeline (cfg)) {
-				cfg.DisposeShaders ();
+				cfg.Dispose ();
 				DescriptorSet dset = dsPool.Allocate (dsLayout);
 				DescriptorSetWrites dsUpdate = new DescriptorSetWrites (dsLayout);
 				dsUpdate.Write (Dev, dset, cubemap.Descriptor);

@@ -46,7 +46,7 @@ namespace pbrSample {
 		bool queryUpdatePrefilCube, showDebugImg;
 
 		Vector4 lightPos = new Vector4 (1, 0, 0, 0);
-		uint curModelIndex = 0;
+		uint curModelIndex = 13;
 
 		protected override void initVulkan () {
 			base.initVulkan ();

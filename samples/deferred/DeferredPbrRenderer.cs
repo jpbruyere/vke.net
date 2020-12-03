@@ -234,74 +234,73 @@ namespace deferred {
 
 
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, NUM_SAMPLES);
-			cfg.rasterizationState.cullMode = VkCullModeFlags.Back;
-			if (NUM_SAMPLES != VkSampleCountFlags.SampleCount1) {
-				cfg.multisampleState.sampleShadingEnable = true;
-				cfg.multisampleState.minSampleShading = 0.5f;
-			}
-			cfg.Cache = pipelineCache;
-			if (TEXTURE_ARRAY) 
-				cfg.Layout = new PipelineLayout (dev, descLayoutMain, descLayoutGBuff);
-			 else 
-				cfg.Layout = new PipelineLayout (dev, descLayoutMain, descLayoutGBuff, descLayoutTextures);
-
-			cfg.Layout.AddPushConstants (
-				new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ()),
-				new VkPushConstantRange (VkShaderStageFlags.Fragment, sizeof (int), 64)
-			);
-			cfg.RenderPass = renderPass;
-			cfg.SubpassIndex = SP_MODELS;
-			cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
-			cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
-			cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
-			//cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
-
-			cfg.AddVertex<PbrModelTexArray.Vertex> ();
-
-			using (SpecializationInfo constants = new SpecializationInfo (
-						new SpecializationConstant<float> (0, nearPlane),
-						new SpecializationConstant<float> (1, farPlane),
-						new SpecializationConstant<float> (2, MAX_MATERIAL_COUNT))) {
-
-				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.GBuffPbr.vert.spv");
-				if (TEXTURE_ARRAY) 
-					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbrTexArray.frag.spv", constants);
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, NUM_SAMPLES)) {
+				cfg.rasterizationState.cullMode = VkCullModeFlags.Back;
+				if (NUM_SAMPLES != VkSampleCountFlags.SampleCount1) {
+					cfg.multisampleState.sampleShadingEnable = true;
+					cfg.multisampleState.minSampleShading = 0.5f;
+				}
+				cfg.Cache = pipelineCache;
+				if (TEXTURE_ARRAY)
+					cfg.Layout = new PipelineLayout (dev, descLayoutMain, descLayoutGBuff);
 				else
-					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbr.frag.spv", constants);
+					cfg.Layout = new PipelineLayout (dev, descLayoutMain, descLayoutGBuff, descLayoutTextures);
 
-				gBuffPipeline = new GraphicPipeline (cfg);
-			}
-			cfg.rasterizationState.cullMode = VkCullModeFlags.Front;
-			//COMPOSE PIPELINE
-			cfg.blendAttachments.Clear ();
-			cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
-			cfg.ResetShadersAndVerticesInfos ();
-			cfg.SubpassIndex = SP_COMPOSE;
-			cfg.Layout = gBuffPipeline.Layout;
-			cfg.depthStencilState.depthTestEnable = false;
-			cfg.depthStencilState.depthWriteEnable = false;
-			using (SpecializationInfo constants = new SpecializationInfo (
-				new SpecializationConstant<uint> (0, (uint)lights.Length))) {
-				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
+				cfg.Layout.AddPushConstants (
+					new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ()),
+					new VkPushConstantRange (VkShaderStageFlags.Fragment, sizeof (int), 64)
+				);
+				cfg.RenderPass = renderPass;
+				cfg.SubpassIndex = SP_MODELS;
+				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
+				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
+				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
+				//cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
+
+				cfg.AddVertex<PbrModelTexArray.Vertex> ();
+
+				using (SpecializationInfo constants = new SpecializationInfo (
+							new SpecializationConstant<float> (0, nearPlane),
+							new SpecializationConstant<float> (1, farPlane),
+							new SpecializationConstant<float> (2, MAX_MATERIAL_COUNT))) {
+
+					cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.GBuffPbr.vert.spv");
+					if (TEXTURE_ARRAY)
+						cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbrTexArray.frag.spv", constants);
+					else
+						cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.GBuffPbr.frag.spv", constants);
+
+					gBuffPipeline = new GraphicPipeline (cfg);
+				}
+				cfg.ResetShadersAndVerticesInfos ();
+
+				cfg.rasterizationState.cullMode = VkCullModeFlags.Front;
+				//COMPOSE PIPELINE
+				cfg.blendAttachments.Clear ();
+				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));				
+				cfg.SubpassIndex = SP_COMPOSE;
+				cfg.Layout = gBuffPipeline.Layout;
+				cfg.depthStencilState.depthTestEnable = false;
+				cfg.depthStencilState.depthWriteEnable = false;
+				using (SpecializationInfo constants = new SpecializationInfo (
+					new SpecializationConstant<uint> (0, (uint)lights.Length))) {
+					cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#vke.FullScreenQuad.vert.spv");
 #if WITH_SHADOWS
-				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
+					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
 #else
 				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
 #endif
-				composePipeline = new GraphicPipeline (cfg);
+					composePipeline = new GraphicPipeline (cfg);
+				}
+				//DEBUG DRAW use subpass of compose
+				cfg.ReplaceShader (1, new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.show_gbuff.frag.spv"));
+				cfg.SubpassIndex = SP_COMPOSE;
+				debugPipeline = new GraphicPipeline (cfg);
+				////TONE MAPPING
+				//cfg.shaders[1] = new ShaderInfo (VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv");
+				//cfg.SubpassIndex = SP_TONE_MAPPING;
+				//toneMappingPipeline = new GraphicPipeline (cfg);
 			}
-			//DEBUG DRAW use subpass of compose
-			cfg.Shaders[1].Dispose ();
-			cfg.Shaders[1] = new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.show_gbuff.frag.spv");
-			cfg.SubpassIndex = SP_COMPOSE;
-			debugPipeline = new GraphicPipeline (cfg);
-			////TONE MAPPING
-			//cfg.shaders[1] = new ShaderInfo (VkShaderStageFlags.Fragment, "#shaders.tone_mapping.frag.spv");
-			//cfg.SubpassIndex = SP_TONE_MAPPING;
-			//toneMappingPipeline = new GraphicPipeline (cfg);
-
-			cfg.DisposeShaders ();
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 			dsGBuff = descriptorPool.Allocate (descLayoutGBuff);

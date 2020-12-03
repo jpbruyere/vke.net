@@ -84,21 +84,20 @@ namespace Textured {
 			dsLayout = new DescriptorSetLayout (dev, 0,
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer),
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));
-				
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount4);
 
-			cfg.Layout = new PipelineLayout (dev, dsLayout);
-			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount4)) {
 
-			cfg.AddVertexBinding (0, 5 * sizeof(float));
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
+				cfg.Layout = new PipelineLayout (dev, dsLayout);
+				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
 
-			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
-			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+				cfg.AddVertexBinding (0, 5 * sizeof (float));
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			pipeline = new GraphicPipeline (cfg);
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
-			cfg.DisposeShaders ();
+				pipeline = new GraphicPipeline (cfg);
+			}
 
 
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);

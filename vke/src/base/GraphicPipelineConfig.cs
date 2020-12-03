@@ -15,7 +15,7 @@ namespace vke {
 	/// This class has some facilities for chaining multiple pipelines creations that have small differencies
 	/// in their configurations.
 	/// </summary>
-	public class GraphicPipelineConfig {
+	public class GraphicPipelineConfig : IDisposable {
 		public uint SubpassIndex;
 		/// <summary>
 		/// Pipeline layout. Note that layout will not be activated (handle creation) until
@@ -114,7 +114,9 @@ namespace vke {
 		}
 
 		uint currentAttributeIndex = 0;
-		public void AddVertexAttributes (uint binding, params VkFormat[] attribsDesc) {
+        private bool disposedValue;
+
+        public void AddVertexAttributes (uint binding, params VkFormat[] attribsDesc) {
 			uint currentAttributeoffset = 0;
 			for (uint i = 0; i < attribsDesc.Length; i++) {
 				vertexAttributes.Add (new VkVertexInputAttributeDescription (binding, i + currentAttributeIndex, attribsDesc[i], currentAttributeoffset));
@@ -161,13 +163,16 @@ namespace vke {
 		}
 		/// <summary>
 		/// Dispose ShaderInfo at index 'shaderIndex' in the Shaders list, and replace it
-		/// with the new 'ShaderInfo' given in arguments.
+		/// with the new 'ShaderInfo' given in arguments. If new `ShaderInfo` is null, the shader list element at the given index will be removed.
 		/// </summary>
 		/// <param name="shaderIndex">ShaderInfo index in the Shaders list of this configuration object</param>
-		/// <param name="info">the new Shader to use.</param>
+		/// <param name="info">the new Shader to use or null to remove the list item.</param>
 		public void ReplaceShader (int shaderIndex, ShaderInfo info) {
 			Shaders[shaderIndex].Dispose ();
-			Shaders[shaderIndex] = info;
+			if (info == null)
+				Shaders.RemoveAt (shaderIndex);
+			else
+				Shaders[shaderIndex] = info;
 		}
 		/// <summary>
 		/// Dispose ShaderInfo at index 'shaderIndex' in the Shaders list, and replace it with a new one.
@@ -192,16 +197,31 @@ namespace vke {
 			currentAttributeIndex = 0;
 			vertexBindings.Clear ();
 			vertexAttributes.Clear ();
-			DisposeShaders ();
-		}
-		/// <summary>
-		/// Resets shaders in current config to ease reause of current 'GraphicPipelineConfig
-		/// for creating another similar pipeline with different shaders.
-		/// </summary>
-		public void DisposeShaders () {
 			foreach (ShaderInfo shader in Shaders)
 				shader.Dispose ();
 			Shaders.Clear ();
 		}
+
+        #region IDispable implementation
+        protected virtual void Dispose (bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+					foreach (ShaderInfo shader in Shaders)
+						shader.Dispose ();
+					Shaders.Clear ();
+				}
+				disposedValue = true;
+            }
+        }
+		/// <summary>
+		/// PipelineConfig may create shader modules that have to be disposed after the pipeline creation.
+		/// </summary>
+        public void Dispose () {
+            // Ne changez pas ce code. Placez le code de nettoyage dans la méthode 'Dispose(bool disposing)'
+            Dispose (disposing: true);
+            GC.SuppressFinalize (this);
+        }
+		#endregion
+
 	}
 }

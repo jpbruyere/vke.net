@@ -114,20 +114,19 @@ namespace TextureCube {
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer),
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, samples);
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, samples)) {
 
-			cfg.Layout = new PipelineLayout (dev, dsLayout);
-			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
+				cfg.Layout = new PipelineLayout (dev, dsLayout);
+				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), cfg.Samples);
 
-			cfg.AddVertexBinding (0, 5 * sizeof (float));
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
+				cfg.AddVertexBinding (0, 5 * sizeof (float));
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.skybox.vert.spv");
-			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.skybox.frag.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.skybox.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.skybox.frag.spv");
 
-			pipeline = new GraphicPipeline (cfg);
-
-			cfg.DisposeShaders ();
+				pipeline = new GraphicPipeline (cfg);
+			}
 
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 			uboMats.Map ();//permanent map

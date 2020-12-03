@@ -18,24 +18,23 @@ namespace vke {
 
             vboLength = maxVertices * 6 * sizeof(float);
 
-            GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.LineList, samples, false);
-			cfg.rasterizationState.lineWidth = 1.0f;
-			cfg.RenderPass = RenderPass;
-			cfg.Layout = new PipelineLayout(Dev, new VkPushConstantRange(VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4>() * 2));
-			cfg.AddVertexBinding (0, 6 * sizeof(float));
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
-			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.LineList, samples, false)) {
+				cfg.rasterizationState.lineWidth = 1.0f;
+				cfg.RenderPass = RenderPass;
+				cfg.Layout = new PipelineLayout (Dev, new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> () * 2));
+				cfg.AddVertexBinding (0, 6 * sizeof (float));
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);
+				cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (true);
 
-			cfg.AddShaders (
-				new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#vke.debug.vert.spv"),
-				new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#vke.debug.frag.spv")
-			);
+				cfg.AddShaders (
+					new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#vke.debug.vert.spv"),
+					new ShaderInfo (Dev, VkShaderStageFlags.Fragment, "#vke.debug.frag.spv")
+				);
 
-			layout = cfg.Layout;
+				layout = cfg.Layout;
 
-			init (cfg);
-
-			cfg.DisposeShaders ();
+				init (cfg);
+			}
 
 			Vertices = new HostBuffer (Dev, VkBufferUsageFlags.VertexBuffer, vboLength);
 			Vertices.Map ();

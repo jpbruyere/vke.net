@@ -65,32 +65,28 @@ namespace Triangle {
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 
 			//Graphic pipeline configuration are predefined by the GraphicPipelineConfig class, which ease sharing config for several pipelines having lots in common.
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
-			//Create the pipeline layout, it will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit
-			//from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for DescriptorSetLayout.
-			cfg.Layout = new PipelineLayout (dev,
-				new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
-			//create a default renderpass with just a color attachment for the swapchain image, a default subpass is automatically created and the renderpass activation
-			//will follow the pipeline life cicle and will be automatically disposed when no longuer used.
-			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
-			//configuration of vertex bindings and attributes
-			cfg.AddVertexBinding<Vertex> (0);
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);//position + color
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false)) {
+				//Create the pipeline layout, it will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit
+				//from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for DescriptorSetLayout.
+				cfg.Layout = new PipelineLayout (dev,
+					new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
+				//create a default renderpass with just a color attachment for the swapchain image, a default subpass is automatically created and the renderpass activation
+				//will follow the pipeline life cicle and will be automatically disposed when no longuer used.
+				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
+				//configuration of vertex bindings and attributes
+				cfg.AddVertexBinding<Vertex> (0);
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat);//position + color
 
-			//shader are automatically compiled by SpirVTasks if added to the project. The resulting shaders are automatically embedded in the assembly.
-			//To specifiy that the shader path is a resource name, put the '#' prefix. Else the path will be search on disk.
-			cfg.AddShaders (
-				new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv"),
-				new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv")
-			);
+				//shader are automatically compiled by SpirVTasks if added to the project. The resulting shaders are automatically embedded in the assembly.
+				//To specifiy that the shader path is a resource name, put the '#' prefix. Else the path will be search on disk.
+				cfg.AddShaders (
+					new ShaderInfo (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv"),
+					new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv")
+				);
 
-			//create and activate the pipeline with the configuration we've just done.
-			pipeline = new GraphicPipeline (cfg);
-
-			//ShaderInfo used in this configuration with create the VkShaderModule's used
-			//for creating the pipeline. They have to be disposed to destroy those modules
-			//used only during pipeline creation.
-			cfg.DisposeShaders ();
+				//create and activate the pipeline with the configuration we've just done.
+				pipeline = new GraphicPipeline (cfg);
+			}
 
 			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated, 
 			//but in this case, layout will need also to be explicitly disposed.

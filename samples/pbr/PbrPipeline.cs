@@ -94,25 +94,24 @@ namespace pbrSample
 				new VkDescriptorSetLayoutBinding (3, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 				new VkDescriptorSetLayoutBinding (4, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler)
 			);
-				
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples);
-			cfg.Layout = new PipelineLayout (Dev, descLayoutMain, descLayoutTextures);
-			cfg.Layout.AddPushConstants (
-				new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ()),
-				new VkPushConstantRange (VkShaderStageFlags.Fragment, sizeof(int), 64)
-			);
-			cfg.RenderPass = renderPass;
-			cfg.AddVertexBinding<PbrModel.Vertex> (0);
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (Dev, VkShaderStageFlags.Vertex, "#shaders.pbr.vert.spv");
-			cfg.AddShader (Dev, VkShaderStageFlags.Fragment, "#shaders.pbr_khr.frag.spv");
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples)) {
+				cfg.Layout = new PipelineLayout (Dev, descLayoutMain, descLayoutTextures);
+				cfg.Layout.AddPushConstants (
+					new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Matrix4x4> ()),
+					new VkPushConstantRange (VkShaderStageFlags.Fragment, sizeof (int), 64)
+				);
+				cfg.RenderPass = renderPass;
+				cfg.AddVertexBinding<PbrModel.Vertex> (0);
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat, VkFormat.R32g32Sfloat);
 
-			layout = cfg.Layout;
+				cfg.AddShader (Dev, VkShaderStageFlags.Vertex, "#shaders.pbr.vert.spv");
+				cfg.AddShader (Dev, VkShaderStageFlags.Fragment, "#shaders.pbr_khr.frag.spv");
 
-			init (cfg);
+				layout = cfg.Layout;
 
-			cfg.DisposeShaders ();
+				init (cfg);
+			}
 
 			dsMain = descriptorPool.Allocate (descLayoutMain);
 
