@@ -13,7 +13,7 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(UseMemoryPools)' == 'true'">
-		<DefineConstants>$(DefineConstants);_MEMORY_POOLS</DefineConstants>
+		<DefineConstants>$(DefineConstants);MEMORY_POOLS</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(UseStbSharp)' == 'true'">
 		<DefineConstants>$(DefineConstants);STB_SHARP</DefineConstants>

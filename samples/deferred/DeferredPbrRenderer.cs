@@ -330,11 +330,10 @@ namespace deferred {
 			model?.Dispose ();
 
 			if (TEXTURE_ARRAY) {
-				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);
-				if (mod.texArray != null) {
-					DescriptorSetWrites uboUpdate = new DescriptorSetWrites (dsMain, descLayoutMain.Bindings[5], descLayoutMain.Bindings[7]);
-					uboUpdate.Write (dev, mod.materialUBO.Descriptor, mod.texArray.Descriptor);
-				}
+				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);				
+				DescriptorSetWrites uboUpdate = new DescriptorSetWrites (dsMain, descLayoutMain.Bindings[5], descLayoutMain.Bindings[7]);
+				uboUpdate.Write (dev, mod.materialUBO.Descriptor, mod.texArray.Descriptor);
+				
 				model = mod;
 			} else {
 				model = new PbrModelSeparatedTextures (transferQ, path,

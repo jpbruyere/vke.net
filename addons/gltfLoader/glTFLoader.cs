@@ -420,11 +420,8 @@ namespace vke.glTF {
 			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 			texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 
 						VkPipelineStageFlags.BottomOfPipe, VkPipelineStageFlags.Transfer);
-			cmd.End ();
-			transferQ.Submit (cmd);
-			transferQ.WaitIdle ();
-			cmd.Free ();
-
+			transferQ.EndSubmitAndWait (cmd, true);
+			
 			VkImageBlit imageBlit = new VkImageBlit {
 				srcSubresource = new VkImageSubresourceLayers (VkImageAspectFlags.Color, 1, 0),
 				dstOffsets_1 = new VkOffset3D (texDim, texDim, 1)
@@ -458,11 +455,8 @@ namespace vke.glTF {
 
 				Vk.vkCmdBlitImage (cmd.Handle, vkimg.Handle, VkImageLayout.TransferSrcOptimal,
 					texArray.Handle, VkImageLayout.TransferDstOptimal, 1, ref imageBlit, VkFilter.Linear);
-
-				cmd.End ();
-				transferQ.Submit (cmd);
-				transferQ.WaitIdle ();
-				cmd.Free ();
+				
+				transferQ.EndSubmitAndWait (cmd, true);								
 
 				vkimg.Dispose ();
 			}

@@ -31,7 +31,8 @@
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
 	</ItemGroup>    
 
-	<ItemGroup>    
+	<ItemGroup>
+		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs"/>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
 			<LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
 		</GLSLShader>		

@@ -15,6 +15,7 @@
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vk.net/blob/master/SpirVTasks/README.md</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
 		<License>MIT</License>
 		<Authors>Jean-Philippe Bruyère</Authors>
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
@@ -40,5 +41,7 @@
 			<IncludeInPackage>true</IncludeInPackage>
 			<PackagePath>build</PackagePath>
 		</Content>
+		
+		<None Include="$(SolutionDir)vke\icon.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>
 </Project>

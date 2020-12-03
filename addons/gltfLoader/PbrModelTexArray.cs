@@ -68,12 +68,20 @@ namespace vke.glTF {
 							VkSampleCountFlags.SampleCount1, VkImageTiling.Optimal, Image.ComputeMipLevels (TEXTURE_DIM), ctx.ImageCount);
 
 						ctx.BuildTexArray (ref texArray, 0);
-
-						texArray.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Color, texArray.CreateInfo.arrayLayers);
-						texArray.CreateSampler ();
-						texArray.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
-						texArray.SetName ("model texArray");
+					} else {
+						texArray = new Image (dev, Image.DefaultTextureFormat, VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferDst | VkImageUsageFlags.TransferSrc,
+							VkMemoryPropertyFlags.DeviceLocal, TEXTURE_DIM, TEXTURE_DIM, VkImageType.Image2D,
+							VkSampleCountFlags.SampleCount1, VkImageTiling.Optimal, Image.ComputeMipLevels (TEXTURE_DIM), 1);
+						PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+						texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ShaderReadOnlyOptimal);						
+						transferQ.EndSubmitAndWait (cmd, true);												
 					}
+
+					texArray.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Color, texArray.CreateInfo.arrayLayers);
+					texArray.CreateSampler ();
+					texArray.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
+					texArray.SetName ("model texArray");
+					
 
 					loadMaterials (ctx);
 					materialUBO = new HostBuffer<Material> (dev, VkBufferUsageFlags.UniformBuffer, materials);

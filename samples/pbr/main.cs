@@ -41,22 +41,6 @@ namespace pbrSample {
 			roughness
 		}
 
-		string[] modelPathes = {
-			Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-			Utils.DataDirectory + "models/Hubble.glb",
-			Utils.DataDirectory + "models/ISS_stationary.glb",
-			Utils.DataDirectory + "models/MER_static.glb",
-			Utils.DataDirectory + "models/Box.gltf",
-		};
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-
-
 		DebugView currentDebugView = DebugView.none;
 
 		bool queryUpdatePrefilCube, showDebugImg;
@@ -72,7 +56,7 @@ namespace pbrSample {
 			camera.SetPosition (0, 0, -2);
 
 			pbrPipeline = new PBRPipeline (presentQueue,
-				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples), cubemapPathes[0]);
+				new RenderPass (dev, swapChain.ColorFormat, dev.GetSuitableDepthFormat (), samples), vke.samples.Utils.CubeMaps[0]);
 
 			loadCurrentModel ();
 		}
@@ -99,7 +83,7 @@ namespace pbrSample {
 
 		void loadCurrentModel () {
 			dev.WaitIdle ();
-			pbrPipeline.LoadModel (presentQueue, modelPathes[curModelIndex]);
+			pbrPipeline.LoadModel (presentQueue, vke.samples.Utils.GltfFiles[curModelIndex]);
 			BoundingBox modelAABB = pbrPipeline.model.DefaultScene.AABB;
 			camera.Model = Matrix4x4.CreateScale (1f / Math.Max (Math.Max (modelAABB.max.X, modelAABB.max.Y), modelAABB.max.Z));
 			updateViewRequested = true;
@@ -168,9 +152,9 @@ namespace pbrSample {
 			switch (key) {
 			case Key.Space:
 				if (modifiers.HasFlag (Modifier.Shift))
-					curModelIndex = curModelIndex == 0 ? (uint)modelPathes.Length - 1 : curModelIndex - 1;
+					curModelIndex = curModelIndex == 0 ? (uint)vke.samples.Utils.GltfFiles.Length - 1 : curModelIndex - 1;
 				else
-					curModelIndex = curModelIndex < (uint)modelPathes.Length - 1 ? curModelIndex + 1 : 0;
+					curModelIndex = curModelIndex < (uint)vke.samples.Utils.GltfFiles.Length - 1 ? curModelIndex + 1 : 0;
 				reloadModel = true;
 				break;			
 			case Key.P:

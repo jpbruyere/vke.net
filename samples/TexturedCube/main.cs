@@ -95,13 +95,6 @@ namespace TextureCube {
 			 1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
 		};
 		int currentImgIndex = 4;
-		string[] imgPathes = {
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-		};
 
 		VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
 
@@ -143,7 +136,7 @@ namespace TextureCube {
 			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, dsLayout.Bindings[0]);
 			uboUpdate.Write (dev, uboMats.Descriptor);
 
-			loadTexture (imgPathes[currentImgIndex]);
+			loadTexture (vke.samples.Utils.CubeMaps [currentImgIndex]);
 			if (nextTexture != null)
 				updateTextureSet ();
 		}
@@ -243,9 +236,9 @@ namespace TextureCube {
 			switch (key) {
 				case Key.Space:
 					currentImgIndex++;
-					if (currentImgIndex == imgPathes.Length)
+					if (currentImgIndex == vke.samples.Utils.CubeMaps.Length)
 						currentImgIndex = 0;
-					loadTexture (imgPathes[currentImgIndex]);
+					loadTexture (vke.samples.Utils.CubeMaps[currentImgIndex]);
 					break;
 				default:
 					base.onKeyDown (key, scanCode, modifiers);

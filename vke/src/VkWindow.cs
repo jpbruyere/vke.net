@@ -163,7 +163,7 @@ namespace vke {
 			dev.Activate (enabledFeatures, EnabledDeviceExtensions);
 
 			swapChain = new SwapChain (presentQueue as PresentQueue, Width, Height, SwapChain.PREFERED_FORMAT,
-				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.MailboxKHR);
+				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.ImmediateKHR);
 			swapChain.Activate ();
 
 			Width = swapChain.Width;

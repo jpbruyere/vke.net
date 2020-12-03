@@ -32,8 +32,10 @@ namespace deferred {
 				vke.Run ();
 			}
 		}
+		Deferred (string name = "VkCrowWindow", uint _width = 800, uint _height = 600, bool vSync = false)
+			: base (name, _width, _height, vSync) { }
 
-		public override string[] EnabledInstanceExtensions => new string[] {
+	public override string[] EnabledInstanceExtensions => new string[] {
 			Ext.I.VK_EXT_debug_utils,
 		};
 
@@ -53,28 +55,8 @@ namespace deferred {
 			transferQ = new Queue (dev, VkQueueFlags.Transfer);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 		}
-		string[] cubemapPathes = {
-			Utils.DataDirectory + "textures/papermill.ktx",
-			Utils.DataDirectory + "textures/cubemap_yokohama_bc3_unorm.ktx",
-			Utils.DataDirectory + "textures/gcanyon_cube.ktx",
-			Utils.DataDirectory + "textures/pisa_cube.ktx",
-			Utils.DataDirectory + "textures/uffizi_cube.ktx",
-		};
-		string[] modelPathes = {
-				//"/mnt/devel/vkPinball/data/models/pinball.gltf",
-				//"/mnt/devel/pinball.net/data/test.glb",
-				//Utils.DataDirectory + "models/Box.gltf",
-				//Utils.DataDirectory + "models/cubeOnPlane.glb",
-				//Utils.DataDirectory + "models/shadow.glb",
-				//Utils.DataDirectory + "models/cube.gltf",
-				Utils.DataDirectory + "models/DamagedHelmet/glTF/DamagedHelmet.gltf",
-				//Utils.DataDirectory + "models/shadow.glb",
-				Utils.DataDirectory + "models/Hubble.glb",
-				Utils.DataDirectory + "models/MER_static.glb",
-				Utils.DataDirectory + "models/ISS_stationary.glb",
-			};
 
-		int curModelIndex = 0;
+		int curModelIndex = 13;
 		bool reloadModel;
 		bool rebuildBuffers;
 
@@ -104,8 +86,8 @@ namespace deferred {
 			camera.SetPosition (0, 0, -2);
 
 			//renderer = new DeferredPbrRenderer (presentQueue, cubemapPathes[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
-			renderer = new DeferredPbrRenderer (presentQueue, cubemapPathes[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
-			renderer.LoadModel (transferQ, modelPathes[curModelIndex]);
+			renderer = new DeferredPbrRenderer (presentQueue, vke.samples.Utils.CubeMaps[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);
+			renderer.LoadModel (transferQ, vke.samples.Utils.GltfFiles [curModelIndex]);
 			camera.Model = Matrix4x4.CreateScale (1f / Math.Max (Math.Max (renderer.modelAABB.Width, renderer.modelAABB.Height), renderer.modelAABB.Depth));
 
 			init_final_pl ();
@@ -142,6 +124,7 @@ namespace deferred {
 		}
 
 		void buildCommandBuffers () {
+			dev.WaitIdle ();
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i]?.Free ();
 				cmds[i] = cmdPool.AllocateAndStart ();
@@ -179,7 +162,7 @@ namespace deferred {
 
 		public override void Update () {
 			if (reloadModel) {
-				renderer.LoadModel (transferQ, modelPathes[curModelIndex]);
+				renderer.LoadModel (transferQ, vke.samples.Utils.GltfFiles[curModelIndex]);
 				reloadModel = false;
 				camera.Model = Matrix4x4.CreateScale (1f / Math.Max (Math.Max (renderer.modelAABB.Width, renderer.modelAABB.Height), renderer.modelAABB.Depth));
 				updateViewRequested = true;
@@ -346,16 +329,16 @@ namespace deferred {
 					break;
 				case Key.KeypadAdd:
 					curModelIndex++;
-					if (curModelIndex >= modelPathes.Length)
+					if (curModelIndex >= vke.samples.Utils.GltfFiles.Length)
 						curModelIndex = 0;
 					reloadModel = true;
-					break;
+					return;					
 				case Key.KeypadSubtract:
 					curModelIndex--;
 					if (curModelIndex < 0)
-						curModelIndex = modelPathes.Length -1;
+						curModelIndex = vke.samples.Utils.GltfFiles.Length -1;
 					reloadModel = true;
-					break;
+					return;
 				default:
 					base.onKeyDown (key, scanCode, modifiers);
 					return;
