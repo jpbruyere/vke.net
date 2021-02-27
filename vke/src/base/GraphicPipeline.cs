@@ -24,7 +24,7 @@ namespace vke {
 			RenderPass = renderPass;
 		}
 		/// <summary>
-		/// Create a new Pipeline with supplied RenderPass
+		/// Create a new Pipeline with supplied configuration
 		/// </summary>
 		public GraphicPipeline (GraphicPipelineConfig cfg, string name = "graphic pipeline") : this (cfg.RenderPass, cfg.Cache, name) {
 			layout = cfg.Layout;
@@ -32,9 +32,9 @@ namespace vke {
 			init (cfg);
 		}
 
-		#endregion
+        #endregion
 
-		public override void Activate () => throw new NotSupportedException ("Please initialize graphic pipeline through the init method");
+        public override void Activate () => throw new NotSupportedException ("Please initialize graphic pipeline through the init method");
 
 		protected void init (GraphicPipelineConfig cfg) {
 			if (state != ActivableState.Activated) {

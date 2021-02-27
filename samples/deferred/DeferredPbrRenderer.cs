@@ -288,7 +288,7 @@ namespace deferred {
 #if WITH_SHADOWS
 					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose_with_shadows.frag.spv", constants);
 #else
-				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
+					cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.compose.frag.spv", constants);
 #endif
 					composePipeline = new GraphicPipeline (cfg);
 				}

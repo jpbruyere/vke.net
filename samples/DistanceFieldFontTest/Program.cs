@@ -82,23 +82,24 @@ namespace DistanceFieldFontTest {
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer),
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));
 
-			GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount4, false);
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount4, false)) {
 
-			cfg.Layout = new PipelineLayout (dev, dsLayout);
-			cfg.Layout.AddPushConstants (new VkPushConstantRange (VkShaderStageFlags.Fragment, (uint)Marshal.SizeOf<Vector4> () * 2));
+				cfg.Layout = new PipelineLayout (dev, dsLayout);
+				cfg.Layout.AddPushConstants (new VkPushConstantRange (VkShaderStageFlags.Fragment, (uint)Marshal.SizeOf<Vector4> () * 2));
 
-			cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
+				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
 
-			cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (
-				true, VkBlendFactor.One, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add, VkBlendFactor.One, VkBlendFactor.Zero);
+				cfg.blendAttachments[0] = new VkPipelineColorBlendAttachmentState (
+					true, VkBlendFactor.One, VkBlendFactor.OneMinusSrcAlpha, VkBlendOp.Add, VkBlendFactor.One, VkBlendFactor.Zero);
 
-			cfg.AddVertexBinding (0, 5 * sizeof (float));
-			cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
+				cfg.AddVertexBinding (0, 5 * sizeof (float));
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat, VkFormat.R32g32Sfloat);
 
-			cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
-			cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+				cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 
-			pipeline = new GraphicPipeline (cfg);
+				pipeline = new GraphicPipeline (cfg);
+			}
 
 			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices);
 			uboMats.Map ();//permanent map

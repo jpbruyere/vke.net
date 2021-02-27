@@ -12,6 +12,9 @@ using Glfw;
 namespace Triangle {
 	class Program : VkWindow {
 		static void Main (string[] args) {
+#if DEBUG
+			Instance.VALIDATION = true;
+#endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}

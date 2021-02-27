@@ -90,8 +90,6 @@ namespace vke {
 		}
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
-				presentComplete = Dev.CreateSemaphore ();
-				presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 				Create ();
 			}
 			base.Activate ();
@@ -101,7 +99,7 @@ namespace vke {
 		/// </summary>
 		public void Create () {
 
-			Dev.WaitIdle ();
+			Dev.WaitIdle ();							
 
 			VkSurfaceCapabilitiesKHR capabilities = Dev.phy.GetSurfaceCapabilities (presentQueue.Surface);
 
@@ -126,6 +124,9 @@ namespace vke {
 
 			if (Handle.Handle != 0)
 				_destroy ();
+
+			presentComplete = Dev.CreateSemaphore ();
+			presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 			Handle = newSwapChain;
 							
 			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out uint imageCount, IntPtr.Zero));
@@ -162,6 +163,7 @@ namespace vke {
 			for (int i = 0; i < ImageCount; i++)
 				images[i].Dispose ();
 			vkDestroySwapchainKHR (Dev.VkDev, Handle, IntPtr.Zero);
+			Dev.DestroySemaphore (presentComplete);
 		}
 
 		public override string ToString () {
@@ -173,8 +175,7 @@ namespace vke {
 			if (state == ActivableState.Activated) {
 				if (!disposing)
 					System.Diagnostics.Debug.WriteLine ("VKE Swapchain disposed by finalizer");
-
-				Dev.DestroySemaphore (presentComplete);
+				
 				_destroy ();
 
 			} else if (disposing)

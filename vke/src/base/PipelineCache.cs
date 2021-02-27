@@ -26,13 +26,16 @@ namespace vke {
 		/// </summary>
 		public static bool SaveOnDispose;
 		/// <summary>
-		/// If true, cache will be restore on activation
+		/// If true, cache will be restored on activation
 		/// </summary>
 		public static bool LoadOnActivation;
 
 		internal VkPipelineCache handle;
 		readonly string globalConfigPath;
 		readonly string cacheFile;
+
+		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
+			=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.PipelineCache, handle.Handle);
 
 		#region CTOR
 		public PipelineCache (Device dev, string cacheFile = "pipelines.bin", string name = "pipeline cache") : base(dev, name) {
@@ -71,16 +74,17 @@ namespace vke {
 			}
 			base.Activate ();
 		}
-
-		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
-					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.PipelineCache, handle.Handle);
-
+		/// <summary>
+		/// Delete pipeline backend file from disk if file exist.
+		/// </summary>
 		public void Delete () {
 			string path = Path.Combine (globalConfigPath, cacheFile);
 			if (File.Exists (path))
 				File.Delete (path);
 		}
-
+		/// <summary>
+		/// Save pipeline cache on disk in the user/.config/application directory.
+		/// </summary>
 		public void Save () {
 			if (state != ActivableState.Activated)
 				return;

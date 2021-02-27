@@ -19,9 +19,11 @@ namespace vke {
 
 		public List<Image> attachments = new List<Image> ();
 		VkFramebufferCreateInfo createInfo = VkFramebufferCreateInfo.New ();
-
+		/// <summary>Framebuffer width.</summary>
 		public uint Width => createInfo.width;
+		/// <summary>Framebuffer height.</summary>
 		public uint Height => createInfo.height;
+		/// <summary>Framebuffer layers count.</summary>
 		public uint Layers => createInfo.layers;
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
@@ -40,7 +42,8 @@ namespace vke {
 		/// <param name="_renderPass">Render pass.</param>
 		/// <param name="_width">Width.</param>
 		/// <param name="_height">Height.</param>
-		/// <param name="views">Views.</param>
+		/// <param name="views">Array of image views. If null and not in unused state, attachment image and view will be automatically created from the
+		/// supplied renderpass configuration.</param>
 		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, params Image[] views)
 		: this (_renderPass, _width, _height) {
 			for (int i = 0; i < views.Length; i++) {

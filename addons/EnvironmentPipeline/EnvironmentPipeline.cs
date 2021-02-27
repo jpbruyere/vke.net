@@ -17,6 +17,23 @@ namespace vke.Environment {
 		public EnvironmentCube (string cubemapPath, PipelineLayout plLayout, Queue staggingQ, RenderPass renderPass, PipelineCache cache = null)
 		: base (renderPass, cache, "EnvCube pipeline") {
 
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples, false)) {
+				cfg.RenderPass = renderPass;
+				cfg.Layout = plLayout;
+				cfg.AddVertexBinding (0, 3 * sizeof (float));
+				cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
+				cfg.AddShaders (
+					new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv"),
+					new ShaderInfo (Dev, VkShaderStageFlags.Fragment, STR_FRAG_PATH)
+				);
+
+				cfg.multisampleState.rasterizationSamples = Samples;
+
+				layout = cfg.Layout;
+
+				init (cfg);
+			}
+
 			using (CommandPool cmdPool = new CommandPool (staggingQ.Dev, staggingQ.index)) {
 
 				vboSkybox = new GPUBuffer<float> (staggingQ, cmdPool, VkBufferUsageFlags.VertexBuffer, box_vertices);
@@ -27,23 +44,6 @@ namespace vke.Environment {
 				cubemap.CreateSampler (VkSamplerAddressMode.ClampToEdge);
 				cubemap.SetName ("skybox Texture");
 				cubemap.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
-
-				using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, renderPass.Samples, false)) {
-					cfg.RenderPass = renderPass;
-					cfg.Layout = plLayout;
-					cfg.AddVertexBinding (0, 3 * sizeof (float));
-					cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat);
-					cfg.AddShaders (
-						new ShaderInfo (Dev, VkShaderStageFlags.Vertex, "#EnvironmentPipeline.skybox.vert.spv"),
-						new ShaderInfo (Dev, VkShaderStageFlags.Fragment, STR_FRAG_PATH)
-					);
-
-					cfg.multisampleState.rasterizationSamples = Samples;
-
-					layout = cfg.Layout;
-
-					init (cfg);
-				}
 
 				generateBRDFLUT (staggingQ, cmdPool);
 				generateCubemaps (staggingQ, cmdPool);
