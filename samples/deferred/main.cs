@@ -14,7 +14,7 @@ namespace deferred {
 	/// <summary>
 	/// Deferred PBR rendering.
 	/// </summary>
-	class Deferred : VkWindow {
+	class Deferred : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;
@@ -25,7 +25,6 @@ namespace deferred {
 			DeferredPbrRenderer.NUM_SAMPLES = VkSampleCountFlags.SampleCount4;
 			DeferredPbrRenderer.HDR_FORMAT = VkFormat.R32g32b32a32Sfloat;
 			DeferredPbrRenderer.MRT_FORMAT = VkFormat.R32g32b32a32Sfloat;
-
 			PbrModelTexArray.TEXTURE_DIM = 1024;
 
 			using (Deferred vke = new Deferred ()) {
@@ -56,7 +55,7 @@ namespace deferred {
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 		}
 
-		int curModelIndex = 13;
+		int curModelIndex = 1;
 		bool reloadModel;
 		bool rebuildBuffers;
 

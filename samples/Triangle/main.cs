@@ -10,7 +10,7 @@ using Glfw;
 
 //the traditional triangle sample
 namespace Triangle {
-	class Program : VkWindow {
+	class Program : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;

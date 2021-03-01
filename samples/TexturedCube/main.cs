@@ -14,7 +14,7 @@ namespace TextureCube {
 	/// <summary>
 	/// Simple textured cube sampled.
 	/// </summary>
-	class Program : VkWindow {
+	class Program : SampleBase {
 
 		static void Main (string[] args) {
 #if DEBUG

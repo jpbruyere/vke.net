@@ -10,7 +10,7 @@ namespace Textured {
 	/// <summary>
 	/// Simple textured quad sample
 	/// </summary>
-	class Program : VkWindow {
+	class Program : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
 			Instance.VALIDATION = true;

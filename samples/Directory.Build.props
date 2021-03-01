@@ -32,7 +32,7 @@
 	</ItemGroup>    
 
 	<ItemGroup>
-		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs"/>
+		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs;$(MSBuildThisFileDirectory)common\SampleBase.cs"/>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
 			<LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
 		</GLSLShader>		

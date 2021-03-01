@@ -5,6 +5,24 @@ using System.Threading;
 
 namespace Crow {
 	public class CrowWin : vke.VkWindow, IValueChange {
+#if NETCOREAPP		
+		static IntPtr resolveUnmanaged (Assembly assembly, String libraryName) {
+			
+			switch (libraryName)
+			{
+				case "glfw3":
+					return  NativeLibrary.Load("glfw", assembly, null);
+				case "rsvg-2.40":
+					return  NativeLibrary.Load("rsvg-2", assembly, null);
+			}
+			Console.WriteLine ($"[UNRESOLVE] {assembly} {libraryName}");			
+			return IntPtr.Zero;
+		}
+
+		static CrowWin () {
+			System.Runtime.Loader.AssemblyLoadContext.Default.ResolvingUnmanagedDll+=resolveUnmanaged;
+		}
+#endif		
 		#region IValueChange implementation
 		public event EventHandler<ValueChangeEventArgs> ValueChanged;
 		public virtual void NotifyValueChanged (string MemberName, object _value) {

@@ -38,8 +38,8 @@ cfg.AddVertexAttributes (0, VkFormat.R32g32b32Sfloat,	//position
 ```
 shader are automatically compiled by [`SpirVTasks`](../../SpirVTasks/README.md) if added to the project. The resulting shaders are automatically embedded in the assembly. To specifiy that the shader path is a resource name, put the **'#'** prefix. Else the path will be search on disk.
 ```csharp
-cfg.AddShader (VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
-cfg.AddShader (VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
+cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
+cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 ```
 Once the pipeline configuration is complete, we use it to effectively create and activate a graphic pipeline. Activables used by the pipeline (like the RenderPass, or the PipelineLayout) are referenced in the newly created managed pipeline. So the Configuration object doesn't need cleanup.
 ```csharp

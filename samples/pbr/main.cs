@@ -13,7 +13,7 @@ using Vulkan;
 using vke;
 
 namespace pbrSample {
-	class Program : VkWindow {
+	class Program : SampleBase {
 
 		static void Main (string[] args) {
 #if DEBUG
