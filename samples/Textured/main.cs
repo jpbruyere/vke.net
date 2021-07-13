@@ -59,7 +59,7 @@ namespace Textured {
 		ushort[] indices = { 0, 1, 2, 2, 0, 3 };
 		int currentImgIndex = 0;
 		string[] imgPathes = {
-			vke.samples.Utils.GetDataFile ("models/Bricks16_col.jpg"),
+			vke.samples.Utils.GetDataFile ("textures/texspace256.jpg"),
 			vke.samples.Utils.GetDataFile ("textures/texturearray_rocks_bc3_unorm.ktx"),
 			vke.samples.Utils.GetDataFile ("textures/texture.jpg"),
 			vke.samples.Utils.GetDataFile ("textures/tex256.jpg"),

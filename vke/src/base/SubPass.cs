@@ -9,7 +9,7 @@ namespace vke {
 		public uint Index { get; internal set; }
 		List<VkAttachmentReference> colorRefs = new List<VkAttachmentReference>();
         List<VkAttachmentReference> inputRefs = new List<VkAttachmentReference>();
-        MarshaledObject<VkAttachmentReference> depthRef;
+        public VkAttachmentReference? DepthReference;
         List<VkAttachmentReference> resolveRefs = new List<VkAttachmentReference>();
         List<uint> preservedRefs = new List<uint>();
 
@@ -44,19 +44,12 @@ namespace vke {
 		public void AddResolveReference (uint attachment, VkImageLayout layout = VkImageLayout.ColorAttachmentOptimal) {
 			AddResolveReference (new VkAttachmentReference { attachment = attachment, layout = layout });
 		}
-		public VkAttachmentReference DepthReference {
-            set {
-                if (depthRef != null)
-                    depthRef.Dispose ();
-                depthRef = new MarshaledObject<VkAttachmentReference> (value);
-            }
-        }
 
 		/// <summary>
 		/// after having fetched the vkSubpassDescription structure, the lists of attachment are pinned,
 		/// so it is mandatory to call the UnpinLists methods after.
 		/// </summary>
-		public VkSubpassDescription SubpassDescription {
+		internal VkSubpassDescription SubpassDescription {
             get {
                 VkSubpassDescription subpassDescription = new VkSubpassDescription ();
                 subpassDescription.pipelineBindPoint = VkPipelineBindPoint.Graphics;
@@ -75,14 +68,14 @@ namespace vke {
 				if (resolveRefs.Count > 0)
 					subpassDescription.pResolveAttachments = resolveRefs.Pin ();
 
-				if (depthRef != null)
-                    subpassDescription.pDepthStencilAttachment = depthRef.Pointer;
+				if (DepthReference.HasValue)
+                    subpassDescription.pDepthStencilAttachment = DepthReference.Value.Pin();
 
                 return subpassDescription;
             }        
         }
 
-		public void UnpinLists () {
+		internal void UnpinLists () {
 			if (colorRefs.Count > 0) 
 				colorRefs.Unpin (); 
 			if (inputRefs.Count > 0) 			
@@ -91,6 +84,8 @@ namespace vke {
 				preservedRefs.Unpin ();
 			if (resolveRefs.Count > 0)
 				resolveRefs.Unpin ();
+            if (DepthReference.HasValue)
+                DepthReference.Unpin();
 		}
 
 		public static implicit operator uint(SubPass sp) => sp.Index;

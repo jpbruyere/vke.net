@@ -6,7 +6,7 @@ using Vulkan;
 
 //Most simple example of the `VkWindow` class usage to output something on screen.
 namespace ClearScreen {
-	class Program : VkWindow {
+	class Program : SampleBase {
 		//excutable entry point
 		static void Main (string[] args) {
 			//the base constructor will create the window with GLFW
