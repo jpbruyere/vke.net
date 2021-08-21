@@ -27,6 +27,17 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (Textured)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build Textured",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/Textured",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
 			"name": ".NET Core Launch (pbr)",
 			"type": "coreclr",
 			"request": "launch",

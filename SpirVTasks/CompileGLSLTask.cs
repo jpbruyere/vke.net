@@ -144,7 +144,7 @@ namespace SpirVTasks {
 			}
 
 			string glslcExec = "glslc";
-			if (Environment.OSVersion.Platform.ToString ().StartsWith ("Win", StringComparison.Ordinal))
+			if (Environment.OSVersion.Platform.ToString ().StartsWith ("Win", StringComparison.Ordinal)) 
 				glslcExec = glslcExec + ".exe";
 
 			string vkSdk = Environment.GetEnvironmentVariable ("VULKAN_SDK");
@@ -157,7 +157,7 @@ namespace SpirVTasks {
 
 			string envStrPathes = Environment.GetEnvironmentVariable ("PATH");
 			if (!string.IsNullOrEmpty (envStrPathes)) {
-				foreach (string path in envStrPathes.Split (':')) {
+				foreach (string path in envStrPathes.Split (Environment.OSVersion.Platform == PlatformID.Unix  ? ':' : ';')) {
 					glslcPath = Path.Combine (path, glslcExec);
 					if (File.Exists (glslcPath))
 						return true;

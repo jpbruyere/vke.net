@@ -16,6 +16,20 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build Textured",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/Textured/Textured.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build ClearScreen",
 			"command": "dotnet",
 			"type": "process",
