@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+﻿// Copyright (c) 2019-2021  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System.Numerics;
@@ -29,23 +29,20 @@ namespace vke {
 		public float FarPlane => zFar;
 
 		public CamType Type;
-		
+
 		public float AspectRatio {
-			get { return aspectRatio; }
+			get => aspectRatio;
 			set {
 				aspectRatio = value;
-				Update ();
+				update ();
 			}
 		}
 		public float FieldOfView {
-			get { return fov; }
+			get => fov;
 			set {
 				fov = value;
-				Update ();
+				update ();
 			}
-		}
-		public Matrix4x4 Perspective {
-			get { return Matrix4x4.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar); }
 		}
 
 		public Camera (float fieldOfView, float aspectRatio, float nearPlane = 0.1f, float farPlane = 16f) {
@@ -53,70 +50,125 @@ namespace vke {
 			this.aspectRatio = aspectRatio;
 			zNear = nearPlane;
 			zFar = farPlane;
-			Update ();
+			Model = Matrix4x4.Identity;
+			update ();
 		}
-
+		/// <summary>
+		/// Rotate the camera by an angle given in radian for each axes.
+		/// </summary>
+		/// <param name="x">rotation around the x axis</param>
+		/// <param name="y">rotation around the y axis</param>
+		/// <param name="z">rotation around the z axis</param>
 		public void Rotate (float x, float y, float z = 0) {
 			rotation.X += rotSpeed * x;
 			rotation.Y += rotSpeed * y;
 			rotation.Z += rotSpeed * z;
-			Update ();
+			update ();
+		}
+		public void Rotate (Vector3 angle) {
+			rotation += rotSpeed * angle;
+			update ();
 		}
 		public float Zoom {
-			get { return zoom; }
+			get => zoom;
 			set {
 				zoom = value;
-				Update ();
+				update ();
 			}
 		}
+		/// <summary>
+		/// Set the current rotation angle in radian around each axes
+		/// </summary>
+		/// <param name="x">current rotation around the x axis</param>
+		/// <param name="y">current rotation around the y axis</param>
+		/// <param name="z">current rotation around the z axis</param>
 		public void SetRotation (float x, float y, float z = 0) {
 			rotation.X = x;
 			rotation.Y = y;
 			rotation.Z = z;
-			Update ();
+			update ();
 		}
+		public void SetRotation (Vector3 newRotationVector) {
+			rotation = newRotationVector;
+			update ();
+		}
+		/// <summary>
+		/// Set the current position of the camera.
+		/// </summary>
+		/// <param name="x">position on the x axis</param>
+		/// <param name="y">position on the y axis</param>
+		/// <param name="z">position on the z axis</param>
 		public void SetPosition (float x, float y, float z = 0) {
 			position.X = x;
 			position.Y = y;
 			position.Z = z;
-			Update ();
+			update ();
 		}
+		public void SetPosition (Vector3 newPosition) {
+			position = newPosition;
+			update ();
+		}
+		/// <summary>
+		/// Move the camera by an amount given for each axis.
+		/// </summary>
+		/// <param name="x">displacement on the x axis</param>
+		/// <param name="y">displacement on the y axis</param>
+		/// <param name="z">displacement on the z axis</param>
 		public void Move (float x, float y, float z = 0) {
 			position.X += moveSpeed * x;
 			position.Y += moveSpeed * y;
 			position.Z += moveSpeed * z;
-			Update ();
+			update ();
+		}
+		public void Move (Vector3 displacementVector) {
+			position += moveSpeed * displacementVector;
+			update ();
 		}
 		public void SetZoom (float factor) {
 			zoom += zoomSpeed * factor;
-			Update ();
+			update ();
 		}
-
+		/// <summary>
+		/// The resulting projection matrix of the camera.
+		/// Manual update may be triggered by calling the 'Update' method.
+		/// </summary>
 		public Matrix4x4 Projection { get; private set;}
+		/// <summary>
+		/// The resulting view matrix of the camera.
+		/// Manual update may be triggered by calling the 'Update' method.
+		/// </summary>
 		public Matrix4x4 View { get; private set;}
+		/// <summary>
+		/// The model matrix. By default set to identity. It does not influence the
+		/// view and proj matrices, it's only a convenient store place for the model matrix
+		/// associated with this camera.
+		/// </summary>
 		public Matrix4x4 Model {
-			get { return model; }
+			get => model;
 			set {
 				model = value;
-				Update ();
-			} 
+				update ();
+			}
 		}
-
-		public Matrix4x4 SkyboxView {
-			get { 
-				return
+		/// <summary>
+		/// compute the skybox view matrix for this camera using it's rotation angles.
+		/// </summary>
+		public Matrix4x4 SkyboxView =>
 					Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotation.Z) *
 					Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotation.Y) *
 					Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotation.X);
-			}
-		}
-
-		public void Update () {
+		/// <summary>
+		/// Recompute the projection and the view matrices from the current parameters
+		/// of this camera (fov, near, far, position, rotation, aspectRatio).
+		/// After the call to this method, the projection and the view matrices will be
+		/// in sync with the parameters. It's automatically called after rotation, move, etc...
+		/// </summary>
+		void update () {
 			Projection =  Vulkan.Utils.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar);
 
-			Matrix4x4 translation = Matrix4x4.CreateTranslation (position * zoom);// * new Vector3(1,1,-1)) ;
+			Matrix4x4 translation = Matrix4x4.CreateTranslation (position * zoom);
 			if (Type == CamType.LookAt) {
-				View = 
+				View =
 						Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotation.Z) *
 						Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotation.Y) *
 						Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotation.X) *

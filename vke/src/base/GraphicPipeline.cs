@@ -42,9 +42,14 @@ namespace vke {
 				RenderPass.Activate ();
 				Cache?.Activate ();
 
+				bool enableTesselation = false;
+
 				List<VkPipelineShaderStageCreateInfo> shaderStages = new List<VkPipelineShaderStageCreateInfo> ();
-				foreach (ShaderInfo shader in cfg.Shaders)
+				foreach (ShaderInfo shader in cfg.Shaders) {
+					if (shader.Stage == VkShaderStageFlags.TessellationControl || shader.Stage == VkShaderStageFlags.TessellationEvaluation)
+						enableTesselation = true;
 					shaderStages.Add (shader.Info);
+				}
 
 				using (PinnedObjects pctx = new PinnedObjects ()) {
 
@@ -97,6 +102,12 @@ namespace vke {
 					info.stageCount = (uint)cfg.Shaders.Count;
 					info.pStages = shaderStages.Pin (pctx);
 					info.subpass = cfg.SubpassIndex;
+
+					if (enableTesselation) {
+						VkPipelineTessellationStateCreateInfo tessellationInfo = VkPipelineTessellationStateCreateInfo.New();
+						tessellationInfo.patchControlPoints = cfg.TessellationPatchControlPoints;
+						info.pTessellationState = tessellationInfo.Pin (pctx);
+					}
 
 					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 				}

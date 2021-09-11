@@ -18,17 +18,17 @@ namespace vke {
 	public abstract class VkWindow : IDisposable {
 
 		/** GLFW callback may return a custom pointer, this list makes the link between the GLFW window pointer and the
-			manage VkWindow instance. */		
+			manage VkWindow instance. */
 		static Dictionary<IntPtr,VkWindow> windows = new Dictionary<IntPtr, VkWindow>();
 		/** GLFW window native pointer. */
 		IntPtr hWin;
 		/**Vulkan Surface */
 		protected VkSurfaceKHR hSurf;
 		/**vke Instance encapsulating a VkInstance. */
-		protected Instance instance;	
+		protected Instance instance;
 		/**vke Physical device associated with this window*/
 		protected PhysicalDevice phy;
-		/**vke logical device */			
+		/**vke logical device */
 		protected Device dev;
 		protected PresentQueue presentQueue;
 		protected SwapChain swapChain;
@@ -47,7 +47,7 @@ namespace vke {
 
 		/**Default camera initialized with a Field of view of 40° and and aspect ratio of 1. */
 		protected Camera camera = new Camera (Utils.DegreesToRadians (45f), 1f);
-		
+
 		public Modifier KeyModifiers = 0;
 		IntPtr currentCursor;
 		uint frameCount;
@@ -323,7 +323,7 @@ namespace vke {
 		/// - if the `updateViewRequested` field is set to 'true', call the `UpdateView` method.
 		/// - frame counting and chrono.
 		/// - if elapsed time reached `UpdateFrequency` value, the `Update` method is called and the elapsed time chrono is reseet.
-		/// - GLFW events are polled at the end of the loop. 
+		/// - GLFW events are polled at the end of the loop.
 		/// </summary>
 		public virtual void Run () {
 			initVulkan ();
@@ -348,7 +348,7 @@ namespace vke {
 					frameChrono.Stop ();
 					totTime += frameChrono.ElapsedMilliseconds;
 					fps = (uint)((double)frameCount / (double)totTime * 1000.0);
-					Glfw3.SetWindowTitle (hWin, "FPS: " + fps.ToString ());                    
+					Glfw3.SetWindowTitle (hWin, "FPS: " + fps.ToString ());
 					if (totTime > 2000) {
 						frameCount = 0;
 						totTime = 0;

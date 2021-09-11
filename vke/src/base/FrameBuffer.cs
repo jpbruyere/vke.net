@@ -45,7 +45,18 @@ namespace vke {
 		/// <param name="views">Array of image views. If null and not in unused state, attachment image and view will be automatically created from the
 		/// supplied renderpass configuration.</param>
 		public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, params Image[] views)
-		: this (_renderPass, _width, _height) {
+			: this (_renderPass, _width, _height, 1, views) {}
+        /// <summary>
+        /// Create and Activate a new frabuffer for the supplied RenderPass.
+        /// </summary>
+        /// <param name="_renderPass">Render pass.</param>
+        /// <param name="_width">Width.</param>
+        /// <param name="_height">Height.</param>
+        /// <param name="layers">layers count</param>
+        /// <param name="views">Array of image views. If null and not in unused state, attachment image and view will be automatically created from the
+        /// supplied renderpass configuration.</param>
+        public FrameBuffer (RenderPass _renderPass, uint _width, uint _height, uint layers, params Image[] views)
+		: this (_renderPass, _width, _height, layers) {
 			for (int i = 0; i < views.Length; i++) {
 				Image v = views[i];
 				if (v == null) {
@@ -79,9 +90,15 @@ namespace vke {
 				createInfo.attachmentCount = (uint)views.Length;
 				createInfo.pAttachments = views.Pin ();
 
+				if (PNext != null)
+					createInfo.pNext = PNext.GetPointer();
+
 				Utils.CheckResult (vkCreateFramebuffer (renderPass.Dev.VkDev, ref createInfo, IntPtr.Zero, out handle));
 
 				views.Unpin ();
+				if (PNext != null)
+					PNext.ReleasePointer ();
+
 			}
 			base.Activate ();
 		}

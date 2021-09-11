@@ -2,47 +2,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-		
+
 		<ReleaseVersion>$(VkeReleaseVersion)</ReleaseVersion>
-		
+
 		<AssemblyVersion>$(VkeReleaseVersion)</AssemblyVersion>
-		<Description>C# vulkan library with IDispose model and references counting</Description>		
+		<Description>C# vulkan library with IDispose model and references counting</Description>
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<PackageTags>vulkan game engine compute glfw c#</PackageTags>
 		<PackageVersion>$(VkePackageVersion)</PackageVersion>
-		
+
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		
+
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/jpbruyere/vke.net/blob/master/README.md</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>icon.png</PackageIcon>
 		<License>MIT</License>
 		<Authors>Jean-Philippe Bruyère</Authors>
-		<PackageReleaseNotes>			
+		<PackageReleaseNotes>
 		</PackageReleaseNotes>
 
 		<!--<PackageIconUrl>https://github.com/KhronosGroup/glTF/blob/master/specification/figures/gltf.png</PackageIconUrl>-->
 		<SynchReleaseVersion>false</SynchReleaseVersion>
-		
+
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
 		<IntermediateOutputPath>$(SolutionDir)build\$(Configuration)\</IntermediateOutputPath>
-		
+
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		
-		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>		
-		<LangVersion>7.2</LangVersion>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>    
-		<NoWarn>$(NoWarn);1591</NoWarn>		
-		
+
+		<EnableDefaultNoneItems>false</EnableDefaultNoneItems>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
-		
+
 	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
-		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />		
+		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 	</ItemGroup>
-		
+
 	<ItemGroup Condition=" '$(UseStbSharp)' == 'true'">
 		<PackageReference Include="StbImageSharp" Version="2.22.4" />
 	</ItemGroup>
@@ -53,7 +52,7 @@
 		<PackageReference Include="shaderc.net" Version="0.1.0" />
 		<PackageReference Include="glfw-sharp" Version="0.2.12-beta" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.7.1" />
 	</ItemGroup>

@@ -61,13 +61,13 @@ namespace vke {
 				max = _max;
 			}
 		}
-        
+
         public class InstancedCmd
         {
             public int meshIdx;
             public uint count;
         }
-        
+
         public class Primitive {
 			public string name;
 			public uint indexBase;
@@ -149,7 +149,7 @@ namespace vke {
 					aabb = Mesh.bb.getAABB (curTransform);
 
 				if (Children != null) {
-					for (int i = 0; i < Children.Count; i++) 
+					for (int i = 0; i < Children.Count; i++)
 						aabb += Children[i].GetAABB (curTransform);
 				}
 				return aabb;
@@ -178,6 +178,6 @@ namespace vke {
             return null;
         }
 
-        
+
 	}
 }

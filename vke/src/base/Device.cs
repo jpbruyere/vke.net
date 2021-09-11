@@ -20,7 +20,7 @@ namespace vke {
 		public readonly PhysicalDevice phy;										/**Vulkan physical device class*/
 
 		VkDevice dev;
-		public VkDevice VkDev => dev;                                           /**Vulkan logical device handle*/		
+		public VkDevice VkDev => dev;                                           /**Vulkan logical device handle*/
 
 
 		internal List<Queue> queues = new List<Queue> ();
@@ -66,8 +66,8 @@ namespace vke {
 			//enable only supported exceptions
 			List<IntPtr> deviceExtensions = new List<IntPtr> ();
 			for (int i = 0; i < extensions.Length; i++) {
-				if (phy.GetDeviceExtensionSupported (extensions[i])) 
-					deviceExtensions.Add (new FixedUtf8String (extensions[i]));				
+				if (phy.GetDeviceExtensionSupported (extensions[i]))
+					deviceExtensions.Add (new FixedUtf8String (extensions[i]));
 			}
 
 			VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.New ();
@@ -158,7 +158,7 @@ namespace vke {
 		// This function is used to request a Device memory type that supports all the property flags we request (e.g. Device local, host visibile)
 		// Upon success it will return the index of the memory type that fits our requestes memory properties
 		// This is necessary as implementations can offer an arbitrary number of memory types with different
-		// memory properties. 
+		// memory properties.
 		// You can check http://vulkan.gpuinfo.org/ for details on different memory configurations
 		internal uint GetMemoryTypeIndex (uint typeBits, VkMemoryPropertyFlags properties) {
             // Iterate over all memory types available for the Device used in this example

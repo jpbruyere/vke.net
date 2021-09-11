@@ -73,15 +73,15 @@ namespace vke.glTF {
 							VkMemoryPropertyFlags.DeviceLocal, TEXTURE_DIM, TEXTURE_DIM, VkImageType.Image2D,
 							VkSampleCountFlags.SampleCount1, VkImageTiling.Optimal, Image.ComputeMipLevels (TEXTURE_DIM), 1);
 						PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
-						texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ShaderReadOnlyOptimal);						
-						transferQ.EndSubmitAndWait (cmd, true);												
+						texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.ShaderReadOnlyOptimal);
+						transferQ.EndSubmitAndWait (cmd, true);
 					}
 
 					texArray.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Color, texArray.CreateInfo.arrayLayers);
 					texArray.CreateSampler ();
 					texArray.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 					texArray.SetName ("model texArray");
-					
+
 
 					loadMaterials (ctx);
 					materialUBO = new HostBuffer<Material> (dev, VkBufferUsageFlags.UniformBuffer, materials);
@@ -125,7 +125,7 @@ namespace vke.glTF {
 
 			if (node.Mesh != null) {
 				foreach (Primitive p in node.Mesh.Primitives) {
-					if (!shadowPass) 
+					if (!shadowPass)
 						cmd.PushConstant (pipelineLayout, VkShaderStageFlags.Fragment, (int)p.material, (uint)Marshal.SizeOf<Matrix4x4> ());
 					cmd.DrawIndexed (p.indexCount, 1, p.indexBase, p.vertexBase, 0);
 				}
@@ -139,7 +139,7 @@ namespace vke.glTF {
 		protected override void Dispose (bool disposing) {
 			if (!isDisposed) {
 				if (disposing) {
-					texArray?.Dispose ();						
+					texArray?.Dispose ();
 				} else
 					Debug.WriteLine ("model was not disposed");
 			}

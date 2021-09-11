@@ -8,8 +8,7 @@ using vke;
 using Vulkan;
 using Glfw;
 
-//the traditional triangle sample
-namespace Triangle {
+namespace Tesselation {
 	class Program : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
@@ -55,7 +54,7 @@ namespace Triangle {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
-		protected override void initVulkan () {
+		protected override void initVulkan () {			
 			base.initVulkan ();
 
 			//first create the needed buffers
@@ -91,7 +90,7 @@ namespace Triangle {
 				pipeline = new GraphicPipeline (cfg);
 			}
 
-			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated,
+			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated, 
 			//but in this case, layout will need also to be explicitly disposed.
 			descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
 
@@ -164,7 +163,7 @@ namespace Triangle {
 			buildCommandBuffers ();
 		}
 		//clean up
-		protected override void Dispose (bool disposing) {
+		protected override void Dispose (bool disposing) {		
 			dev.WaitIdle ();
 			if (disposing) {
 				if (!isDisposed) {

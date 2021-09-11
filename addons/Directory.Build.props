@@ -4,7 +4,7 @@
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
 
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>		
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -15,24 +15,24 @@
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
-				
+
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
-		
+
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
-    
+
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'BuildPackages|AnyCPU' ">
 		<ProjectReference Include="..\..\vke\vke.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'BuildPackages|AnyCPU' ">
 		<PackageReference Include="vke" Version="$(VkePackageVersion)" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />			
-	</ItemGroup>    
-	
+		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom" />
 	</ItemGroup>

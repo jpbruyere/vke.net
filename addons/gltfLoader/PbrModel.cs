@@ -17,6 +17,11 @@ namespace vke.glTF {
 		public Buffer materialUBO;
 
 		protected PbrModel () { }
+		/// <summary>
+		/// Load gltf file and load solids into vbo and ibo
+		/// </summary>
+		/// <param name="transferQ"></param>
+		/// <param name="path"></param>
 		public PbrModel (Queue transferQ, string path) {
 			dev = transferQ.Dev;
 			using (CommandPool cmdPool = new CommandPool (dev, transferQ.index)) {
@@ -62,7 +67,7 @@ namespace vke.glTF {
 		public void DrawAll (CommandBuffer cmd, PipelineLayout pipelineLayout, bool shadowPass = false) {
 			foreach (Scene sc in Scenes) {
 				foreach (Node node in sc.Root.Children)
-					RenderNode (cmd, pipelineLayout, node, sc.Root.localMatrix, shadowPass);				
+					RenderNode (cmd, pipelineLayout, node, sc.Root.localMatrix, shadowPass);
 			}
 		}
         public void Draw(CommandBuffer cmd, PipelineLayout pipelineLayout, Scene scene, bool shadowPass = false)

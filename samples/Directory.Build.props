@@ -4,7 +4,7 @@
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
 
-		<TargetFrameworks>netcoreapp3.1</TargetFrameworks>		
+		<TargetFrameworks>netcoreapp3.1</TargetFrameworks>
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<License>MIT</License>
@@ -12,32 +12,32 @@
 
 		<OutputPath>$(SolutionDir)build\$(Configuration)\</OutputPath>
 		<OutputType>Exe</OutputType>
-		
+
 		<IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
 
 		<SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common\shaders</SpirVAdditionalIncludeDirectories>
-		
+
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 	</PropertyGroup>
-    		
+
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'BuildPackages|AnyCPU' ">
 		<ProjectReference Include="..\..\vke\vke.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'BuildPackages|AnyCPU' ">
 		<PackageReference Include="vke" Version="$(VkePackageVersion)" />
 	</ItemGroup>
-			
+
 	<ItemGroup>
 		<PackageReference Include="SpirVTasks" Version="$(SpirVTasksPackageVersion)" />
-	</ItemGroup>    
+	</ItemGroup>
 
 	<ItemGroup>
 		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs;$(MSBuildThisFileDirectory)common\SampleBase.cs"/>
 		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
 			<LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
-		</GLSLShader>		
+		</GLSLShader>
 		<EmbeddedResource Include="ui\**\*.*">
 			<LogicalName>ui.%(Filename)%(Extension)</LogicalName>
 		</EmbeddedResource>
-	</ItemGroup>     
+	</ItemGroup>
 </Project>

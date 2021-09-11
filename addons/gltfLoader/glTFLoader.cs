@@ -17,6 +17,7 @@ namespace vke.glTF {
 	using static Vulkan.Utils;
 	using static vke.Model;
 	using System.Runtime.CompilerServices;
+	using System.Reflection;
 
 	/// <summary>
 	/// Loading context with I as the vertex index type (uint16,uint32)
@@ -133,7 +134,7 @@ namespace vke.glTF {
 		}
 
 		public uint ImageCount => gltf.Images == null ? 0 : (uint)gltf.Images.Length;
-		
+
 
 		//TODO: some buffer data are reused between primitives, and I duplicate the datas
 		//buffers must be constructed without duplications
@@ -150,6 +151,9 @@ namespace vke.glTF {
 
 			int vertexCount = 0, indexCount = 0;
 			int autoNamedMesh = 1;
+
+			bool secondUv = typeof (TVertex).GetFields ().
+				Select<FieldInfo, VertexAttributeAttribute> (f => f.GetCustomAttribute<VertexAttributeAttribute> ()).Where (va=>va.Type == VertexAttributeType.UVs).Count() > 1;
 
 			meshes = new List<Mesh> ();
 
@@ -235,7 +239,8 @@ namespace vke.glTF {
 									inUvPtr = inUvPtr.Slice (8);
 								}
 								if (inUv1Ptr != null) {
-									inUv1Ptr.Slice (0, 8).CopyTo (stagVertPtr.Slice (32));
+									if (secondUv)
+										inUv1Ptr.Slice (0, 8).CopyTo (stagVertPtr.Slice (32));
 									inUv1Ptr = inUvPtr.Slice (8);
 								}
 								stagVertPtr = stagVertPtr.Slice (vertexByteSize);
@@ -274,7 +279,7 @@ namespace vke.glTF {
 										Span<ushort> usPtr = MemoryMarshal.Cast<byte, ushort> (stagIdxPtr);
 										Span<uint> inPtr = MemoryMarshal.Cast<byte, uint> (inIdxPtr);
 
-										for (int i = 0; i < acc.Count; i++) 
+										for (int i = 0; i < acc.Count; i++)
 											usPtr[i] = (ushort)inPtr[i];
 										stagIdxPtr = stagIdxPtr.Slice (acc.Count * 2);
 									}
@@ -337,8 +342,8 @@ namespace vke.glTF {
 				return new Scene[] {};
 
 			List<Scene> scenes = new List<Scene> ();
-			defaultScene = (int)gltf.Scene;			
-			
+			defaultScene = (int)gltf.Scene;
+
 			for (int i = 0; i < gltf.Scenes.Length; i++) {
 				GL.Scene scene = gltf.Scenes[i];
 				Debug.WriteLine ("Loading Scene {0}", scene.Name);
@@ -378,11 +383,11 @@ namespace vke.glTF {
 				   M[12],M[13],M[14],M[15]);
 			}
 
-			if (gltfNode.Translation != null) 
+			if (gltfNode.Translation != null)
 				FromFloatArray (ref translation, gltfNode.Translation);
-			if (gltfNode.Translation != null) 
-				FromFloatArray (ref rotation, gltfNode.Rotation);			
-			if (gltfNode.Translation != null) 
+			if (gltfNode.Translation != null)
+				FromFloatArray (ref rotation, gltfNode.Rotation);
+			if (gltfNode.Translation != null)
 				FromFloatArray (ref scale, gltfNode.Scale);
 
 			localTransform *=
@@ -418,10 +423,10 @@ namespace vke.glTF {
 			int texDim = (int)texArray.CreateInfo.extent.width;
 
 			PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
-			texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal, 
+			texArray.SetLayout (cmd, VkImageAspectFlags.Color, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
 						VkPipelineStageFlags.BottomOfPipe, VkPipelineStageFlags.Transfer);
 			transferQ.EndSubmitAndWait (cmd, true);
-			
+
 			VkImageBlit imageBlit = new VkImageBlit {
 				srcSubresource = new VkImageSubresourceLayers (VkImageAspectFlags.Color, 1, 0),
 				dstOffsets_1 = new VkOffset3D (texDim, texDim, 1)
@@ -455,8 +460,8 @@ namespace vke.glTF {
 
 				Vk.vkCmdBlitImage (cmd.Handle, vkimg.Handle, VkImageLayout.TransferSrcOptimal,
 					texArray.Handle, VkImageLayout.TransferDstOptimal, 1, ref imageBlit, VkFilter.Linear);
-				
-				transferQ.EndSubmitAndWait (cmd, true);								
+
+				transferQ.EndSubmitAndWait (cmd, true);
 
 				vkimg.Dispose ();
 			}

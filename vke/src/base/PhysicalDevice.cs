@@ -143,7 +143,7 @@ namespace vke {
 				modes.Unpin ();
 				VkPresentModeKHR[] mds = new VkPresentModeKHR[count];
 				for (int i = 0; i < count; i++)
-					mds[i] = (VkPresentModeKHR)modes[i];				
+					mds[i] = (VkPresentModeKHR)modes[i];
 				return mds;
 			} else {
 				VkPresentModeKHR[] modes = new VkPresentModeKHR[count];//enums not blittable on ms.Net

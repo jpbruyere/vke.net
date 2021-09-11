@@ -89,7 +89,7 @@ namespace vke {
 			ctx.Handles.Add (hnd);
 			return hnd.AddrOfPinnedObject ();
 		}
-		public static IntPtr Pin<T> (this List<T> obj, PinnedObjects ctx) {
+		public static IntPtr Pin<T> (this IList<T> obj, PinnedObjects ctx) {
 			GCHandle hnd = GCHandle.Alloc (obj.ToArray (), GCHandleType.Pinned);
 			ctx.Handles.Add (hnd);
 			return hnd.AddrOfPinnedObject ();

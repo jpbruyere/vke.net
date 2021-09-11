@@ -50,6 +50,7 @@ namespace vke {
 		/// Vulkan logical device this activable is bound to.
 		/// </summary>
 		[XmlIgnore] public Device Dev { get; private set; }
+		public PNextNode PNext;
 
 		#region CTOR
 		protected Activable (Device dev) {

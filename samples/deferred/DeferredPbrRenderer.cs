@@ -117,7 +117,7 @@ namespace deferred {
 				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler, 6),
 				new VkDescriptorPoolSize (VkDescriptorType.InputAttachment, 5),
 				new VkDescriptorPoolSize (VkDescriptorType.StorageImage, 4)
-			);				
+			);
 
 			uboMatrices = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, matrices, true);
 			uboLights = new HostBuffer<Light> (dev, VkBufferUsageFlags.UniformBuffer, lights, true);
@@ -216,14 +216,14 @@ namespace deferred {
 
 			if (TEXTURE_ARRAY) {
 				descLayoutMain.Bindings.Add (new VkDescriptorSetLayoutBinding (7, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler));//texture array
-			} else { 
+			} else {
 				descLayoutTextures = new DescriptorSetLayout (dev,
 					new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 					new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 					new VkDescriptorSetLayoutBinding (2, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 					new VkDescriptorSetLayoutBinding (3, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler),
 					new VkDescriptorSetLayoutBinding (4, VkShaderStageFlags.Fragment, VkDescriptorType.CombinedImageSampler)
-				); 
+				);
 			}
 
 			descLayoutGBuff = new DescriptorSetLayout (dev,
@@ -277,7 +277,7 @@ namespace deferred {
 				cfg.rasterizationState.cullMode = VkCullModeFlags.Front;
 				//COMPOSE PIPELINE
 				cfg.blendAttachments.Clear ();
-				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));				
+				cfg.blendAttachments.Add (new VkPipelineColorBlendAttachmentState (false));
 				cfg.SubpassIndex = SP_COMPOSE;
 				cfg.Layout = gBuffPipeline.Layout;
 				cfg.depthStencilState.depthTestEnable = false;
@@ -310,7 +310,7 @@ namespace deferred {
 			matrices.prefilteredCubeMipLevels = envCube.prefilterCube.CreateInfo.mipLevels;
 
 			DescriptorSetWrites dsMainWrite = new DescriptorSetWrites (dsMain, descLayoutMain.Bindings.GetRange (0, 5).ToArray ());
-			dsMainWrite.Write (dev, 
+			dsMainWrite.Write (dev,
 				uboMatrices.Descriptor,
 				envCube.irradianceCube.Descriptor,
 				envCube.prefilterCube.Descriptor,
@@ -329,10 +329,10 @@ namespace deferred {
 			model?.Dispose ();
 
 			if (TEXTURE_ARRAY) {
-				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);				
+				PbrModelTexArray mod = new PbrModelTexArray (transferQ, path);
 				DescriptorSetWrites uboUpdate = new DescriptorSetWrites (dsMain, descLayoutMain.Bindings[5], descLayoutMain.Bindings[7]);
 				uboUpdate.Write (dev, mod.materialUBO.Descriptor, mod.texArray.Descriptor);
-				
+
 				model = mod;
 			} else {
 				model = new PbrModelSeparatedTextures (transferQ, path,
@@ -468,7 +468,7 @@ namespace deferred {
 			frameBuffer?.Dispose ();
 			createGBuff ();
 
-			frameBuffer = new FrameBuffer (renderPass, width, height, new Image[] {
+			frameBuffer = new FrameBuffer (renderPass, width, height, 1, new Image[] {
 					hdrImgResolved, null, gbColorRough, gbEmitMetal, gbN_AO, gbPos});
 		}
 
