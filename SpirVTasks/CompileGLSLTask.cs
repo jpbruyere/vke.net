@@ -139,8 +139,9 @@ namespace SpirVTasks {
 			glslcPath = "";
 			if (!string.IsNullOrEmpty (SpirVCompilerPath?.ItemSpec)) {
 				glslcPath = SpirVCompilerPath.ItemSpec;
-				if (!File.Exists (glslcPath))
-					return false;
+				glslcPath = glslcPath.Replace('"', ' ').Trim();
+				if (File.Exists (glslcPath))
+					return true;
 			}
 
 			string glslcExec = "glslc";

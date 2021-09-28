@@ -8,6 +8,7 @@
   </ItemGroup>
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Condition="'@(GLSLShader)'!=''" Outputs="@(CompiledShaders)">				
 	<CompileGLSLTask SourceFile="%(GLSLShader.Identity)"
+                     SpirVCompilerPath="$(SpirVglslcPath)"
 					 AdditionalIncludeDirectories="%(GLSLShader.AdditionalIncludeDirectories);$(SpirVAdditionalIncludeDirectories)"
 					 DefineConstants="%(GLSLShader.DefineConstants);$(DefineConstants)"					 
 					 TempDirectory="$(IntermediateOutputPath)"
