@@ -13,7 +13,7 @@ namespace vke {
 	/// </summary>
     public sealed class DescriptorSetLayout : Activable {
         internal VkDescriptorSetLayout handle;
-        
+
 		public VkDescriptorSetLayoutCreateFlags Flags { get; private set; } = 0;
         public List<VkDescriptorSetLayoutBinding> Bindings { get; private set; } = new List<VkDescriptorSetLayoutBinding> ();
 
@@ -22,7 +22,7 @@ namespace vke {
 
 		#region CTORS
 		DescriptorSetLayout () : base (null) { }
-		public DescriptorSetLayout (Device device, VkDescriptorSetLayoutCreateFlags flags) : base (device) {            
+		public DescriptorSetLayout (Device device, VkDescriptorSetLayoutCreateFlags flags) : base (device) {
 			Flags = flags;
         }
 		public DescriptorSetLayout (Device device, params VkDescriptorSetLayoutBinding[] bindings)
@@ -30,8 +30,8 @@ namespace vke {
         }
         public DescriptorSetLayout (Device device, VkDescriptorSetLayoutCreateFlags flags, params VkDescriptorSetLayoutBinding[] bindings)
         : this (device, flags) {
-            foreach (VkDescriptorSetLayoutBinding b in bindings) 
-                Bindings.Add (b);            
+            foreach (VkDescriptorSetLayoutBinding b in bindings)
+                Bindings.Add (b);
         }
 		#endregion
 

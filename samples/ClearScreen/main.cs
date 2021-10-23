@@ -55,7 +55,7 @@ namespace ClearScreen {
 		}
 
 		//The resize method is called at least once before any rendering, so it's
-		//a safe place to initialize output size related vulkan objects like the 
+		//a safe place to initialize output size related vulkan objects like the
 		//frame buffers.
 		protected override void OnResize () {
 			base.OnResize ();
@@ -66,7 +66,7 @@ namespace ClearScreen {
 			buildCommandBuffers ();
 		}
 		//clean up
-		protected override void Dispose (bool disposing) {		
+		protected override void Dispose (bool disposing) {
 			dev.WaitIdle ();
 
 			renderPass.Dispose ();

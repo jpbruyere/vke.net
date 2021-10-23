@@ -524,7 +524,7 @@ namespace vke.glTF {
 					vkimg = Image.Load (dev, transferQ, cmdPool, glTFLoader.loadDataUri (img));
 				} else {
 					Debug.WriteLine ("loading image {0} : {1} : {2}", img.Name, img.MimeType, img.Uri);//load image from file path in uri
-					vkimg = Image.Load (dev, transferQ, cmdPool, Path.Combine (baseDirectory, img.Uri));
+					vkimg = Image.Load (transferQ, cmdPool, Path.Combine (baseDirectory, img.Uri));
 					imgName += ";" + img.Uri;
 				}
 

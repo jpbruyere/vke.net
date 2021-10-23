@@ -4,19 +4,18 @@ To build a minimal vulkan application, add the [vke](https://www.nuget.org/packa
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>net472</TargetFrameworks>
-        <OutputType>Exe</OutputType>
-    </PropertyGroup>
-    <ItemGroup>    
-        <GLSLShader Include="shaders\*.*" />		
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="SpirVTasks" />
-        <PackageReference Include="vke" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net472</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <GLSLShader Include="shaders\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SpirVTasks" />
+    <PackageReference Include="vke" />
+  </ItemGroup>
 </Project>
-
 ```
 
 ### VkWindow class
@@ -45,7 +44,7 @@ There are several method to clear the screen with vulkan. One is to use the rend
     renderPass = new RenderPass (dev, swapChain.ColorFormat);
     renderPass.ClearValues[0] = new VkClearValue (0.1f, 0.2f, 1);
     renderPass.Activate ();
-    
+
     cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 }
 ```
@@ -63,7 +62,7 @@ protected override void OnResize () {
 
 	frameBuffers?.Dispose();
 	frameBuffers = renderPass.CreateFrameBuffers(swapChain);
-	
+
 	buildCommandBuffers ();
 }
 ```
@@ -73,7 +72,7 @@ It's common to rebuild the command buffers targeting the swap chain images after
 
 ### The command buffers
 
-The `VkWindow` class has a default array of command buffers, one for each swap chain image. But it's up to you to allocate and populate them. 
+The `VkWindow` class has a default array of command buffers, one for each swap chain image. But it's up to you to allocate and populate them.
 Here we simply record a begin/end render pass to clear the screen with the load operation of it.
 
 ```csharp

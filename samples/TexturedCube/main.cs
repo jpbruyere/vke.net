@@ -58,35 +58,35 @@ namespace TextureCube {
 			-1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
 			-1.0f, 1.0f,-1.0f,    0.0f, 0.0f,
 			-1.0f,-1.0f,-1.0f,    0.0f, 1.0f,
-			                      
+
 			-1.0f,-1.0f,-1.0f,    1.0f, 1.0f,  // -Z side
 			 1.0f, 1.0f,-1.0f,    0.0f, 0.0f,
 			 1.0f,-1.0f,-1.0f,    0.0f, 1.0f,
 			-1.0f,-1.0f,-1.0f,    1.0f, 1.0f,
 			-1.0f, 1.0f,-1.0f,    1.0f, 0.0f,
 			 1.0f, 1.0f,-1.0f,    0.0f, 0.0f,
-			                      
+
 			-1.0f,-1.0f,-1.0f,    1.0f, 0.0f,  // -Y side
 			 1.0f,-1.0f,-1.0f,    1.0f, 1.0f,
 			 1.0f,-1.0f, 1.0f,    0.0f, 1.0f,
 			-1.0f,-1.0f,-1.0f,    1.0f, 0.0f,
 			 1.0f,-1.0f, 1.0f,    0.0f, 1.0f,
 			-1.0f,-1.0f, 1.0f,    0.0f, 0.0f,
-			                      
+
 			-1.0f, 1.0f,-1.0f,    1.0f, 0.0f,  // +Y side
 			-1.0f, 1.0f, 1.0f,    0.0f, 0.0f,
 			 1.0f, 1.0f, 1.0f,    0.0f, 1.0f,
 			-1.0f, 1.0f,-1.0f,    1.0f, 0.0f,
 			 1.0f, 1.0f, 1.0f,    0.0f, 1.0f,
 			 1.0f, 1.0f,-1.0f,    1.0f, 1.0f,
-			                      
+
 			 1.0f, 1.0f,-1.0f,    1.0f, 0.0f,  // +X side
 			 1.0f, 1.0f, 1.0f,    0.0f, 0.0f,
 			 1.0f,-1.0f, 1.0f,    0.0f, 1.0f,
 			 1.0f,-1.0f, 1.0f,    0.0f, 1.0f,
 			 1.0f,-1.0f,-1.0f,    1.0f, 1.0f,
 			 1.0f, 1.0f,-1.0f,    1.0f, 0.0f,
-			                      
+
 			-1.0f, 1.0f, 1.0f,    0.0f, 0.0f,  // +Z side
 			-1.0f,-1.0f, 1.0f,    0.0f, 1.0f,
 			 1.0f, 1.0f, 1.0f,    1.0f, 0.0f,
@@ -142,12 +142,12 @@ namespace TextureCube {
 
 		void buildCommandBuffers () {
 			cmdPool.Reset();
-			for (int i = 0; i < swapChain.ImageCount; ++i) { 								
+			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				cmds[i].Start ();
 				recordDraw (cmds[i], frameBuffers[i]);
-				cmds[i].End ();				 
+				cmds[i].End ();
 			}
-		} 
+		}
 		void recordDraw (PrimaryCommandBuffer cmd, FrameBuffer fb) {
 			pipeline.RenderPass.Begin (cmd, fb);
 
@@ -179,19 +179,19 @@ namespace TextureCube {
 		}
 
 		//in the main vulkan thread
-		void updateTextureSet (){ 
+		void updateTextureSet (){
 			nextTexture.CreateView (VkImageViewType.Cube,VkImageAspectFlags.Color,6);
 			nextTexture.CreateSampler ();
 
 			nextTexture.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
-			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, dsLayout.Bindings[1]);				
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, dsLayout.Bindings[1]);
 			uboUpdate.Write (dev, nextTexture.Descriptor);
 
 			texture?.Dispose ();
 			texture = nextTexture;
 			nextTexture = null;
 		}
-		void updateMatrices () { 
+		void updateMatrices () {
 			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 5.0f);
 			matrices.view =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
@@ -211,7 +211,7 @@ namespace TextureCube {
 				dev.WaitIdle ();
 				updateTextureSet ();
 				buildCommandBuffers ();
-			}else 
+			}else
 				updateMatrices ();
 
 			updateViewRequested = false;
@@ -256,7 +256,7 @@ namespace TextureCube {
 
 			buildCommandBuffers();
 		}
-			
+
 		protected override void Dispose (bool disposing) {
 			if (disposing) {
 				if (!isDisposed) {

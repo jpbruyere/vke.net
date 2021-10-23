@@ -68,9 +68,9 @@ namespace Textured {
 
 		protected override void initVulkan () {
 			base.initVulkan ();
-					
+
 			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
-				
+
 			loadTexture (imgPathes[currentImgIndex]);
 
 			vbo = new GPUBuffer<float> (presentQueue, cmdPool, VkBufferUsageFlags.VertexBuffer, vertices);
@@ -134,7 +134,7 @@ namespace Textured {
 
 				pipeline.RenderPass.End (cmd);
 
-				cmd.End ();				 
+				cmd.End ();
 			}
 		}
 
@@ -151,7 +151,7 @@ namespace Textured {
 					nextTexture = KTX.KTX.Load (presentQueue, cmdPool, path,
 						VkImageUsageFlags.Sampled, imgProp, genMipMaps, tiling);
 				else
- 					nextTexture = Image.Load (dev, presentQueue, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
+ 					nextTexture = Image.Load (presentQueue, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
 				updateViewRequested = true;
 			} catch (Exception ex) {
 				Console.WriteLine (ex);
@@ -160,7 +160,7 @@ namespace Textured {
 		}
 
 		//in the main vulkan thread
-		void updateTextureSet (){ 
+		void updateTextureSet (){
 			nextTexture.CreateView ();
 			nextTexture.CreateSampler ();
 			nextTexture.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
@@ -175,7 +175,7 @@ namespace Textured {
 			nextTexture = null;
 		}
 
-		void updateMatrices () { 
+		void updateMatrices () {
 			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 			matrices.view = Matrix4x4.CreateTranslation (0, 0, -2.5f * zoom);
 			matrices.model =
@@ -190,7 +190,7 @@ namespace Textured {
 			if (nextTexture != null) {
 				updateTextureSet ();
 				buildCommandBuffers ();
-			}else 
+			}else
 				updateMatrices ();
 
 			updateViewRequested = false;
@@ -202,11 +202,11 @@ namespace Textured {
 			if (GetButton (MouseButton.Left) == InputAction.Press) {
 				rotY -= rotSpeed * (float)diffX;
 				rotX += rotSpeed * (float)diffY;
+				updateViewRequested = true;
 			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				zoom += zoomSpeed * (float)diffY;
+				updateViewRequested = true;
 			}
-
-			updateViewRequested = true;
 		}
 
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
@@ -232,7 +232,7 @@ namespace Textured {
 			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
 
 			buildCommandBuffers ();
-		}	
+		}
 
 		protected override void Dispose (bool disposing) {
 			dev.WaitIdle ();

@@ -267,12 +267,14 @@ namespace vke {
 		/// Load bitmap into Image with stagging and mipmap generation if necessary
 		/// and usage.
 		/// </summary>
-		public static Image Load (Device dev, Queue staggingQ, CommandPool staggingCmdPool,
+		public static Image Load (Queue staggingQ, CommandPool staggingCmdPool,
 			string path, VkFormat format = VkFormat.Undefined,
 			VkMemoryPropertyFlags memoryProps = VkMemoryPropertyFlags.DeviceLocal,
 			VkImageTiling tiling = VkImageTiling.Optimal, bool generateMipmaps = true,
 			VkImageType imageType = VkImageType.Image2D,
 			VkImageUsageFlags usage = VkImageUsageFlags.Sampled | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.TransferDst) {
+
+			Device dev = staggingQ.dev;
 
 			if (format == VkFormat.Undefined)
 				format = DefaultTextureFormat;

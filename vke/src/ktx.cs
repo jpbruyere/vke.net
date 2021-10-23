@@ -40,7 +40,7 @@ namespace KTX {
 					UInt32 numberOfFaces = br.ReadUInt32 ();//only for cube map, else 1
 					UInt32 numberOfMipmapLevels = Math.Max (1, br.ReadUInt32 ());
 					UInt32 bytesOfKeyValueData = br.ReadUInt32 ();
-											
+
 					VkFormat vkFormat = GLHelper.vkGetFormatFromOpenGLInternalFormat (glInternalFormat);
 					if (vkFormat == VkFormat.Undefined) {
 						vkFormat = GLHelper.vkGetFormatFromOpenGLFormat (glFormat, glType);
@@ -56,7 +56,7 @@ namespace KTX {
 					if (numberOfMipmapLevels == 1)
 						requestedMipsLevels = (generateMipmaps && phyFormatSupport.HasFlag (VkFormatFeatureFlags.BlitSrc | VkFormatFeatureFlags.BlitDst)) ?
 							(uint)Math.Floor (Math.Log (Math.Max (pixelWidth, pixelHeight))) + 1 : 1 ;
-							
+
 					if (tiling == VkImageTiling.Optimal)
 						usage |= VkImageUsageFlags.TransferDst;
 					if (generateMipmaps)
@@ -68,7 +68,7 @@ namespace KTX {
 						(pixelWidth == 0) ? throw new KtxException ("pixelWidth must be > 0") :
 						(pixelHeight == 0) ? imgType = VkImageType.Image1D :
 						(pixelDepth == 1) ? imgType = VkImageType.Image2D : imgType = VkImageType.Image3D;
-						
+
 
 					VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1;
 
@@ -89,7 +89,7 @@ namespace KTX {
 
 					img = new Image (staggingQ.Dev, vkFormat, usage, memoryProperty, pixelWidth, pixelHeight, imgType, samples,
 						tiling, requestedMipsLevels, numberOfArrayElements, pixelDepth, createFlags);
-						
+
 					byte[] keyValueDatas = br.ReadBytes ((int)bytesOfKeyValueData);
 
 					uint blockW, blockH;
@@ -98,7 +98,6 @@ namespace KTX {
 
 					if (memoryProperty.HasFlag (VkMemoryPropertyFlags.DeviceLocal)) {
 						ulong staggingSize = img.AllocatedDeviceMemorySize;
-						Console.WriteLine ($"KtxStream size = {ktxStream.Length}, img Allocation = {img.AllocatedDeviceMemorySize}");
 
 						using (HostBuffer stagging = new HostBuffer (staggingQ.Dev, VkBufferUsageFlags.TransferSrc, staggingSize)) {
 							stagging.Map ();
@@ -138,7 +137,7 @@ namespace KTX {
 									//TODO:handle compressed formats
 									for (uint face = 0; face < numberOfFaces; face++) {
 										Marshal.Copy (br.ReadBytes ((int)imgSize), 0, stagging.MappedData + (int)bufferOffset, (int)imgSize);
-										uint faceOffset = imgSize + (imgSize % 4);//cube padding																				  
+										uint faceOffset = imgSize + (imgSize % 4);//cube padding
 										bufferOffset += faceOffset;
 									}
 									buffCopies.Add (bufferCopyRegion);
@@ -156,7 +155,7 @@ namespace KTX {
 									bufferOffset += imgSize;
 								}
 
-								if (isCompressed && bufferOffset % blockSize > 0) 
+								if (isCompressed && bufferOffset % blockSize > 0)
 									bufferOffset += blockSize - bufferOffset % blockSize;
 
 								imgWidth /= 2;
@@ -169,7 +168,7 @@ namespace KTX {
 							buffCopies.Unpin ();
 
 							if (requestedMipsLevels > numberOfMipmapLevels)
-								img.BuildMipmaps (cmd);								
+								img.BuildMipmaps (cmd);
 							else
 								img.SetLayout (cmd, VkImageAspectFlags.Color,
 									VkImageLayout.TransferDstOptimal, VkImageLayout.ShaderReadOnlyOptimal,
@@ -183,7 +182,8 @@ namespace KTX {
 							cmd.Free ();
 
 						}
-					} else { 
+					} else {
+						throw new NotImplementedException();
 					}
 				}
 			}

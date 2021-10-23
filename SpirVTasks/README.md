@@ -1,13 +1,13 @@
 <h1 align="center">
   SpirVTasks MSBuild add-on
-  <br>  
+  <br>
 <p align="center">
   <a href="https://www.nuget.org/packages/SpirVTasks">
     <img src="https://buildstats.info/nuget/SpirVTasks">
   </a>
   <a href="https://www.paypal.me/GrandTetraSoftware">
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
-  </a>  
+  </a>
 </p>
 </h1>
 
@@ -19,11 +19,11 @@ To enable SpirV compilation, you need to add the [nuget package](https://www.nug
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="SpirVTasks"/>		
+  <PackageReference Include="SpirVTasks"/>
 </ItemGroup>
-<ItemGroup>    
+<ItemGroup>
   <GLSLShader Include="shaders\*.frag;shaders\*.vert;shaders\*.comp;shaders\*.geom" />
-</ItemGroup> 
+</ItemGroup>
 ```
 Resulting `.spv` files are automatically embedded with the resource ID: `ProjectName.file.ext.spv`. You can override this default id by adding a custom **LogicalName**.
 ```xml
@@ -31,7 +31,7 @@ Resulting `.spv` files are automatically embedded with the resource ID: `Project
   <GLSLShader Include="shaders\*.vert">
 	  <LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
   </GLSLShader>
-</ItemGroup> 
+</ItemGroup>
 ```
 
 `VULKAN_SDK/bin` then `PATH` are searched for the **`glslc`** executable. You can also use the `SpirVglslcPath` property.
@@ -52,12 +52,12 @@ SpirVTasks add the ability to use **include** statements in your shader sources.
 layout (location = 0) in vec3 inColor;
 layout (location = 0) out vec4 outFragColor;
 
-void main() 
+void main()
 {
     outFragColor = vec4(inColor, 1.0);
 }
 ```
-Included files are searched from the location of the current parsed file, then in the `SpirVAdditionalIncludeDirectories`directories if present.
+Included files are searched from the location of the current parsed file, then in the `SpirVAdditionalIncludeDirectories` directories if present.
 ```xml
 <PropertyGroup>
   <SpirVAdditionalIncludeDirectories>$(MSBuildThisFileDirectory)common;testdir;../anotherdir</SpirVAdditionalIncludeDirectories>
@@ -71,7 +71,7 @@ It is also valid to add additional include search paths individually for each `G
   <GLSLShader Include="shaders\*.vert">
 	  <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
   </GLSLShader>
-</ItemGroup> 
+</ItemGroup>
 
 ```
 
@@ -86,7 +86,7 @@ Default optimization if this attribute is not present is **PERF**, accepted valu
 - PERF: spirv will be optimized for performances.
 - SIZE: resulting code size will be minimized.
 
-**DefineConstants** attribute may contains a semicolon separated list of implicit **MACRO** to define for compilation. Note that **project constants** are automatically to the compilation unit.
+**DefineConstants** attribute may contains a semicolon separated list of implicit **MACRO** to define for compilation. Note that **project constants** are automatically added to the compilation unit.
 
 ```xml
 <GLSLShader Include="shaders\skybox.vert" DefineConstants="DEBUG;SHADOW_FACTOR=0.15"/>

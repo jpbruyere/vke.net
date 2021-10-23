@@ -34,7 +34,7 @@ namespace vke {
 	/// The activables that trigger activation only on usage does not require an additional dispose at the end.
 	/// </remarks>
 	public abstract class Activable : IDisposable {
-		//count number of activation, only the first one will create a handle 
+		//count number of activation, only the first one will create a handle
 		[XmlIgnore] protected uint references;
 		//keep track of the current state of activation.
 		protected ActivableState state;
@@ -75,7 +75,7 @@ namespace vke {
 			VkDebugUtilsObjectNameInfoEXT dmo = DebugUtilsInfo;
 			dmo.pObjectName = name.Pin();
 			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.VkDev, ref dmo));
-			name.Unpin ();			
+			name.Unpin ();
 		}
 		/// <summary>
 		/// Activation of the object, the reference count is incremented and if Debug utils is enabled, name is set.
@@ -84,7 +84,7 @@ namespace vke {
 			references++;
 			if (state == ActivableState.Activated)
 				return;
-			if (state == ActivableState.Disposed) 
+			if (state == ActivableState.Disposed)
 				GC.ReRegisterForFinalize (this);
 			state = ActivableState.Activated;
 			SetName (name);

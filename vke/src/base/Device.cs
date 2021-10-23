@@ -161,33 +161,33 @@ namespace vke {
 		// memory properties.
 		// You can check http://vulkan.gpuinfo.org/ for details on different memory configurations
 		internal uint GetMemoryTypeIndex (uint typeBits, VkMemoryPropertyFlags properties) {
-            // Iterate over all memory types available for the Device used in this example
-            for (uint i = 0; i < phy.memoryProperties.memoryTypeCount; i++) {
-                if ((typeBits & 1) == 1) {
-                    if ((phy.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                        return i;
-                    }
-                }
-                typeBits >>= 1;
-            }
+			// Iterate over all memory types available for the Device used in this example
+			for (uint i = 0; i < phy.memoryProperties.memoryTypeCount; i++) {
+				if ((typeBits & 1) == 1) {
+					if ((phy.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+						return i;
+					}
+				}
+				typeBits >>= 1;
+			}
 
-            throw new InvalidOperationException ("Could not find a suitable memory type!");
-        }
-        public VkFormat GetSuitableDepthFormat () {
-            VkFormat[] formats = new VkFormat[] {VkFormat.D32SfloatS8Uint, VkFormat.D32Sfloat, VkFormat.D24UnormS8Uint, VkFormat.D16UnormS8Uint, VkFormat.D16Unorm };
-            foreach (VkFormat f in formats) {
+			throw new InvalidOperationException ("Could not find a suitable memory type!");
+		}
+		public VkFormat GetSuitableDepthFormat () {
+			VkFormat[] formats = new VkFormat[] {VkFormat.D32SfloatS8Uint, VkFormat.D32Sfloat, VkFormat.D24UnormS8Uint, VkFormat.D16UnormS8Uint, VkFormat.D16Unorm };
+			foreach (VkFormat f in formats) {
 				Console.WriteLine ( (int)phy.GetFormatProperties (f).optimalTilingFeatures);
-                if (phy.GetFormatProperties (f).optimalTilingFeatures.HasFlag(VkFormatFeatureFlags.DepthStencilAttachment))
-                    return f;
-            }
-            throw new InvalidOperationException ("No suitable depth format found.");
-        }
+				if (phy.GetFormatProperties (f).optimalTilingFeatures.HasFlag(VkFormatFeatureFlags.DepthStencilAttachment))
+					return f;
+			}
+			throw new InvalidOperationException ("No suitable depth format found.");
+		}
 		/// <summary>
 		/// Load compiled SpirvShader.
 		/// </summary>
 		/// <returns>the vulkan shader module.</returns>
 		/// <param name="filename">path of the spv shader.</param>
-        public VkShaderModule CreateShaderModule (string filename) {
+		public VkShaderModule CreateShaderModule (string filename) {
 			using (Stream stream = Utils.GetStreamFromPath (filename)) {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
@@ -197,13 +197,13 @@ namespace vke {
 					return shaderModule;
 				}
 			}
-        }/// <summary>
-        /// Load spirv code from unmanaged native pointer.
-        /// </summary>
-        /// <returns>the vulkan shader module.</returns>
-        /// <param name="code">unmanaged pointer holding the spirv code. Pointer must stay valid only during
+		}/// <summary>
+		/// Load spirv code from unmanaged native pointer.
+		/// </summary>
+		/// <returns>the vulkan shader module.</returns>
+		/// <param name="code">unmanaged pointer holding the spirv code. Pointer must stay valid only during
 		/// the call to this method.</param>
-        /// <param name="codeSize">spirv code byte size.</param>
+		/// <param name="codeSize">spirv code byte size.</param>
 		public VkShaderModule CreateShaderModule (IntPtr code, UIntPtr codeSize) {
 			VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
 			moduleCreateInfo.codeSize = codeSize;
@@ -215,8 +215,8 @@ namespace vke {
 		#region IDisposable Support
 		private bool disposedValue = false; // Pour détecter les appels redondants
 
-        protected virtual void Dispose (bool disposing) {
-            if (!disposedValue) {
+		protected virtual void Dispose (bool disposing) {
+			if (!disposedValue) {
 				if (disposing) {
 #if MEMORY_POOLS
 					resourceManager.Dispose ();
@@ -224,21 +224,21 @@ namespace vke {
 				} else
 					System.Diagnostics.Debug.WriteLine ("Device disposed by Finalizer.");
 
-                vkDestroyDevice (dev, IntPtr.Zero);
+				vkDestroyDevice (dev, IntPtr.Zero);
 
-                disposedValue = true;
-            }
-        }
+				disposedValue = true;
+			}
+		}
 
-        ~Device() {
-           Dispose(false);
-        }
+		~Device() {
+		   Dispose(false);
+		}
 
-        // Ce code est ajouté pour implémenter correctement le modèle supprimable.
-        public void Dispose () {
-            Dispose (true);
-            GC.SuppressFinalize(this);
-        }
+		// Ce code est ajouté pour implémenter correctement le modèle supprimable.
+		public void Dispose () {
+			Dispose (true);
+			GC.SuppressFinalize(this);
+		}
 #endregion
-    }
+	}
 }

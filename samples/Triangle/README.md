@@ -1,13 +1,13 @@
 ### Creating buffers
 
-Vke has two classes to handle buffers. Mappable [`HostBuffer`](../../../../wiki/vke.HostBuffer) and device only [`GPUBuffer`](../../../../wiki/vke.GPUBuffer). 
+Vke has two classes to handle buffers. Mappable [`HostBuffer`](../../../../wiki/vke.HostBuffer) and device only [`GPUBuffer`](../../../../wiki/vke.GPUBuffer).
 For this first simple example, we will only use host mappable buffers. Those classes can handle a Generic argument of a blittable type to handle arrays. Resources like buffers or images are activated in constructor, and they need to be explicitly disposed on cleanup. Create them in the `initVulkan` override.
 
 ```csharp
 //the vertex buffer
 vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 //the index buffer
-ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);	
+ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
 //a permanantly mapped buffer for the mvp matrice
 uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, mvp, true);
 ```
@@ -16,15 +16,17 @@ To be able to access the mvp matrix in a shader, we need a descriptor. This impl
 ```csharp
 descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 ```
+### Creating pipelines
+
 Graphic pipeline configuration are predefined by the [`GraphicPipelineConfig`](../../../../wiki/vke.GraphicPipelineConfig) class, which ease sharing configs for several pipelines having lots in common. The pipeline layout will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for [`DescriptorSetLayout`](../../wiki/api/DescriptorSetLayout).
 ```csharp
-GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (
-      VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false);
-      
-cfg.Layout = new PipelineLayout (dev,
-  new DescriptorSetLayout (dev,
-     new VkDescriptorSetLayoutBinding (
-       0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
+using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (
+      VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false)) {
+
+  cfg.Layout = new PipelineLayout (dev,
+    new DescriptorSetLayout (dev,
+       new VkDescriptorSetLayoutBinding (
+         0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));
 ```
 Next we configure a default [`RenderPass`](../../../../wiki/vke.RenderPass) with just a color attachment for the swap chain image, a default sub-pass is automatically created and the render pass activation will follow the pipeline life cycle and will be automatically disposed when no longer in use.
 ```csharp
@@ -41,6 +43,9 @@ shader are automatically compiled by [`SpirVTasks`](../../SpirVTasks/README.md) 
 cfg.AddShader (dev, VkShaderStageFlags.Vertex, "#shaders.main.vert.spv");
 cfg.AddShader (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv");
 ```
+Because native ShaderModule used during pipeline creation may be disposed once the pipeline is created, The PipelineConfig class implement the
+'IDisposable' interface to release those pointers automaticaly.
+
 Once the pipeline configuration is complete, we use it to effectively create and activate a graphic pipeline. Activables used by the pipeline (like the RenderPass, or the PipelineLayout) are referenced in the newly created managed pipeline. So the Configuration object doesn't need cleanup.
 ```csharp
 	pipeline = new GraphicPipeline (cfg);
@@ -49,6 +54,9 @@ Because descriptor layouts used for a pipeline are only activated on pipeline ac
 ```csharp
 	descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
 ```
+
+### Descriptor update
+
 The descriptor update is a two step operation. First we create a [`DescriptorSetWrites`](../../../../wiki/vke.DescriptorSetWrites) object defining the layout(s), than we write the descriptor(s).
 The `Descriptor` property of the mvp HostBuffer will return a default descriptor with no offset of the full size of the buffer.
 
@@ -57,4 +65,25 @@ DescriptorSetWrites uboUpdate =
     new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
 
 uboUpdate.Write (dev, uboMats.Descriptor);
+```
+
+### Updating the view
+
+Override the `UpdateView` method of the `VkWindow` class to update view related stuff like matrices.
+
+```csharp
+public override void UpdateView () {
+  mvp = Matrix4x4.Create ...
+  uboMats.Update (mvp, (uint)Marshal.SizeOf<Matrix4x4> ());
+  base.UpdateView ();
+}
+```
+This method is called at least once before the rendering loop just after 'OnResize'.
+Then, it is triggered in the render loop each time the `updateViewRequested` field of `VkWindow` is set to 'true',
+don't forget to reset `updateViewRequested` to 'false' or call the `base.UpdateView()` which will reset this boolean.
+
+In a typical application, the mouse movements will set `updateViewRequested` to true.
+```csharp
+protected override void onMouseMove (double xPos, double yPos) {
+  updateViewRequested = true;
 ```

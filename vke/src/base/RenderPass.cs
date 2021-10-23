@@ -10,7 +10,7 @@ using static Vulkan.Vk;
 
 namespace vke {
 	public class RenderPass : Activable {
-		internal VkRenderPass handle;        
+		internal VkRenderPass handle;
 
 		public readonly VkSampleCountFlags Samples;
 
@@ -36,7 +36,7 @@ namespace vke {
 		/// Create renderpass with a single color attachment and a resolve one if needed
 		/// </summary>
 		public RenderPass (Device device, VkFormat colorFormat, VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1, VkAttachmentLoadOp loadOp = VkAttachmentLoadOp.Clear)
-			: this (device) { 
+			: this (device) {
 			Samples = samples;
 
 			AddAttachment (colorFormat, (samples == VkSampleCountFlags.SampleCount1) ? VkImageLayout.PresentSrcKHR : VkImageLayout.ColorAttachmentOptimal, samples,
@@ -143,7 +143,7 @@ namespace vke {
 				stencilStoreOp = VkAttachmentStoreOp.DontCare,
 				initialLayout = initialLayout,
 				finalLayout = finalLayout,
-			}); 
+			});
 		}
 		public void AddAttachment (VkFormat format, VkImageLayout finalLayout,
 			VkAttachmentLoadOp stencilLoadOp,
@@ -245,12 +245,12 @@ namespace vke {
 			}
 			return fbs;
 		}
-	
+
 
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");
 		}
-		
+
 		#region IDisposable Support
 		protected override void Dispose (bool disposing) {
 			if (state == ActivableState.Activated) {

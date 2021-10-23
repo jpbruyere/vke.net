@@ -60,11 +60,11 @@
 			"console": "internalConsole"
 		},
 		{
-			"name": ".NET Core Launch (console)",
+			"name": ".NET Core Launch (ImmutableSampler)",
 			"type": "coreclr",
 			"request": "launch",
-			"preLaunchTask": "build",
-			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/Triangle",
+			"preLaunchTask": "build immutableSampler",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/ImmutableSampler",
 			"args": [],
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"console": "internalConsole",

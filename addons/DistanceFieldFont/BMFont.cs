@@ -66,7 +66,7 @@ namespace vke.DistanceFieldFont {
 			if (path.EndsWith ("ktx", StringComparison.OrdinalIgnoreCase))
 				return KTX.KTX.Load (staggingQ, cmdPool, path,
 					VkImageUsageFlags.Sampled, imgProp, genMipMaps, tiling);
-			return Image.Load (staggingQ.Dev, staggingQ, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
+			return Image.Load (staggingQ, cmdPool, path, VkFormat.R8g8b8a8Unorm, imgProp, tiling, genMipMaps);
 		}
 
 	}

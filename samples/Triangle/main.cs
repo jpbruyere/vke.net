@@ -67,7 +67,10 @@ namespace Triangle {
 			//a descriptor pool to allocate the mvp matrice descriptor from.
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 
-			//Graphic pipeline configuration are predefined by the GraphicPipelineConfig class, which ease sharing config for several pipelines having lots in common.
+			//Graphic pipeline configuration are predefined by the GraphicPipelineConfig class,
+			//which ease sharing config for several pipelines having lots in common.
+			//Because 'ShaderInfo' instantiate temporary native ShaderModule, the GraphicPipelineConfig
+			//class implement 'IDisposable' interface to dispose those modules once the pipeline(s) is created.
 			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false)) {
 				//Create the pipeline layout, it will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit
 				//from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for DescriptorSetLayout.
@@ -156,7 +159,8 @@ namespace Triangle {
 
 		protected override void OnResize () {
 			base.OnResize ();
-			UpdateView ();
+
+			updateViewRequested = true;
 
 			frameBuffers?.Dispose();
 			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
