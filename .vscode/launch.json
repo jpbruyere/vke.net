@@ -60,6 +60,17 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (DistanceFieldFontTest)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build DistanceFieldFontTest",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/DistanceFieldFontTest",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"console": "internalConsole",
+			"stopAtEntry": false
+		},
+		{
 			"name": ".NET Core Launch (ImmutableSampler)",
 			"type": "coreclr",
 			"request": "launch",

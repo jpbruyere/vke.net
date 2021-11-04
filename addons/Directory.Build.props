@@ -4,7 +4,7 @@
 		<RootDirectory>$(MSBuildThisFileDirectory)../</RootDirectory>
 		<Deterministic>true</Deterministic>
 
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.0</TargetFrameworks>
 
 		<RepositoryUrl>https://github.com/jpbruyere/vke.net</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

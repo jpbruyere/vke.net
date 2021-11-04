@@ -16,7 +16,6 @@ namespace vke {
 	/// Provide default swapchain with its command pool and buffers per image and the main present queue
 	/// </summary>
 	public abstract class VkWindow : IDisposable {
-
 		/** GLFW callback may return a custom pointer, this list makes the link between the GLFW window pointer and the
 			manage VkWindow instance. */
 		static Dictionary<IntPtr,VkWindow> windows = new Dictionary<IntPtr, VkWindow>();

@@ -72,6 +72,20 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build DistanceFieldFontTest",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/DistanceFieldFontTest/DistanceFieldFontTest.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build immutableSampler",
 			"command": "dotnet",
 			"type": "process",

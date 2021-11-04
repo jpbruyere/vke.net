@@ -1,34 +1,30 @@
-### The Project File.
-
-To build a minimal vulkan application, add the [vke](https://www.nuget.org/packages/vke/) nuget package, and to enable automatic shader compilation, add the [SpirVTasks](https://www.nuget.org/packages/SpirVTasks/) package and a generic **GLSLShader** item globing a full directory.
+# The Project File.
+Create a new dotnet console project, and add the [vke nuget package](https://www.nuget.org/packages/vke) to it.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net472</TargetFrameworks>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
+  <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+  <OutputType>Exe</OutputType>
+
   <ItemGroup>
-    <GLSLShader Include="shaders\*.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="SpirVTasks" />
     <PackageReference Include="vke" />
   </ItemGroup>
 </Project>
 ```
-
-### VkWindow class
+# VkWindow class
 
 **vke** use [GLFW](https://www.glfw.org/) to interface with the windowing system of the OS. Derive your application from the `VkWindow` base class to start with a vulkan enabled window. **Validation** and **RenderDoc** layers loading may be control at startup with public static boolean properties from the `Instance`class.
 
 ```csharp
 class Program : VkWindow {
-    static void Main (string[] args) {
-    	using (Program vke = new Program ()) {
-    		vke.Run ();
-    	}
+  static void Main (string[] args) {
+
+    Instance.Validation = true;
+
+    using (Program vke = new Program ()) {
+      vke.Run ();
     }
+  }
 }
 ```
 
