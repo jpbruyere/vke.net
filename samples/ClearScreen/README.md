@@ -13,7 +13,7 @@ Create a new dotnet console project, and add the [vke nuget package](https://www
 ```
 # VkWindow class
 
-**vke** use [GLFW](https://www.glfw.org/) to interface with the windowing system of the OS. Derive your application from the `VkWindow` base class to start with a vulkan enabled window. **Validation** and **RenderDoc** layers loading may be control at startup with public static boolean properties from the `Instance`class.
+**vke** use [GLFW](https://www.glfw.org/) to interface with the windowing system of the OS. Derive your application from the `VkWindow` base class to start with a vulkan enabled window. **Validation** and **RenderDoc** layers loading may be control at startup with public static boolean properties from the `Instance` class.
 
 ```csharp
 class Program : VkWindow {
@@ -21,11 +21,8 @@ class Program : VkWindow {
 
     Instance.Validation = true;
 
-    using (Program vke = new Program ()) {
+    using (Program vke = new Program ())
       vke.Run ();
-    }
-  }
-}
 ```
 
 ### Vulkan Initialization

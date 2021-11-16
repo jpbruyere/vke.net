@@ -145,7 +145,7 @@ namespace pbrSample {
 			} else if (GetButton (MouseButton.Right) == InputAction.Press) {
 				camera.SetZoom ((float)diffY);
 				updateViewRequested = true;
-			}			
+			}
 		}
 
 		protected override void onKeyDown (Key key, int scanCode, Modifier modifiers) {
@@ -156,7 +156,7 @@ namespace pbrSample {
 				else
 					curModelIndex = curModelIndex < (uint)vke.samples.Utils.GltfFiles.Length - 1 ? curModelIndex + 1 : 0;
 				reloadModel = true;
-				break;			
+				break;
 			case Key.P:
 				showDebugImg = !showDebugImg;
 				queryUpdatePrefilCube = updateViewRequested = true;

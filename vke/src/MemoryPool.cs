@@ -33,7 +33,7 @@ namespace vke {
 		/// Return mapped memory pointer or null if not mapped.
 		public IntPtr MappedData => mappedPointer;
 		/// Last added resource, this is the entry element for the double linked list of ressource.
-		public Resource Last => lastResource;									
+		public Resource Last => lastResource;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:vke.MemoryPool"/> class.
@@ -78,7 +78,7 @@ namespace vke {
 
 					if (previous.next.poolOffset < previous.poolOffset) {
 						limit = Size;
-						if (offset + resource.AllocatedDeviceMemorySize < Size) 
+						if (offset + resource.AllocatedDeviceMemorySize < Size)
 							break;
 						offset = 0;
 						limit = previous.next.poolOffset;

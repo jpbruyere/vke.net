@@ -1,4 +1,4 @@
-# shaders
+# Shaders
 For this tutorials we'll need a `vertex` and a `fragment` shaders. Vulkan need them to be compiled into [SPIR-V](https://www.khronos.org/spir/). Install the [Vulkan Sdk](https://www.lunarg.com/vulkan-sdk/) and after building it, ensure the `VULKAN_SDK` environment variable points to its binary subdir.
 ```bash
 export VULKAN_SDK=/VulkanSDK/1.2.176.1/x86_64

@@ -4,7 +4,7 @@
 		<RestoreAdditionalProjectSources Condition="Exists('$(SolutionDir)build\$(Configuration)\')">$(SolutionDir)build\$(Configuration)\</RestoreAdditionalProjectSources>
 		<SpirVTasksReleaseVersion>0.1.45</SpirVTasksReleaseVersion>
 		<SpirVTasksPackageVersion>$(SpirVTasksReleaseVersion)</SpirVTasksPackageVersion>
-		<VkeReleaseVersion>0.2.2</VkeReleaseVersion>
+		<VkeReleaseVersion>0.2.3</VkeReleaseVersion>
 		<VkePackageVersion>$(VkeReleaseVersion)-beta</VkePackageVersion>
 		<UseStbSharp>true</UseStbSharp>
 		<UseMemoryPools>false</UseMemoryPools>

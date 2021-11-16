@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Xml.Serialization;
 
 namespace Vulkan {
-	public static partial class Utils {		
+	public static partial class Utils {
 		/// <summary>Throw an erro if VkResult != Success.</summary>
 		public static void CheckResult (VkResult result, string errorString = "Call failed") {
             if (result != VkResult.Success)
@@ -27,34 +27,36 @@ namespace Vulkan {
 			xmlMakeTypeFieldsAsAttributes (typeof (VkDescriptorPoolSize), ref xmlAttributeOverrides);
 			return xmlAttributeOverrides;
 		}
+		static bool tryFindResource (Assembly a, string resId, out Stream stream) {
+			stream = null;
+			if (a == null)
+				return false;
+			stream = a.GetManifestResourceStream (resId);
+			return stream != null;
+		}
 		/// <summary>
 		/// Return a file or embedded resource stream.
 		/// </summary>
 		/// <returns>The stream from path.</returns>
 		/// <param name="path">The file or stream path. Embedded resource path starts with '#'.</param>
 		public static Stream GetStreamFromPath (string path) {
-			Stream stream = null;
-
 			if (path.StartsWith ("#", StringComparison.Ordinal)) {
+				Stream stream = null;
 				string resId = path.Substring (1);
-				//first search entry assembly
-				stream = Assembly.GetEntryAssembly ().GetManifestResourceStream (resId);
-				if (stream != null)
+				if (tryFindResource (Assembly.GetEntryAssembly (), resId, out stream))
 					return stream;
-				//if not found, search assembly named with the 1st element of the resId
-				string assemblyName = resId.Split ('.')[0];
-				Assembly a = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyName);
-				if (a == null)
-					throw new Exception ($"Assembly '{assemblyName}' not found for ressource '{path}'.");
-				stream = a.GetManifestResourceStream (resId);
-				if (stream == null)
-					throw new Exception ("Resource not found: " + path);
-			} else {
-				if (!File.Exists (path))
-					throw new FileNotFoundException ("File not found: ", path);
-				stream = new FileStream (path, FileMode.Open, FileAccess.Read);
+				string[] assemblyNames = resId.Split ('.');
+				Assembly assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
+				if (assembly == null && assemblyNames.Length > 3)
+					assembly = AppDomain.CurrentDomain.GetAssemblies ()
+						.FirstOrDefault (aa => aa.GetName ().Name == $"{assemblyNames[0]}.{assemblyNames[1]}");
+				if (assembly != null && tryFindResource (assembly, resId, out stream))
+					return stream;
+				throw new Exception ("Resource not found: " + path);
 			}
-			return stream;
+			if (!File.Exists (path))
+				throw new FileNotFoundException ("File not found: ", path);
+			return new FileStream (path, FileMode.Open, FileAccess.Read);
 		}
 		/// <summary>Convert angle from degree to radian.</summary>
 		public static float DegreesToRadians (float degrees) {
@@ -83,7 +85,7 @@ namespace Vulkan {
 			if (floats.Length > 2)
 				v.Z = floats[2];
 			if (floats.Length > 3)
-				v.W = floats[3];            
+				v.W = floats[3];
         }
 		/// <summary>
 		/// Populate a Quaternion with values from a float array
@@ -221,7 +223,7 @@ namespace Vulkan {
                     break;
 
                 case VkImageLayout.TransferSrcOptimal:
-                    // Image is a transfer source 
+                    // Image is a transfer source
                     // Make sure any reads from the image have been finished
                     imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
                     break;
