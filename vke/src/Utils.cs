@@ -55,8 +55,7 @@ namespace Vulkan {
 
 				if (assembly != null)
 					new Exception("Embedded resource not found in assembly: " + path);
-
-				throw new Exception ("Resource not found: " + path);
+				throw new Exception ("Assembly not found: " + path);
 			}
 			if (!File.Exists (path))
 				throw new FileNotFoundException ("File not found: ", path);
