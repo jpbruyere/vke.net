@@ -52,6 +52,10 @@ namespace Vulkan {
 						.FirstOrDefault (aa => aa.GetName ().Name == $"{assemblyNames[0]}.{assemblyNames[1]}");
 				if (assembly != null && tryFindResource (assembly, resId, out stream))
 					return stream;
+
+				if (assembly != null)
+					new Exception("Embedded resource not found in assembly: " + path);
+
 				throw new Exception ("Resource not found: " + path);
 			}
 			if (!File.Exists (path))
