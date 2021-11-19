@@ -407,6 +407,8 @@ namespace vke {
 				if (currentCursor != IntPtr.Zero)
 					Glfw3.DestroyCursor (currentCursor);
 
+				windows.Remove (hWin);
+
 				Glfw3.DestroyWindow (hWin);
 				Glfw3.Terminate ();
 
