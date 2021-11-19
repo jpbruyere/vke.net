@@ -85,36 +85,27 @@ namespace Vulkan {
 		/// <summary>
 		/// Populate a Vector2 with values from a byte array starting at offset
 		/// </summary>
-		public static void FromByteArray (ref Vector2 v, byte[] byteArray, int offset, int length = 8) {
-            v.X = BitConverter.ToSingle (byteArray, offset);
-            v.Y = BitConverter.ToSingle (byteArray, offset + 4);
+		public static void FromByteArray (ref Vector2 v, byte[] byteArray, int offset) {
+			v = Unsafe.As<byte[], Vector2[]>(ref Unsafe.AsRef(byteArray.SubArray(offset, 8)))[0];
         }
 		/// <summary>
 		/// Populate a Vector3 with values from a byte array starting at offset
 		/// </summary>
 		public static void FromByteArray (ref Vector3 v, byte[] byteArray, int offset) {
-            v.X = BitConverter.ToSingle (byteArray, offset);
-            v.Y = BitConverter.ToSingle (byteArray, offset + 4);
-            v.Z = BitConverter.ToSingle (byteArray, offset + 8);
-        }
+			v = Unsafe.As<byte[], Vector3[]>(ref Unsafe.AsRef(byteArray.SubArray(offset, 12)))[0];
+		}
 		/// <summary>
 		/// Populate a Vector4 with values from a byte array starting at offset
 		/// </summary>
 		public static void FromByteArray (ref Vector4 v, byte[] byteArray, int offset) {
-            v.X = BitConverter.ToSingle (byteArray, offset);
-            v.Y = BitConverter.ToSingle (byteArray, offset + 4);
-            v.Z = BitConverter.ToSingle (byteArray, offset + 8);
-            v.W = BitConverter.ToSingle (byteArray, offset + 12);
-        }
+			v = Unsafe.As<byte[], Vector4[]>(ref Unsafe.AsRef(byteArray.SubArray(offset, 16)))[0];
+		}
 		/// <summary>
 		/// Populate a Quaternion with values from a byte array starting at offset
 		/// </summary>
 		public static void FromByteArray (ref Quaternion v, byte[] byteArray, int offset) {
-            v.X = BitConverter.ToSingle (byteArray, offset);
-            v.Y = BitConverter.ToSingle (byteArray, offset + 4);
-            v.Z = BitConverter.ToSingle (byteArray, offset + 8);
-            v.W = BitConverter.ToSingle (byteArray, offset + 12);
-        }
+			v = Unsafe.As<byte[], Quaternion[]>(ref Unsafe.AsRef(byteArray.SubArray(offset, 16)))[0];
+		}
 
 		#region Extensions methods
 		public static void ImportFloatArray (this ref Vector3 v, float[] floats) {
@@ -126,6 +117,12 @@ namespace Vulkan {
 		}
 		public static Vector3 ToVector3 (this Vector4 v) {
 			return Unsafe.As<Vector4, Vector3>(ref v);
+		}
+		public static T[] SubArray<T>(this T[] array, int offset, int length)
+		{
+			T[] result = new T[length];
+			Array.Copy(array, offset, result, 0, length);
+			return result;
 		}
 		#endregion
 
