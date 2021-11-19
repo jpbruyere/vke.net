@@ -74,32 +74,18 @@ namespace Vulkan {
 		/// Populate a Vector4 with values from a float array
 		/// </summary>
 		public static void FromFloatArray (ref Vector4 v, float[] floats) {
-			if (floats.Length > 0)
-				v.X = floats[0];
-			if (floats.Length > 1)
-				v.Y = floats[1];
-			if (floats.Length > 2)
-				v.Z = floats[2];
-			if (floats.Length > 3)
-				v.W = floats[3];
-        }
+			v = Unsafe.As<float[], Vector4[]>(ref floats)[0];
+		}
 		/// <summary>
 		/// Populate a Quaternion with values from a float array
 		/// </summary>
-		public static void FromFloatArray (ref Quaternion v, float[] floats) {
-			if (floats.Length > 0)
-				v.X = floats[0];
-			if (floats.Length > 1)
-				v.Y = floats[1];
-			if (floats.Length > 2)
-				v.Z = floats[2];
-			if (floats.Length > 3)
-				v.W = floats[3];
+		public static void FromFloatArray (ref Quaternion q, float[] floats) {
+			q = Unsafe.As<float[], Quaternion[]>(ref floats)[0];
 		}
 		/// <summary>
 		/// Populate a Vector2 with values from a byte array starting at offset
 		/// </summary>
-		public static void FromByteArray (ref Vector2 v, byte[] byteArray, int offset) {
+		public static void FromByteArray (ref Vector2 v, byte[] byteArray, int offset, int length = 8) {
             v.X = BitConverter.ToSingle (byteArray, offset);
             v.Y = BitConverter.ToSingle (byteArray, offset + 4);
         }
@@ -139,7 +125,7 @@ namespace Vulkan {
 			return new Vector3 (v4.X, v4.Y, v4.Z);
 		}
 		public static Vector3 ToVector3 (this Vector4 v) {
-			return new Vector3 (v.X, v.Y, v.Z);
+			return Unsafe.As<Vector4, Vector3>(ref v);
 		}
 		#endregion
 
