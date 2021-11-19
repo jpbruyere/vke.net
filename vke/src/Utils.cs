@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 
@@ -68,7 +69,7 @@ namespace Vulkan {
 		/// Populate a Vector3 with values from a float array
 		/// </summary>
 		public static void FromFloatArray (ref Vector3 v, float[] floats) {
-			v = MemoryMarshal.Cast<float, Vector3>(floats)[0];
+			v = Unsafe.As<float[], Vector3[]>(ref floats)[0];
 		}
 		/// <summary>
 		/// Populate a Vector4 with values from a float array
@@ -132,7 +133,7 @@ namespace Vulkan {
 
 		#region Extensions methods
 		public static void ImportFloatArray (this ref Vector3 v, float[] floats) {
-			v = MemoryMarshal.Cast<float, Vector3>(floats)[0];
+			v = Unsafe.As<float[], Vector3[]>(ref floats)[0];
 		}
 		public static Vector3 Transform (this Vector3 v, ref Matrix4x4 mat, bool translate = false) {
 			Vector4 v4 = Vector4.Transform (new Vector4 (v, translate ? 1f : 0f), mat);
