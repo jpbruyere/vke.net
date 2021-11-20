@@ -17,7 +17,7 @@ namespace DistanceFieldFontTest {
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Unorm;
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = false;
+			Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
@@ -62,6 +62,8 @@ namespace DistanceFieldFontTest {
 		BMFont font;
 		Vector4 textColor = new Vector4 (1.0f, 1.0f, 0.0f, 1.0f);//alpha => 0:disabled 1:enabled
 		Vector4 outlineColor = new Vector4 (1.0f, 0.0f, 0.0f, 0.6f);//alpha => 0:disabled 1:enabled
+
+		uint indexCount;
 
 		protected override void initVulkan () {
 			base.initVulkan ();
@@ -137,7 +139,7 @@ namespace DistanceFieldFontTest {
 			ushort indexOffset = 0;
 
 			float charSize = 1.0f;
-			
+
 			float w = fontTexture.Width;
 
 			float posx = 0.0f;
@@ -186,6 +188,8 @@ namespace DistanceFieldFontTest {
 
 			svbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.TransferSrc, vx);
 			sibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.TransferSrc, indices.ToArray());
+
+			indexCount = (uint)indices.Count;
 		}
 
 		bool rebuildBuffers;
@@ -228,7 +232,7 @@ namespace DistanceFieldFontTest {
 
 			cmd.BindVertexBuffer (vbo, 0);
 			cmd.BindIndexBuffer (ibo, VkIndexType.Uint16);
-			cmd.DrawIndexed ((uint)ibo.ElementCount,1,0,0,0);
+			cmd.DrawIndexed (indexCount,1,0,0,0);
 
 			pipeline.RenderPass.End (cmd);
 		}
@@ -275,7 +279,7 @@ namespace DistanceFieldFontTest {
 				default:
 					base.onKeyDown (key, scanCode, modifiers);
 					break;
-			}					
+			}
 		}
 		protected override void OnResize () {
 			base.OnResize ();
