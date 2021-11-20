@@ -14,6 +14,9 @@
   <a href="https://www.paypal.me/GrandTetraSoftware">
     <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
   </a>
+  <a href="https://gitter.im/CSharpRapidOpenWidgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img src="https://badges.gitter.im/CSharpRapidOpenWidgets.svg">
+  </a>
 </p>
 </h1>
 
@@ -51,6 +54,13 @@ vke is in beta development stage.
 |    [Triangle](samples/Triangle/README.md)    |  ![screenshot](samples/screenShots/Triangle.png)   |
 |    [Textured](samples/Textured/README.md)    |  ![screenshot](samples/screenShots/Textured.png)   |
 
+# Contributing
+
+See the [contribution
+guide](https://github.com/glfw/glfw/blob/master/docs/CONTRIBUTING.md) for
+more information.
+
+Join us on [gitter](https://gitter.im/CSharpRapidOpenWidgets) for any question.
 
 # Features
 
