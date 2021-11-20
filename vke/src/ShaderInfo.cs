@@ -43,7 +43,7 @@ namespace vke {
 		/// </summary>
 		/// <param name="dev">vke Device</param>
 		/// <param name="_stageFlags">Stage flags.</param>
-		/// <param name="_spirvPath">path to a compiled SpirV Shader on disk or as embedded ressource if path starts with '#'</param>
+		/// <param name="_spirvPath">path to a compiled SpirV Shader on disk or as embedded ressource if path contains ':' (ex; Assembly:shader.vert.spv)</param>
 		/// <param name="specializationInfo">Specialization info</param>
 		/// <param name="entryPoint">shader entry point, 'main' by default.</param>
 		public ShaderInfo (Device dev, VkShaderStageFlags _stageFlags, string _spirvPath, SpecializationInfo specializationInfo = null, string entryPoint = "main"):

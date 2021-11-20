@@ -37,10 +37,10 @@ namespace Vulkan {
 		}
 		/// <summary>
 		/// Return a file or embedded resource stream.
-		/// Use : to split assembly and resource (ex; Assembly:shader.vert.spv)
+		/// Use ':' to split assembly and resource (ex; "Assembly:shader.vert.spv")
 		/// </summary>
 		/// <returns>The stream from path.</returns>
-		/// <param name="path">The file or stream path. Embedded resource path starts with '#'.</param>
+		/// <param name="path">The file or stream path. Embedded resource path contains ':'.</param>
 		public static Stream GetStreamFromPath (string path) {
 			if (path.Contains(":", StringComparison.Ordinal)) {
 				Stream stream = null;
