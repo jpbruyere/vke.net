@@ -41,15 +41,15 @@ namespace vke.DebugUtils {
 				break;
 			case VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT:
 				Console.Write ("PERF:");
-				break;			
+				break;
 			}
 
-			byte [] tmp = new byte [1024];
+			Span<byte> tmp = stackalloc byte [2048];
 
 			if (data.pMessage != IntPtr.Zero) {
 				byte b = Marshal.ReadByte (data.pMessage);
 				int i = 1;
-				while (b != 0) {
+				while (b != 0 && i<tmp.Length) {
 					tmp [i] = b;
 					b = Marshal.ReadByte (data.pMessage, i);
 					i++;
