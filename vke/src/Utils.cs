@@ -37,6 +37,7 @@ namespace Vulkan {
 		}
 		/// <summary>
 		/// Return a file or embedded resource stream.
+		/// Use : to split assembly and resource (ex; Assembly:shader.vert.spv)
 		/// </summary>
 		/// <returns>The stream from path.</returns>
 		/// <param name="path">The file or stream path. Embedded resource path starts with '#'.</param>
@@ -44,15 +45,17 @@ namespace Vulkan {
 			if (path.StartsWith ("#", StringComparison.Ordinal)) {
 				Stream stream = null;
 				string resId = path.Substring (1);
-				if (tryFindResource (Assembly.GetEntryAssembly (), resId, out stream))
-					return stream;
-				string[] assemblyNames = resId.Split ('.');
+				string[] assemblyNames = resId.Split (':');
 				Assembly assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
-				if (assembly == null && assemblyNames.Length > 3)
-					assembly = AppDomain.CurrentDomain.GetAssemblies ()
-						.FirstOrDefault (aa => aa.GetName ().Name == $"{assemblyNames[0]}.{assemblyNames[1]}");
-				if (assembly != null && tryFindResource (assembly, resId, out stream))
-					return stream;
+				if (assembly == null)
+					throw new Exception("Assembly not found: " + path);
+                else
+                {
+					if (tryFindResource(assembly, resId.Replace(':', '.'), out stream))
+						return stream;
+					new Exception("Embedded resource not found in assembly: " + path);
+				}
+				
 				throw new Exception ("Resource not found: " + path);
 			}
 			if (!File.Exists (path))
