@@ -86,7 +86,8 @@ namespace vke {
 			foreach (List<float> fa in prioritiesLists)
 				fa.Unpin ();
 
-			deviceExtensions.Unpin ();
+			if (deviceExtensions.Count > 0)
+				deviceExtensions.Unpin ();
 
 			//Vk.LoadDeviceFunctionPointers (dev);
 
