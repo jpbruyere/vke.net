@@ -157,6 +157,13 @@ namespace vke {
 			vkGetPhysicalDeviceFormatProperties (phy, format, out VkFormatProperties properties);
 			return properties;
 		}
+		public bool TryGetImageFormatProperties (VkFormat format, VkImageTiling tiling,
+			VkImageUsageFlags usage, out VkImageFormatProperties properties,
+			VkImageType type = VkImageType.Image2D, VkImageCreateFlags flags = 0) {
+			VkResult result = vkGetPhysicalDeviceImageFormatProperties (phy, format, type,
+				tiling, usage, flags, out properties);
+			return result == VkResult.Success;
+		}
 		public VkPhysicalDeviceToolPropertiesEXT[] GetToolProperties () {
 			Utils.CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out uint count, IntPtr.Zero));
 			int sizeStruct = Marshal.SizeOf<VkPhysicalDeviceToolPropertiesEXT> ();
