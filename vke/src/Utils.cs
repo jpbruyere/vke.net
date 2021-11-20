@@ -42,7 +42,7 @@ namespace Vulkan {
 		/// <returns>The stream from path.</returns>
 		/// <param name="path">The file or stream path. Embedded resource path starts with '#'.</param>
 		public static Stream GetStreamFromPath (string path) {
-			if (path.StartsWith ("#", StringComparison.Ordinal)) {
+			if (path.Contains(":", StringComparison.Ordinal)) {
 				Stream stream = null;
 				string resId = path.Substring (1);
 				string[] assemblyNames = resId.Split (':');
