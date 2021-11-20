@@ -273,7 +273,7 @@ namespace deferred {
 						Console.WriteLine ($"Pipeline Cache saved.");
 					} else {
 						renderer.currentDebugView = DeferredPbrRenderer.DebugView.shadowMap;
-						rebuildBuffers = true; 
+						rebuildBuffers = true;
 					}
 					break;
 				case Key.Up:
@@ -326,16 +326,16 @@ namespace deferred {
 						renderer.gamma += 0.1f;
 					rebuildBuffers = true;
 					break;
-				case Key.KeypadAdd:
-					curModelIndex++;
-					if (curModelIndex >= vke.samples.Utils.GltfFiles.Length)
-						curModelIndex = 0;
-					reloadModel = true;
-					return;					
-				case Key.KeypadSubtract:
-					curModelIndex--;
-					if (curModelIndex < 0)
-						curModelIndex = vke.samples.Utils.GltfFiles.Length -1;
+				case Key.Space:
+					if (modifiers.HasFlag (Modifier.Control)) {
+						curModelIndex--;
+						if (curModelIndex < 0)
+							curModelIndex = vke.samples.Utils.GltfFiles.Length -1;
+					} else {
+						curModelIndex++;
+						if (curModelIndex >= vke.samples.Utils.GltfFiles.Length)
+							curModelIndex = 0;
+					}
 					reloadModel = true;
 					return;
 				default:
