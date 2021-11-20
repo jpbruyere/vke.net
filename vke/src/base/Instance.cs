@@ -14,8 +14,10 @@ namespace vke {
 	/// </summary>
 	public class Instance : IDisposable {
 		/// <summary>If true, the VK_LAYER_KHRONOS_validation layer is loaded at startup; </summary>
+		[Obsolete("use constructor with layers as 1st argument, vkWindow implement overridable `EnabledLayers`")]
 		public static bool VALIDATION;
 		/// <summary>If true, the VK_LAYER_RENDERDOC_Capture layer is loaded at startup; </summary>
+		[Obsolete("use constructor with layers as 1st argument, vkWindow implement overridable `EnabledLayers`")]
 		public static bool RENDER_DOC_CAPTURE;
 
 		public static uint VK_MAJOR = 1;
@@ -42,7 +44,15 @@ namespace vke {
 		/// Create a new vulkan instance with enabled extensions given as argument.
 		/// </summary>
 		/// <param name="extensions">List of extension to enable if supported</param>
-		public Instance (params string[] extensions) {
+		public Instance (params string[] extensions) : this (null, extensions) {}
+
+		/// <summary>
+		/// Create a new vulkan instance with enabled layers and extensions given as arguments.
+		/// </summary>
+		/// <param name="layers">if not null, load layers in order, else use `VALIDATION` and `RENDER_DOC_CAPTURE`
+		/// static variables to enable corresponding extensions</param>
+		/// <param name="extensions">List of extension to enable if supported</param>
+		public Instance (string[] layers, params string[] extensions) {
 			List<IntPtr> instanceExtensions = new List<IntPtr> ();
 			List<IntPtr> enabledLayerNames = new List<IntPtr> ();
 
@@ -58,12 +68,15 @@ namespace vke {
 						Console.WriteLine ($"Vulkan initialisation: Unsupported extension: {extensions [i]}");
 				}
 
-
-				if (VALIDATION) 
-					enabledLayerNames.Add (strValidationLayer.Pin (pctx));
-				if (RENDER_DOC_CAPTURE)
-					enabledLayerNames.Add (strRenderDocLayer.Pin (pctx));
-
+				if (layers != null) {
+					for (int i = 0; i < layers.Length; i++)
+						enabledLayerNames.Add (layers[i].Pin (pctx));
+				} else {
+					if (VALIDATION)
+						enabledLayerNames.Add (strValidationLayer.Pin (pctx));
+					if (RENDER_DOC_CAPTURE)
+						enabledLayerNames.Add (strRenderDocLayer.Pin (pctx));
+				}
 
 				VkApplicationInfo appInfo = new VkApplicationInfo () {
 					sType = VkStructureType.ApplicationInfo,

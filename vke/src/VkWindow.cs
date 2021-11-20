@@ -55,6 +55,11 @@ namespace vke {
 		/// <summary>
 		/// Override this property to change the list of enabled instance extensions
 		/// </summary>
+		public virtual string[] EnabledLayers => null;
+
+		/// <summary>
+		/// Override this property to change the list of enabled instance extensions
+		/// </summary>
 		public virtual string[] EnabledInstanceExtensions => null;
 
 		/// <summary>
@@ -142,7 +147,7 @@ namespace vke {
 			if (EnabledInstanceExtensions != null)
 				instExts.AddRange (EnabledInstanceExtensions);
 
-			instance = new Instance (instExts.ToArray());
+			instance = new Instance (EnabledLayers, instExts.ToArray());
 
 			hSurf = instance.CreateSurface (hWin);
 

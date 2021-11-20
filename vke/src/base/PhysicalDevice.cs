@@ -157,5 +157,21 @@ namespace vke {
 			vkGetPhysicalDeviceFormatProperties (phy, format, out VkFormatProperties properties);
 			return properties;
 		}
+		public VkPhysicalDeviceToolPropertiesEXT[] GetToolProperties () {
+			Utils.CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out uint count, IntPtr.Zero));
+			int sizeStruct = Marshal.SizeOf<VkPhysicalDeviceToolPropertiesEXT> ();
+			IntPtr ptrTools = Marshal.AllocHGlobal (sizeStruct * (int)count);
+			Utils.CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out count, ptrTools));
+
+			VkPhysicalDeviceToolPropertiesEXT[] result = new VkPhysicalDeviceToolPropertiesEXT[count];
+			IntPtr tmp = ptrTools;
+			for (int i = 0; i < count; i++) {
+				result[i] = Marshal.PtrToStructure<VkPhysicalDeviceToolPropertiesEXT> (tmp);
+				tmp += sizeStruct;
+			}
+
+			Marshal.FreeHGlobal (ptrTools);
+			return result;
+		}
 	}
 }
