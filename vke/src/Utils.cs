@@ -44,19 +44,14 @@ namespace Vulkan {
 		public static Stream GetStreamFromPath (string path) {
 			if (path.Contains(":", StringComparison.Ordinal)) {
 				Stream stream = null;
-				string resId = path.Substring (1);
-				string[] assemblyNames = resId.Split (':');
+				string[] assemblyNames = path.Split (':');
 				Assembly assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
 				if (assembly == null)
 					throw new Exception("Assembly not found: " + path);
-                else
-                {
-					if (tryFindResource(assembly, resId.Replace(':', '.'), out stream))
-						return stream;
-					new Exception("Embedded resource not found in assembly: " + path);
-				}
-				
-				throw new Exception ("Resource not found: " + path);
+
+				if (tryFindResource(assembly, path.Replace(':', '.'), out stream))
+					return stream;
+				throw new Exception("Embedded resource not found in assembly: " + path);
 			}
 			if (!File.Exists (path))
 				throw new FileNotFoundException ("File not found: ", path);
