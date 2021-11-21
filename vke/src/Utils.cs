@@ -64,7 +64,7 @@ namespace Vulkan {
 					assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
 					if (assembly == null)
 						throw new Exception("Assembly not found: " + path);
-					if (tryFindResource(assembly, resId.Replace(':', '.'), out stream))
+					if (tryFindResource(assembly, assemblyNames[1], out stream))
 						return stream;
 					throw new Exception("Embedded resource not found in assembly: " + path);
 				}
