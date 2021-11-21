@@ -37,36 +37,46 @@ namespace Vulkan {
 		}
 		/// <summary>
 		/// Return a file or embedded resource stream.
-		/// Use ':' to split assembly and resource (ex; "Assembly:shader.vert.spv")
 		/// </summary>
+		/// <remarks>
+		/// Embedded resource path start with `#`. The entry assembly is always searched first to be able
+		/// to override resource defined in satellite assemblies.
+		/// To enforce assembly name selection, use `:` to split assembly and resource (ex; "Assembly:filename.spv"),
+		/// else assembly names will be determined with the first, or the two firsts names in the path string.
+		/// (ex: AssemblyName.filename.ext then Assembly.Name.filename.ext)
+		/// </remarks>
 		/// <returns>The stream from path.</returns>
 		/// <param name="path">The file or stream path. Embedded resource path starts with '#' or contains ':'.</param>
 		public static Stream GetStreamFromPath (string path) {
 			if (path.StartsWith("#", StringComparison.Ordinal))
 			{
 				Stream stream = null;
+				string[] assemblyNames = null;
+				Assembly assembly = null;
+
 				string resId = path.Substring(1);
+
 				if (tryFindResource(Assembly.GetEntryAssembly(), resId, out stream))
 					return stream;
-				string[] assemblyNames = resId.Split('.');
-				Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(aa => aa.GetName().Name == assemblyNames[0]);
+
+				if (path.Contains(":", StringComparison.Ordinal)) {
+					assemblyNames = resId.Split (':');
+					assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
+					if (assembly == null)
+						throw new Exception("Assembly not found: " + path);
+					if (tryFindResource(assembly, path.Replace(':', '.'), out stream))
+						return stream;
+					throw new Exception("Embedded resource not found in assembly: " + path);
+				}
+
+				assemblyNames = resId.Split('.');
+				assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(aa => aa.GetName().Name == assemblyNames[0]);
 				if (assembly == null && assemblyNames.Length > 3)
 					assembly = AppDomain.CurrentDomain.GetAssemblies()
 						.FirstOrDefault(aa => aa.GetName().Name == $"{assemblyNames[0]}.{assemblyNames[1]}");
 				if (assembly != null && tryFindResource(assembly, resId, out stream))
 					return stream;
 				throw new Exception("Resource not found: " + path);
-			}
-			if (path.Contains(":", StringComparison.Ordinal)) {
-				Stream stream = null;
-				string[] assemblyNames = path.Split (':');
-				Assembly assembly = AppDomain.CurrentDomain.GetAssemblies ().FirstOrDefault (aa => aa.GetName ().Name == assemblyNames[0]);
-				if (assembly == null)
-					throw new Exception("Assembly not found: " + path);
-
-				if (tryFindResource(assembly, path.Replace(':', '.'), out stream))
-					return stream;
-				throw new Exception("Embedded resource not found in assembly: " + path);
 			}
 			if (!File.Exists (path))
 				throw new FileNotFoundException ("File not found: ", path);
