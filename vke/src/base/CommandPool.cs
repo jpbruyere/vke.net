@@ -10,6 +10,9 @@ namespace vke {
 	/// <summary>
 	/// Command pools are opaque objects that command buffer memory is allocated from, and which allow the implementation
 	/// to amortize the cost of resource creation across multiple command buffers.
+	/// <para>
+	/// See <see href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkCommandPool.html"/> for more information.
+	/// </para>
 	/// </summary>
 	public sealed class CommandPool : Activable {
         public readonly uint QFamIndex;
@@ -22,17 +25,19 @@ namespace vke {
 		/// </summary>
 		/// <param name="device">Vulkan Device.</param>
 		/// <param name="qFamIdx">Queue family index.</param>
+		/// <param name="flags">Command pool <see cref="VkCommandPoolCreateFlags">creation flags</see>.</param>
 		public CommandPool (Device device, uint qFamIdx, VkCommandPoolCreateFlags flags = 0) : base(device)
-        {            
+        {
             QFamIndex = qFamIdx;
 			Flags = flags;
 
 			Activate ();
         }
 		/// <summary>
-		/// Initializes a new instance of the [[CommandPool]]"/> class.
+		/// Initializes a new instance of the <see cref="CommandPool"/>" class.
 		/// </summary>
-		/// <param name="queue">Device Queue of the queue family to create the pool for.</param>
+		/// <param name="queue">Device <see cref="Queue"/> of the queue family to create the pool for.</param>
+		/// <param name="flags">Command pool <see cref="VkCommandPoolCreateFlags">creation flags</see>.</param>
 		public CommandPool (Queue queue, VkCommandPoolCreateFlags flags = 0) : this(queue.dev, queue.qFamIndex, flags) {}
 		#endregion
 
@@ -40,7 +45,7 @@ namespace vke {
 					=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.CommandPool, handle.Handle);
 
 		public override void Activate () {
-			if (state != ActivableState.Activated) {            
+			if (state != ActivableState.Activated) {
         	    VkCommandPoolCreateInfo infos = VkCommandPoolCreateInfo.New();
     	        infos.queueFamilyIndex = QFamIndex;
 				infos.flags = Flags;
@@ -95,14 +100,14 @@ namespace vke {
 			Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, buffs.Pin()));
 			buffs.Unpin ();
 			PrimaryCommandBuffer[] cmds = new PrimaryCommandBuffer[count];
-			for (int i = 0; i < count; i++) 
+			for (int i = 0; i < count; i++)
 				cmds[i] = new PrimaryCommandBuffer (Dev.VkDev, this, buffs[i]);
 
 			return cmds;
 		}
 		/// <summary>
 		/// Resetting a command pool recycles all of the resources from all of the command buffers allocated from the command
-		/// pool back to the command pool. All command buffers that have been allocated from the command pool are put in the initial state. 
+		/// pool back to the command pool. All command buffers that have been allocated from the command pool are put in the initial state.
 		/// Any primary command buffer allocated from another VkCommandPool that is in the recording or executable state and has a secondary
 		/// command buffer allocated from commandPool recorded into it, becomes invalid.
 		/// </summary>

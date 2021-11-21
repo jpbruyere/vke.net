@@ -41,7 +41,7 @@ namespace Vulkan {
 		/// <remarks>
 		/// Embedded resource path start with `#`. The entry assembly is always searched first to be able
 		/// to override resource defined in satellite assemblies.
-		/// To enforce assembly name selection, use `:` to split assembly and resource (ex; "Assembly:filename.spv"),
+		/// To enforce assembly name selection, use `:` to split assembly and resource (ex; "Assembly:LogicalName"),
 		/// else assembly names will be determined with the first, or the two firsts names in the path string.
 		/// (ex: AssemblyName.filename.ext then Assembly.Name.filename.ext)
 		/// </remarks>
