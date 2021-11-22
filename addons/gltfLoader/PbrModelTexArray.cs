@@ -77,7 +77,7 @@ namespace vke.glTF {
 						transferQ.EndSubmitAndWait (cmd, true);
 					}
 
-					texArray.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Color, texArray.CreateInfo.arrayLayers);
+					texArray.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Color);
 					texArray.CreateSampler ();
 					texArray.Descriptor.imageLayout = VkImageLayout.ShaderReadOnlyOptimal;
 					texArray.SetName ("model texArray");

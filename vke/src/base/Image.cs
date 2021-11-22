@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+﻿// Copyright (c) 2019-2021  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
@@ -429,7 +429,7 @@ namespace vke {
 		}
 
 		public void CreateView (VkImageViewType type = VkImageViewType.ImageView2D, VkImageAspectFlags aspectFlags = VkImageAspectFlags.Color,
-			uint layerCount = 1, uint baseMipLevel = 0, int levelCount = -1, uint baseArrayLayer = 0,
+			int layerCount = -1, uint baseMipLevel = 0, int levelCount = -1, uint baseArrayLayer = 0,
 			VkComponentSwizzle r = VkComponentSwizzle.R,
 			VkComponentSwizzle g = VkComponentSwizzle.G,
 			VkComponentSwizzle b = VkComponentSwizzle.B,
@@ -448,7 +448,7 @@ namespace vke {
 			viewInfo.subresourceRange.baseMipLevel = baseMipLevel;
 			viewInfo.subresourceRange.levelCount = levelCount < 0 ? info.mipLevels : (uint)levelCount;
 			viewInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
-			viewInfo.subresourceRange.layerCount = layerCount;
+			viewInfo.subresourceRange.layerCount = layerCount < 0 ? info.arrayLayers : (uint)layerCount;
 
 			Utils.CheckResult (vkCreateImageView (Dev.VkDev, ref viewInfo, IntPtr.Zero, out view));
 

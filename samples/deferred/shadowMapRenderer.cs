@@ -97,7 +97,7 @@ namespace deferred {
 			//shadow map image
 			shadowMap = new Image (dev, SHADOWMAP_FORMAT, VkImageUsageFlags.DepthStencilAttachment | VkImageUsageFlags.Sampled, VkMemoryPropertyFlags.DeviceLocal, SHADOWMAP_SIZE, SHADOWMAP_SIZE,
 				VkImageType.Image2D, SHADOWMAP_NUM_SAMPLES, VkImageTiling.Optimal, 1, (uint)renderer.lights.Length);
-			shadowMap.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Depth, shadowMap.CreateInfo.arrayLayers);
+			shadowMap.CreateView (VkImageViewType.ImageView2DArray, VkImageAspectFlags.Depth);
 			shadowMap.CreateSampler (VkSamplerAddressMode.ClampToBorder);
 			shadowMap.Descriptor.imageLayout = VkImageLayout.DepthStencilReadOnlyOptimal;
 
