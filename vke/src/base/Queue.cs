@@ -11,7 +11,7 @@ namespace vke {
     public class PresentQueue : Queue {
         public readonly VkSurfaceKHR Surface;
 
-        public PresentQueue (Device _dev, VkQueueFlags requestedFlags, VkSurfaceKHR _surface, float _priority = 0.0f) {        
+        public PresentQueue (Device _dev, VkQueueFlags requestedFlags, VkSurfaceKHR _surface, float _priority = 0.0f) {
             dev = _dev;
             priority = _priority;
             Surface = _surface;
@@ -19,16 +19,16 @@ namespace vke {
             qFamIndex = searchQFamily (requestedFlags);
             dev.queues.Add (this);
         }
-        
+
         uint searchQFamily (VkQueueFlags requestedFlags) {
             //search for dedicated Q
             for (uint i = 0; i < dev.phy.QueueFamilies.Length; i++) {
-                if (dev.phy.QueueFamilies[i].queueFlags == requestedFlags && dev.phy.GetPresentIsSupported (i, Surface)) 
+                if (dev.phy.QueueFamilies[i].queueFlags == requestedFlags && dev.phy.GetPresentIsSupported (i, Surface))
                     return i;
             }
             //search Q having flags
             for (uint i = 0; i < dev.phy.QueueFamilies.Length; i++) {
-                if ((dev.phy.QueueFamilies[i].queueFlags & requestedFlags) == requestedFlags && dev.phy.GetPresentIsSupported (i, Surface)) 
+                if ((dev.phy.QueueFamilies[i].queueFlags & requestedFlags) == requestedFlags && dev.phy.GetPresentIsSupported (i, Surface))
                     return i;
             }
 

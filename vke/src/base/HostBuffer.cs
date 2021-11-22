@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
+﻿// Copyright (c) 2019-2022  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
@@ -13,6 +13,7 @@ namespace vke {
 	/// </summary>
 	public class HostBuffer<T> : HostBuffer {
 		int TSize;
+		int elementCount;
 		/// <summary>
 		/// Create an empty mappable vulkan buffer for elements of type T whith specified size.
 		/// </summary>
@@ -21,8 +22,9 @@ namespace vke {
 		/// <param name="arrayElementCount">Array element count.</param>
 		/// <param name="keepMapped">If set to <c>true</c>, buffer will stay mapped after the constructor.</param>
 		/// <param name="coherentMem">If set to <c>true</c> vulkan memory with have the coherent flag.</param>
-		public HostBuffer (Device device, VkBufferUsageFlags usage, uint arrayElementCount, bool keepMapped = false, bool coherentMem = true)
+		public HostBuffer (Device device, VkBufferUsageFlags usage, int arrayElementCount, bool keepMapped = false, bool coherentMem = true)
 			: base (device, usage, (ulong)(Marshal.SizeOf<T> () * arrayElementCount), keepMapped, coherentMem) {
+			elementCount = arrayElementCount;
 			TSize = Marshal.SizeOf<T> ();
 		}
 		/// <summary>
@@ -36,8 +38,18 @@ namespace vke {
 		public HostBuffer (Device device, VkBufferUsageFlags usage, IList<T> data, bool keepMapped = false, bool coherentMem = true)
 			: base (device, usage, (ulong)(Marshal.SizeOf<T> () * data.Count), keepMapped, coherentMem) {
 			TSize = Marshal.SizeOf<T> ();
+			elementCount = data.Count;
 			Map ();
 			Update (data, createInfo.size);
+			if (!keepMapped)
+				Unmap ();
+		}
+		public HostBuffer (Device device, VkBufferUsageFlags usage, T data, bool keepMapped = false, bool coherentMem = true)
+			: base (device, usage, (ulong)(Marshal.SizeOf<T> ()), keepMapped, coherentMem) {
+			TSize = Marshal.SizeOf<T> ();
+			elementCount = 1;
+			Map ();
+			this.AsSpan()[0] = data;
 			if (!keepMapped)
 				Unmap ();
 		}
@@ -95,6 +107,42 @@ namespace vke {
 				size = (ulong)((endIndex - startIndex) * TSize)
 			};
 			vkFlushMappedMemoryRanges (Dev.VkDev, 1, ref mr);
+		}
+		/// <summary>
+		/// Retrieve a Span&lt;T&gt; on native memory of the buffer. Automatically Map it if not yet done.
+		/// </summary>
+		/// <returns>Span&lt;T&gt; on native memory valid as long as the buffer is mapped</returns>
+		public Span<T> AsSpan () {
+			if (!IsMapped)
+				Map();
+			unsafe {
+				return new Span<T>(mappedData.ToPointer(), elementCount);
+			}
+		}
+		/// <summary>
+		/// Retrieve a Span&lt;T&gt; on native memory of the buffer. Automatically Map it if not yet done.
+		/// </summary>
+		/// <param name="startIndex">start index in the native memory</param>
+		/// <returns>Span&lt;T&gt; on native memory valid as long as the buffer is mapped</returns>
+		public Span<T> AsSpan (int startIndex) {
+			if (!IsMapped)
+				Map();
+			unsafe {
+				return new Span<T>(mappedData.ToPointer(), elementCount).Slice (startIndex);
+			}
+		}
+		/// <summary>
+		/// Retrieve a Span&lt;T&gt; on native memory of the buffer. Automatically Map it if not yet done.
+		/// </summary>
+		/// <param name="startIndex">start index in the native memory</param>
+		/// <param name="lenght">leght of the span to return</param>
+		/// <returns>Span&lt;T&gt; on native memory valid as long as the buffer is mapped</returns>
+		public Span<T> AsSpan (int startIndex, int lenght) {
+			if (!IsMapped)
+				Map();
+			unsafe {
+				return new Span<T>(mappedData.ToPointer(), elementCount).Slice (startIndex, lenght);
+			}
 		}
 	}
 	/// <summary>

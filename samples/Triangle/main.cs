@@ -35,11 +35,9 @@ namespace Triangle {
 			}
 		}
 
-		Matrix4x4 mvp;      //the model view projection matrix
-
 		HostBuffer ibo;     //a host mappable buffer to hold the indices.
 		HostBuffer vbo;     //a host mappable buffer to hold vertices.
-		HostBuffer uboMats; //a host mappable buffer for mvp matrice.
+		HostBuffer<Matrix4x4> uboMVPmatrix; //a host mappable buffer for mvp matrice.
 
 		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;//descriptor set for the mvp matrice.
@@ -62,7 +60,7 @@ namespace Triangle {
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
 			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
 			//because mvp matrice may be updated by mouse move, we keep it mapped after creation.
-			uboMats = new HostBuffer (dev, VkBufferUsageFlags.UniformBuffer, mvp, true);
+			uboMVPmatrix = new HostBuffer<Matrix4x4> (dev, VkBufferUsageFlags.UniformBuffer, 1, true);
 
 			//a descriptor pool to allocate the mvp matrice descriptor from.
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
@@ -101,7 +99,7 @@ namespace Triangle {
 			//Write the content of the descriptor, the mvp matrice.
 			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
 			//Descriptor property of the mvp buffer will return a default descriptor with no offset of the full size of the buffer.
-			uboUpdate.Write (dev, uboMats.Descriptor);
+			uboUpdate.Write (dev, uboMVPmatrix.Descriptor);
 
 			//allocate the default VkWindow buffers, one per swapchain image. Their will be only reset when rebuilding and not reallocated.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
@@ -109,13 +107,12 @@ namespace Triangle {
 
 		//view update override, see base method for more informations.
 		public override void UpdateView () {
-			mvp =
+			uboMVPmatrix.AsSpan()[0] =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotX) *
 				Matrix4x4.CreateTranslation (0, 0, -3f * zoom) *
 				Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 
-			uboMats.Update (mvp, (uint)Marshal.SizeOf<Matrix4x4> ());
 			base.UpdateView ();
 		}
 		protected override void onMouseMove (double xPos, double yPos) {
@@ -181,7 +178,7 @@ namespace Triangle {
 					//resources have to be explicityly disposed.
 					vbo.Dispose ();
 					ibo.Dispose ();
-					uboMats.Dispose ();
+					uboMVPmatrix.Dispose ();
 				}
 			}
 

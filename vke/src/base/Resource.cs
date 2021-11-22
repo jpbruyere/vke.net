@@ -67,8 +67,7 @@ namespace vke {
 			Utils.CheckResult (vkAllocateMemory (Dev.VkDev, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
 #endif
-
-
+		public bool IsMapped => mappedData != IntPtr.Zero;
 		public void Map (ulong offset = 0) {
 #if MEMORY_POOLS
 			if (!memoryPool.IsMapped)
