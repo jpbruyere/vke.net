@@ -21,6 +21,9 @@ namespace vke {
 		public ulong poolOffset;
 #else
 		protected VkDeviceMemory vkMemory;
+		protected VkExternalMemoryHandleTypeFlags importExportHandleTypes;
+		protected IntPtr importedHandle = IntPtr.Zero;
+		public VkDeviceMemory Memory => vkMemory;
 #endif
 
 		/// <summary> Double linked list in memory pool </summary>
@@ -37,11 +40,12 @@ namespace vke {
 
 		protected IntPtr mappedData;
 		public IntPtr MappedData => mappedData;
+		protected VkMemoryPropertyFlags memoryFlags;
+		public VkMemoryPropertyFlags MemoryFlags => memoryFlags;
 
-		public readonly VkMemoryPropertyFlags MemoryFlags;
-
+		protected Resource (Device device) : base (device) {}
 		protected Resource (Device device, VkMemoryPropertyFlags memoryFlags) : base (device) {
-			MemoryFlags = memoryFlags;
+			this.memoryFlags = memoryFlags;
 		}
 
 		internal abstract void updateMemoryRequirements ();
@@ -60,11 +64,32 @@ namespace vke {
 			size = AllocatedDeviceMemorySize
 		};
 #if !MEMORY_POOLS
+		protected uint importedMemoryTypeBits = 0;
 		protected void allocateMemory () {
 			VkMemoryAllocateInfo memInfo = VkMemoryAllocateInfo.New ();
 			memInfo.allocationSize = memReqs.size;
-			memInfo.memoryTypeIndex = Dev.GetMemoryTypeIndex (memReqs.memoryTypeBits, MemoryFlags);
-			Utils.CheckResult (vkAllocateMemory (Dev.VkDev, ref memInfo, IntPtr.Zero, out vkMemory));
+			/*if (importedMemoryTypeBits > 0)
+				memReqs.memoryTypeBits = importedMemoryTypeBits;*/
+			memInfo.memoryTypeIndex = Dev.GetMemoryTypeIndex (memReqs.memoryTypeBits, memoryFlags);
+
+			if (importExportHandleTypes > 0) {
+				if (importedHandle != IntPtr.Zero) {
+					VkImportMemoryHostPointerInfoEXT importInfo = VkImportMemoryHostPointerInfoEXT.New ();
+					importInfo.pHostPointer = importedHandle.Pin();
+					importInfo.handleType = importExportHandleTypes;
+					memInfo.pNext = importInfo.Pin ();
+					Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+					importedHandle.Unpin();
+					importInfo.Unpin ();
+				} else {
+					VkExportMemoryAllocateInfo exportInfo = VkExportMemoryAllocateInfo.New ();
+					exportInfo.handleTypes = importExportHandleTypes;
+					memInfo.pNext = exportInfo.Pin ();
+					Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+					exportInfo.Unpin ();
+				}
+			} else
+				Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
 #endif
 		public bool IsMapped => mappedData != IntPtr.Zero;
@@ -74,13 +99,13 @@ namespace vke {
 				memoryPool.Map ();
 			mappedData = new IntPtr (memoryPool.MappedData.ToInt64 () + (long)(poolOffset + offset));
 #else
-			Utils.CheckResult (vkMapMemory (Dev.VkDev, vkMemory, offset, AllocatedDeviceMemorySize, 0, ref mappedData));
+			Utils.CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, AllocatedDeviceMemorySize, 0, ref mappedData));
 #endif
 		}
 		public void Unmap () {
 #if MEMORY_POOLS
 #else
-			vkUnmapMemory (Dev.VkDev, vkMemory);
+			vkUnmapMemory (Dev.Handle, vkMemory);
 			mappedData = IntPtr.Zero;
 #endif
 		}
@@ -93,7 +118,7 @@ namespace vke {
 		}
 		public void Flush () {
 			VkMappedMemoryRange range = MapRange;
-			vkFlushMappedMemoryRanges (Dev.VkDev, 1, ref range);
+			vkFlushMappedMemoryRanges (Dev.Handle, 1, ref range);
 		}
 
 		#region IDisposable Support
@@ -106,7 +131,7 @@ namespace vke {
 #if MEMORY_POOLS
 				memoryPool.Remove (this);
 #else
-				vkFreeMemory (Dev.VkDev, vkMemory, IntPtr.Zero);
+				vkFreeMemory (Dev.Handle, vkMemory, IntPtr.Zero);
 #endif
 
 			}

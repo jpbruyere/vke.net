@@ -105,7 +105,7 @@ namespace Crow {
 		}
 
 		void crow_thread_func () {
-			vkvgDev = new vkvg.Device (instance.Handle, phy.Handle, dev.VkDev.Handle, presentQueue.qFamIndex,
+			vkvgDev = new vkvg.Device (instance.Handle, phy.Handle, Dev.Handle.Handle, presentQueue.qFamIndex,
 	   			vkvg.SampleCount.Sample_4, presentQueue.index);
 
 			crow = new Interface (vkvgDev, (int)swapChain.Width, (int)swapChain.Height);

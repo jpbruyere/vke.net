@@ -27,6 +27,17 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (ExternalMemmories)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build ExternalMemmories",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/ExternalMemmories",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
 			"name": ".NET Core Launch (Textured)",
 			"type": "coreclr",
 			"request": "launch",
@@ -57,7 +68,7 @@
 			"args": [],
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"stopAtEntry": false,
-			"console": "internalConsole"
+			"console": "integratedTerminal"
 		},
 		{
 			"name": ".NET Core Launch (DistanceFieldFontTest)",

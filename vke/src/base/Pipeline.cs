@@ -74,7 +74,7 @@ namespace vke {
 				} else
 					System.Diagnostics.Debug.WriteLine ($"Pipeline '{name}' disposed by finalizer");
 
-				vkDestroyPipeline (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyPipeline (Dev.Handle, handle, IntPtr.Zero);
 			} else if (disposing)
 				System.Diagnostics.Debug.WriteLine ($"Calling dispose on unactive Pipeline: {name}");
 

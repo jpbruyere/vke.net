@@ -20,7 +20,9 @@ namespace vke {
 		public readonly PhysicalDevice phy;										/**Vulkan physical device class*/
 
 		VkDevice dev;
+		[Obsolete("Use Handle instead")]
 		public VkDevice VkDev => dev;                                           /**Vulkan logical device handle*/
+		public VkDevice Handle => dev;                                          /**Vulkan logical device handle*/
 
 
 		internal List<Queue> queues = new List<Queue> ();
@@ -68,6 +70,8 @@ namespace vke {
 			for (int i = 0; i < extensions.Length; i++) {
 				if (phy.GetDeviceExtensionSupported (extensions[i]))
 					deviceExtensions.Add (new FixedUtf8String (extensions[i]));
+				else
+					Console.WriteLine ($"Unsupported device extension: {extensions[i]}");
 			}
 
 			VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.New ();

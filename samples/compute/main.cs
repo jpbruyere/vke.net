@@ -13,7 +13,7 @@ namespace SimpleCompute {
 		static void Main (string[] args) {
 			using (Program vke = new Program ())
 				vke.Run ();
-		}		
+		}
 
 		Instance instance;
 		PhysicalDevice phy;
@@ -50,7 +50,7 @@ namespace SimpleCompute {
 			createRandomDatas ();
 
 			inBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, datas);
-			outBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, data_size);
+			outBuff = new HostBuffer<uint> (dev, VkBufferUsageFlags.StorageBuffer, data_size);
 
 			dsPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.StorageBuffer, 2));
 			dsLayout = new DescriptorSetLayout (dev,
@@ -89,13 +89,13 @@ namespace SimpleCompute {
 			Console.Write ("IN :");
 			for (int i = 0; i < data_size; i++)
 				Console.Write ($"{datas[i]} ");
-			
+
 			Console.WriteLine ();Console.WriteLine ();
 
 			Console.Write ("OUT:");
 			for (int i = 0; i < data_size; i++)
 				Console.Write ($"{results[i]} ");
-			
+
 			Console.WriteLine ();
 			outBuff.Unmap ();
 		}

@@ -38,7 +38,7 @@ namespace vke {
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
 				VkDescriptorSetLayoutCreateInfo info = new VkDescriptorSetLayoutCreateInfo (Flags, (uint)Bindings.Count, Bindings.Pin());
-	            Utils.CheckResult (vkCreateDescriptorSetLayout (Dev.VkDev, ref info, IntPtr.Zero, out handle));
+	            Utils.CheckResult (vkCreateDescriptorSetLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
 				Bindings.Unpin ();
 			}
 			base.Activate ();
@@ -53,7 +53,7 @@ namespace vke {
 			if (!disposing)
 				System.Diagnostics.Debug.WriteLine ("VKE DescriptorSetLayout disposed by finalizer");
 			if (state == ActivableState.Activated)
-				vkDestroyDescriptorSetLayout (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyDescriptorSetLayout (Dev.Handle, handle, IntPtr.Zero);
 			base.Dispose (disposing);
 		}
 		#endregion

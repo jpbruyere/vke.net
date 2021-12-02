@@ -1,13 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Vulkan;
 
-namespace vke {
+namespace vke
+{
 	public abstract class SampleBase : VkWindow {
-		public SampleBase (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = true) :
+		public SampleBase (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = false) :
 			base (name, _width, _height, vSync){}
 		protected override void initVulkan()
 		{

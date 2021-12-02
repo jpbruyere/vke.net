@@ -47,7 +47,7 @@ namespace vke {
 		/// </summary>
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
-				Utils.CheckResult (vkCreateBuffer (Dev.VkDev, ref createInfo, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreateBuffer (Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
 #if MEMORY_POOLS
 				Dev.resourceManager.Add (this);
 #else
@@ -61,14 +61,14 @@ namespace vke {
 
 		#region Implement abstract members of the Resource abstract class.
 		internal override void updateMemoryRequirements () {
-			vkGetBufferMemoryRequirements (Dev.VkDev, handle, out memReqs);
+			vkGetBufferMemoryRequirements (Dev.Handle, handle, out memReqs);
 		}
 
 		internal override void bindMemory () {
 #if MEMORY_POOLS
-			Utils.CheckResult (vkBindBufferMemory (Dev.VkDev, handle, memoryPool.vkMemory, poolOffset));
+			Utils.CheckResult (vkBindBufferMemory (Dev.Handle, handle, memoryPool.vkMemory, poolOffset));
 #else
-			Utils.CheckResult (vkBindBufferMemory (Dev.VkDev, handle, vkMemory, 0));
+			Utils.CheckResult (vkBindBufferMemory (Dev.Handle, handle, vkMemory, 0));
 #endif
 		}
 		#endregion
@@ -145,7 +145,7 @@ namespace vke {
 		protected override void Dispose (bool disposing) {
 			if (state == ActivableState.Activated) {
 				base.Dispose (disposing);
-				vkDestroyBuffer (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyBuffer (Dev.Handle, handle, IntPtr.Zero);
 			}
 			state = ActivableState.Disposed;
 		}

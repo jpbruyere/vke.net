@@ -109,7 +109,7 @@ namespace vke {
 						info.pTessellationState = tessellationInfo.Pin (pctx);
 					}
 
-					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
+					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 				}
 			}
 			base.Activate ();

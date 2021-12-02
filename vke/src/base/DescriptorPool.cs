@@ -48,7 +48,7 @@ namespace vke {
 				info.pPoolSizes = PoolSizes.Pin ();
 				info.maxSets = MaxSets;
 
-				Utils.CheckResult (vkCreateDescriptorPool (Dev.VkDev, ref info, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreateDescriptorPool (Dev.Handle, ref info, IntPtr.Zero, out handle));
 				PoolSizes.Unpin ();
 			}
 			base.Activate ();
@@ -69,20 +69,20 @@ namespace vke {
             allocInfo.descriptorSetCount = (uint)descriptorSet.descriptorSetLayouts.Count;
             allocInfo.pSetLayouts = descriptorSet.descriptorSetLayouts.Pin();
 
-            Utils.CheckResult (vkAllocateDescriptorSets (Dev.VkDev, ref allocInfo, out descriptorSet.handle));
+            Utils.CheckResult (vkAllocateDescriptorSets (Dev.Handle, ref allocInfo, out descriptorSet.handle));
 
 			descriptorSet.descriptorSetLayouts.Unpin ();
         }
         public void FreeDescriptorSet (params DescriptorSet[] descriptorSets) {
             if (descriptorSets.Length == 1) {
-                Utils.CheckResult (vkFreeDescriptorSets (Dev.VkDev, handle, 1, ref descriptorSets[0].handle));
+                Utils.CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, 1, ref descriptorSets[0].handle));
                 return;
             }
-            Utils.CheckResult (vkFreeDescriptorSets (Dev.VkDev, handle, (uint)descriptorSets.Length, descriptorSets.Pin()));
+            Utils.CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, (uint)descriptorSets.Length, descriptorSets.Pin()));
 			descriptorSets.Unpin ();
         }
         public void Reset () {
-            Utils.CheckResult (vkResetDescriptorPool (Dev.VkDev, handle, 0));
+            Utils.CheckResult (vkResetDescriptorPool (Dev.Handle, handle, 0));
         }
 
 		public override string ToString () {
@@ -94,7 +94,7 @@ namespace vke {
 			if (!disposing)
 				System.Diagnostics.Debug.WriteLine ($"CVKL DescriptorPool '{name}' disposed by finalizer");
 			if (state == ActivableState.Activated)
-				vkDestroyDescriptorPool (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyDescriptorPool (Dev.Handle, handle, IntPtr.Zero);
 			base.Dispose (disposing);
 		}
 		#endregion

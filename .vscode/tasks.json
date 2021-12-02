@@ -2,6 +2,20 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "build ExternalMemmories",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/ExternalMemmories/ExternalMemmories.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build Triangle",
 			"command": "dotnet",
 			"type": "process",

@@ -59,7 +59,7 @@ namespace vke {
 
     public class Queue {
 
-        internal VkQueue handle;
+        protected VkQueue handle;
         internal Device dev;
 		public Device Dev => dev;
 
@@ -67,6 +67,7 @@ namespace vke {
         public uint qFamIndex;
         public uint index;//index in queue family
         public float priority;
+        public VkQueue Handle => handle;
 
         protected Queue () { }
         public Queue (Device _dev, VkQueueFlags requestedFlags, float _priority = 0.0f) {
@@ -76,6 +77,8 @@ namespace vke {
             qFamIndex = searchQFamily (requestedFlags);
             dev.queues.Add (this);
         }
+        public CommandPool CreateCommandPool (VkCommandPoolCreateFlags flags = 0)
+            => new CommandPool (dev, qFamIndex, flags);
 		/// <summary>
 		/// End command recording, submit, and wait queue idle
 		/// </summary>
@@ -109,7 +112,7 @@ namespace vke {
         }
 
         internal void updateHandle () {
-            vkGetDeviceQueue (dev.VkDev, qFamIndex, index, out handle);
+            vkGetDeviceQueue (Dev.Handle, qFamIndex, index, out handle);
         }
     }
 }

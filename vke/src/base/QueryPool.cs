@@ -110,7 +110,7 @@ namespace vke {
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
 				VkQueryPoolCreateInfo infos = createInfos;     	        
-	            Utils.CheckResult (vkCreateQueryPool (Dev.VkDev, ref infos, IntPtr.Zero, out handle));
+	            Utils.CheckResult (vkCreateQueryPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}
@@ -118,7 +118,7 @@ namespace vke {
 		public ulong[] GetResults () {
 			ulong[] results = new ulong[resultLength * createInfos.queryCount];
 			IntPtr ptr = results.Pin ();
-			vkGetQueryPoolResults (Dev.VkDev, handle, 0, createInfos.queryCount, (UIntPtr)(resultLength * createInfos.queryCount* sizeof (ulong)), ptr, sizeof (ulong), VkQueryResultFlags.QueryResult64);
+			vkGetQueryPoolResults (Dev.Handle, handle, 0, createInfos.queryCount, (UIntPtr)(resultLength * createInfos.queryCount* sizeof (ulong)), ptr, sizeof (ulong), VkQueryResultFlags.QueryResult64);
 			results.Unpin ();
 			return results;
 		}
@@ -133,7 +133,7 @@ namespace vke {
 			if (!disposing)
 				System.Diagnostics.Debug.WriteLine ("VKE QueryPool disposed by finalizer");
 			if (state == ActivableState.Activated)
-				vkDestroyQueryPool (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyQueryPool (Dev.Handle, handle, IntPtr.Zero);
 			base.Dispose (disposing);
 		}
 		#endregion

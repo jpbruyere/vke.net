@@ -38,7 +38,7 @@ namespace vke {
 					info.basePipelineHandle = 0;
 					info.basePipelineIndex = 0;
 
-					Utils.CheckResult (Vk.vkCreateComputePipelines (Dev.VkDev, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
+					Utils.CheckResult (Vk.vkCreateComputePipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 				}
 			}
 			base.Activate ();

@@ -46,7 +46,7 @@ namespace vke {
 			bufferImageGranularity = dev.phy.Limits.bufferImageGranularity;
 			memInfo.allocationSize = size;
 			memInfo.memoryTypeIndex = memoryTypeIndex;
-			Utils.CheckResult (vkAllocateMemory (dev.VkDev, ref memInfo, IntPtr.Zero, out vkMemory));
+			Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
 		/// <summary>
 		/// Allocate memory for a new resource in this memory pool.
@@ -140,13 +140,13 @@ namespace vke {
 		/// <param name="size">Size.</param>
 		/// <param name="offset">Offset.</param>
 		public void Map (ulong size = Vk.WholeSize, ulong offset = 0) {
-			Utils.CheckResult (vkMapMemory (dev.VkDev, vkMemory, offset, size, 0, ref mappedPointer));
+			Utils.CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, size, 0, ref mappedPointer));
 		}
 		/// <summary>
 		/// Unmap previously mapped memory of this pool.
 		/// </summary>
 		public void Unmap () {
-			vkUnmapMemory (dev.VkDev, vkMemory);
+			vkUnmapMemory (Dev.Handle, vkMemory);
 			mappedPointer = IntPtr.Zero;
 		}
 
@@ -160,7 +160,7 @@ namespace vke {
 				} else
 					System.Diagnostics.Debug.WriteLine ("MemoryPool disposed by Finalizer.");
 
-				vkFreeMemory (dev.VkDev, vkMemory, IntPtr.Zero);
+				vkFreeMemory (Dev.Handle, vkMemory, IntPtr.Zero);
 				disposedValue = true;
 			}
 		}

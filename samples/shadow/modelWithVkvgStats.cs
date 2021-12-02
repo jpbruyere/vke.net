@@ -107,7 +107,7 @@ namespace modelWithVkvgStats {
 		}
 
 		Program () : base () {
-			vkvgDev = new vkvg.Device (instance.Handle, phy.Handle, dev.VkDev.Handle, presentQueue.qFamIndex,
+			vkvgDev = new vkvg.Device (instance.Handle, phy.Handle, Dev.Handle.Handle, presentQueue.qFamIndex,
 				vkvg.SampleCount.Sample_4, presentQueue.index);
 
 			camera.Type = CamType.FirstPerson;

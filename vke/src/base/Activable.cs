@@ -74,7 +74,7 @@ namespace vke {
 
 			VkDebugUtilsObjectNameInfoEXT dmo = DebugUtilsInfo;
 			dmo.pObjectName = name.Pin();
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.VkDev, ref dmo));
+			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		/// <summary>

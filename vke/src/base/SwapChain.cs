@@ -120,7 +120,7 @@ namespace vke {
 			} else
 				createInfos.imageExtent = capabilities.currentExtent;
 
-			Utils.CheckResult (vkCreateSwapchainKHR (Dev.VkDev, ref createInfos, IntPtr.Zero, out VkSwapchainKHR newSwapChain));
+			Utils.CheckResult (vkCreateSwapchainKHR (Dev.Handle, ref createInfos, IntPtr.Zero, out VkSwapchainKHR newSwapChain));
 
 			if (Handle.Handle != 0)
 				_destroy ();
@@ -129,11 +129,11 @@ namespace vke {
 			presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 			Handle = newSwapChain;
 							
-			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out uint imageCount, IntPtr.Zero));
+			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out uint imageCount, IntPtr.Zero));
 			if (imageCount == 0)
 				throw new Exception ("Swapchain image count is 0.");
 			VkImage[] imgs = new VkImage[imageCount];
-			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.VkDev, Handle, out imageCount, imgs.Pin ()));
+			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out imageCount, imgs.Pin ()));
 			imgs.Unpin ();
 
 			images = new Image[imgs.Length];
@@ -150,7 +150,7 @@ namespace vke {
 		/// <returns>Swapchain image index or -1 if failed</returns>
 		/// <param name="fence">an optional fence to signal.</param>
 		public int GetNextImage (Fence fence = null) {
-			VkResult res = vkAcquireNextImageKHR (Dev.VkDev, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
+			VkResult res = vkAcquireNextImageKHR (Dev.Handle, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
 			if (res == VkResult.ErrorOutOfDateKHR || res == VkResult.SuboptimalKHR) {
 				Create ();
 				return -1;
@@ -162,7 +162,7 @@ namespace vke {
 		void _destroy () {
 			for (int i = 0; i < ImageCount; i++)
 				images[i].Dispose ();
-			vkDestroySwapchainKHR (Dev.VkDev, Handle, IntPtr.Zero);
+			vkDestroySwapchainKHR (Dev.Handle, Handle, IntPtr.Zero);
 			Dev.DestroySemaphore (presentComplete);
 		}
 

@@ -49,7 +49,7 @@ namespace vke {
         	    VkCommandPoolCreateInfo infos = VkCommandPoolCreateInfo.New();
     	        infos.queueFamilyIndex = QFamIndex;
 				infos.flags = Flags;
-	            Utils.CheckResult (vkCreateCommandPool (Dev.VkDev, ref infos, IntPtr.Zero, out handle));
+	            Utils.CheckResult (vkCreateCommandPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}
@@ -65,9 +65,9 @@ namespace vke {
             infos.level = VkCommandBufferLevel.Primary;
             infos.commandBufferCount = 1;
 
-            Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, out buff));
+            Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
 
-            return new PrimaryCommandBuffer (Dev.VkDev, this, buff);
+            return new PrimaryCommandBuffer (Dev.Handle, this, buff);
         }
 		/// <summary>
 		/// Allocates single primary command buffer.
@@ -81,9 +81,9 @@ namespace vke {
 			infos.level = VkCommandBufferLevel.Secondary;
 			infos.commandBufferCount = 1;
 
-			Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, out buff));
+			Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
 
-			return new SecondaryCommandBuffer (Dev.VkDev, this, buff);
+			return new SecondaryCommandBuffer (Dev.Handle, this, buff);
 		}
 
 		/// <summary>
@@ -97,11 +97,11 @@ namespace vke {
 			infos.level = VkCommandBufferLevel.Primary;
 			infos.commandBufferCount = count;
 			VkCommandBuffer[] buffs = new VkCommandBuffer[count];
-			Utils.CheckResult (vkAllocateCommandBuffers (Dev.VkDev, ref infos, buffs.Pin()));
+			Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, buffs.Pin()));
 			buffs.Unpin ();
 			PrimaryCommandBuffer[] cmds = new PrimaryCommandBuffer[count];
 			for (int i = 0; i < count; i++)
-				cmds[i] = new PrimaryCommandBuffer (Dev.VkDev, this, buffs[i]);
+				cmds[i] = new PrimaryCommandBuffer (Dev.Handle, this, buffs[i]);
 
 			return cmds;
 		}
@@ -113,7 +113,7 @@ namespace vke {
 		/// </summary>
 		/// <param name="flags">Set `ReleaseResources` flag to recycles all of the resources from the command pool back to the system.</param>
 		public void Reset (VkCommandPoolResetFlags flags = 0) {
-			Vk.vkResetCommandPool (Dev.VkDev, handle, flags);
+			Vk.vkResetCommandPool (Dev.Handle, handle, flags);
 		}
 		/// <summary>
 		/// Allocates a new command buffer and automatically start it.
@@ -132,7 +132,7 @@ namespace vke {
 		public void FreeCommandBuffers (params CommandBuffer[] cmds) {
             if (cmds.Length == 1) {
                 VkCommandBuffer hnd = cmds[0].Handle;
-                vkFreeCommandBuffers (Dev.VkDev, handle, 1, ref hnd);
+                vkFreeCommandBuffers (Dev.Handle, handle, 1, ref hnd);
                 return;
             }
 			int sizeElt = Marshal.SizeOf<IntPtr> ();
@@ -145,7 +145,7 @@ namespace vke {
 				count++;
 			}
 			if (count > 0)
-				vkFreeCommandBuffers (Dev.VkDev, handle, (uint)count, cmdsPtr);
+				vkFreeCommandBuffers (Dev.Handle, handle, (uint)count, cmdsPtr);
 
 			Marshal.FreeHGlobal (cmdsPtr);
         }
@@ -159,7 +159,7 @@ namespace vke {
 			if (!disposing)
 				System.Diagnostics.Debug.WriteLine ("VKE CommandPool disposed by finalizer");
 			if (state == ActivableState.Activated)
-				vkDestroyCommandPool (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyCommandPool (Dev.Handle, handle, IntPtr.Zero);
 			base.Dispose (disposing);
 		}
 		#endregion

@@ -104,8 +104,8 @@ namespace vke {
 				Vk.LoadInstanceFunctionPointers (inst);
 			}
 		}
-		public string[] SupportedExtensions () => SupportedExtensions (IntPtr.Zero);
-		public string[] SupportedExtensions (IntPtr layer) {
+		public static string[] SupportedExtensions () => SupportedExtensions (IntPtr.Zero);
+		public static string[] SupportedExtensions (IntPtr layer) {
 			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out uint count, IntPtr.Zero));
 
 			int sizeStruct = Marshal.SizeOf<VkExtensionProperties> ();

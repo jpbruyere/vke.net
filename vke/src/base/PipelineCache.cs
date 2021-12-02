@@ -67,7 +67,7 @@ namespace vke {
 					}
 				}
 
-				Utils.CheckResult (vkCreatePipelineCache (Dev.VkDev, ref info, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreatePipelineCache (Dev.Handle, ref info, IntPtr.Zero, out handle));
 
 				if (info.pInitialData != IntPtr.Zero)
 					Marshal.FreeHGlobal (info.pInitialData);
@@ -95,9 +95,9 @@ namespace vke {
 				File.Delete (path);
 
 			UIntPtr dataSize;
-			Utils.CheckResult (vkGetPipelineCacheData (Dev.VkDev, handle, out dataSize, IntPtr.Zero));
+			Utils.CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, IntPtr.Zero));
 			byte[] pData = new byte[(int)dataSize];
-			Utils.CheckResult (vkGetPipelineCacheData (Dev.VkDev, handle, out dataSize, pData.Pin ()));
+			Utils.CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, pData.Pin ()));
 			pData.Unpin ();
 
 			using (FileStream fs = File.Open (path, FileMode.CreateNew)) 
@@ -113,7 +113,7 @@ namespace vke {
 			if (state == ActivableState.Activated) {
 				if (SaveOnDispose)
 					Save ();
-				vkDestroyPipelineCache (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyPipelineCache (Dev.Handle, handle, IntPtr.Zero);
 			}
 			base.Dispose (disposing);
 		}

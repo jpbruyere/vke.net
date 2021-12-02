@@ -57,7 +57,7 @@ namespace vke {
 					info.pushConstantRangeCount = (uint)PushConstantRanges.Count;
 					info.pPushConstantRanges = PushConstantRanges.Pin();
 				}
-				Utils.CheckResult (vkCreatePipelineLayout (Dev.VkDev, ref info, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreatePipelineLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
 
 				if (dsls.Length > 0)
 					dsls.Unpin ();
@@ -80,7 +80,7 @@ namespace vke {
 				} else
 					System.Diagnostics.Debug.WriteLine ("VKE Activable PipelineLayout disposed by finalizer");
 
-				vkDestroyPipelineLayout (Dev.VkDev, handle, IntPtr.Zero);
+				vkDestroyPipelineLayout (Dev.Handle, handle, IntPtr.Zero);
 			}else if (disposing)
 				System.Diagnostics.Debug.WriteLine ("Calling dispose on unactive PipelineLayout");
 

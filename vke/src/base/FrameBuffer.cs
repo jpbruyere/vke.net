@@ -93,7 +93,7 @@ namespace vke {
 				if (PNext != null)
 					createInfo.pNext = PNext.GetPointer();
 
-				Utils.CheckResult (vkCreateFramebuffer (renderPass.Dev.VkDev, ref createInfo, IntPtr.Zero, out handle));
+				Utils.CheckResult (vkCreateFramebuffer (renderPass.Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
 
 				views.Unpin ();
 				if (PNext != null)

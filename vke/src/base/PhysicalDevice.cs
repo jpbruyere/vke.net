@@ -68,7 +68,6 @@ namespace vke {
 
 		public bool HasSwapChainSupport { get; private set; }
 		public IntPtr Handle => phy;
-		public bool GetDeviceExtensionSupported (string extName) => SupportedExtensions (IntPtr.Zero).Contains (extName);
 
 		#region CTOR
 		internal PhysicalDevice (IntPtr vkPhy)
@@ -94,6 +93,8 @@ namespace vke {
 		}
 		#endregion
 
+		public bool GetDeviceExtensionSupported (string extName) => SupportedExtensions ().Contains (extName);
+		public string [] SupportedExtensions () => SupportedExtensions (IntPtr.Zero);
 		public string [] SupportedExtensions (IntPtr layer)
 		{
 			CheckResult (vkEnumerateDeviceExtensionProperties (phy, layer, out uint count, IntPtr.Zero));

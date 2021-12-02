@@ -106,7 +106,7 @@ namespace vke {
 #endif
 				size = (ulong)((endIndex - startIndex) * TSize)
 			};
-			vkFlushMappedMemoryRanges (Dev.VkDev, 1, ref mr);
+			vkFlushMappedMemoryRanges (Dev.Handle, 1, ref mr);
 		}
 		/// <summary>
 		/// Retrieve a Span&lt;T&gt; on native memory of the buffer. Automatically Map it if not yet done.
