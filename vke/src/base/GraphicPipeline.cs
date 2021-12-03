@@ -56,12 +56,7 @@ namespace vke {
 					VkPipelineColorBlendStateCreateInfo colorBlendInfo = VkPipelineColorBlendStateCreateInfo.New ();
 					colorBlendInfo.logicOpEnable = cfg.ColorBlendLogicOpEnable;
 					colorBlendInfo.logicOp = cfg.ColorBlendLogicOp;
-					unsafe {
-						colorBlendInfo.blendConstants[0] = cfg.ColorBlendConstants.X;
-						colorBlendInfo.blendConstants[1] = cfg.ColorBlendConstants.Y;
-						colorBlendInfo.blendConstants[2] = cfg.ColorBlendConstants.Z;
-						colorBlendInfo.blendConstants[3] = cfg.ColorBlendConstants.W;
-					}
+					colorBlendInfo.blendConstants = cfg.ColorBlendConstants;
 					colorBlendInfo.attachmentCount = (uint)cfg.blendAttachments.Count;
 					colorBlendInfo.pAttachments = cfg.blendAttachments.Pin (pctx);
 

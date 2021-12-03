@@ -1,5 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">  
-  <PropertyGroup>		
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
     <IncludeDefaultNoneItems>false</IncludeDefaultNoneItems>
-  </PropertyGroup>  
+  </PropertyGroup>
 </Project>

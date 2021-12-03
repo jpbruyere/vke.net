@@ -217,12 +217,10 @@ namespace vke {
 				return;
 			VkDebugMarkerMarkerInfoEXT info = VkDebugMarkerMarkerInfoEXT.New();
 			info.pMarkerName = name.Pin ();
-			unsafe {
-				info.color[0] = r;
-				info.color[1] = g;
-				info.color[2] = b;
-				info.color[3] = a;
-			}
+			info.color.X = r;
+			info.color.Y = g;
+			info.color.Z = b;
+			info.color.W = a;
 			vkCmdDebugMarkerBeginEXT (Handle, ref info);
 			name.Unpin ();
 		}
@@ -231,12 +229,10 @@ namespace vke {
 				return;
 			VkDebugMarkerMarkerInfoEXT info = VkDebugMarkerMarkerInfoEXT.New();
 			info.pMarkerName = name.Pin ();
-			unsafe {
-				info.color[0] = r;
-				info.color[1] = g;
-				info.color[2] = b;
-				info.color[3] = a;
-			}
+			info.color.X = r;
+			info.color.Y = g;
+			info.color.Z = b;
+			info.color.W = a;
 			vkCmdDebugMarkerInsertEXT (Handle, ref info);
 			name.Unpin ();
 		}
