@@ -51,9 +51,8 @@ namespace vke {
 		IntPtr pData;
 		VkSpecializationMapEntry[] entries;
 
-		VkSpecializationInfo infos;
+		public VkSpecializationInfo infos;
 
-		public IntPtr InfosPtr { get; private set; }
 
 		#region CTOR
 		public SpecializationInfo (params SpecializationConstant[] constants) {
@@ -73,17 +72,15 @@ namespace vke {
 			}
 
 			infos = new VkSpecializationInfo {
-				mapEntryCount = (uint)constants.Length,
-				pMapEntries = entries.Pin (),
+				pMapEntries = entries,
 				pData = pData,
 				dataSize = (UIntPtr)totSize
 			};
-			InfosPtr = infos.Pin ();
 		}
 		#endregion
 
 		public void Dispose () {
-			infos.Unpin ();
+			infos.Dispose();
 			Marshal.FreeHGlobal (pData);
 			entries.Unpin ();
 		}

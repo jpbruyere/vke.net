@@ -21,9 +21,9 @@ namespace vke {
 			inheri.queryFlags = queryFlags;
 			inheri.pipelineStatistics = statFlags;
 			VkCommandBufferBeginInfo cmdBufInfo = new VkCommandBufferBeginInfo (usage);
-			cmdBufInfo.pInheritanceInfo = inheri.Pin ();
+			cmdBufInfo.pInheritanceInfo = inheri;
 			Utils.CheckResult (vkBeginCommandBuffer (handle, ref cmdBufInfo));
-			inheri.Unpin ();
+			cmdBufInfo.Dispose();
 		}
 	}
 	public class PrimaryCommandBuffer : CommandBuffer {
@@ -38,27 +38,15 @@ namespace vke {
 		/// <param name="fence">Fence.</param>
 		public void Submit (VkQueue queue, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
 			VkSubmitInfo submit_info = VkSubmitInfo.New ();
+			submit_info.pWaitDstStageMask = VkPipelineStageFlags.ColorAttachmentOutput;
+			if (signal != VkSemaphore.Null)
+				submit_info.pSignalSemaphores = signal;
+			if (wait != VkSemaphore.Null)
+				submit_info.pWaitSemaphores = wait;
+			submit_info.pCommandBuffers = handle;
 
-			IntPtr dstStageMask = Marshal.AllocHGlobal (sizeof (uint));
-			Marshal.WriteInt32 (dstStageMask, (int)VkPipelineStageFlags.ColorAttachmentOutput);
-
-			using (PinnedObjects pctx = new PinnedObjects ()) {
-				submit_info.pWaitDstStageMask = dstStageMask;
-				if (signal != VkSemaphore.Null) {
-					submit_info.signalSemaphoreCount = 1;
-					submit_info.pSignalSemaphores = signal.Pin (pctx);
-				}
-				if (wait != VkSemaphore.Null) {
-					submit_info.waitSemaphoreCount = 1;
-					submit_info.pWaitSemaphores = wait.Pin (pctx);
-				}
-
-				submit_info.commandBufferCount = 1;
-				submit_info.pCommandBuffers = handle.Pin (pctx);
-
-				Utils.CheckResult (vkQueueSubmit (queue, 1, ref submit_info, fence));
-			}
-			Marshal.FreeHGlobal (dstStageMask);
+			Utils.CheckResult (vkQueueSubmit (queue, 1, ref submit_info, fence));
+			submit_info.Dispose();
 		}
 		/// <summary>
 		/// Put the command buffer in the recording state.

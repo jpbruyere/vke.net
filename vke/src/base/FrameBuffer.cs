@@ -87,15 +87,15 @@ namespace vke {
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
 				VkImageView[] views = attachments.Select (a => a.Descriptor.imageView).ToArray ();
-				createInfo.attachmentCount = (uint)views.Length;
-				createInfo.pAttachments = views.Pin ();
+				createInfo.pAttachments = views;
 
 				if (PNext != null)
 					createInfo.pNext = PNext.GetPointer();
 
 				Utils.CheckResult (vkCreateFramebuffer (renderPass.Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
 
-				views.Unpin ();
+				createInfo.Dispose();
+
 				if (PNext != null)
 					PNext.ReleasePointer ();
 

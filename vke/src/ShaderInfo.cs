@@ -58,12 +58,11 @@ namespace vke {
 		/// destroyed on Dispose.
 		/// </summary>
 		public ShaderInfo (VkShaderStageFlags stageFlags, VkShaderModule module, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
-			EntryPoint = new FixedUtf8String (entryPoint);
-
 			info.stage = stageFlags;
-			info.pName = EntryPoint;
+			info.pName = entryPoint;
 			info.module = module;
-			info.pSpecializationInfo = (specializationInfo == null) ? IntPtr.Zero : specializationInfo.InfosPtr;
+			if (specializationInfo != null)
+				info.pSpecializationInfo =  specializationInfo.infos;
 		}
 
 		#region IDisposable Support
@@ -71,7 +70,7 @@ namespace vke {
 
 		protected virtual void Dispose (bool disposing) {
 			if (!disposedValue) {
-				if (disposing) 
+				if (disposing)
 					EntryPoint.Dispose ();
 				else
 					System.Diagnostics.Debug.WriteLine ("VKE ShaderInfo disposed by finalizer");

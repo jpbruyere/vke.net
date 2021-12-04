@@ -105,12 +105,9 @@ namespace vke {
 					spDescs.Add (sp.SubpassDescription);
 
 				VkRenderPassCreateInfo renderPassInfo = VkRenderPassCreateInfo.New();
-				renderPassInfo.attachmentCount = (uint)attachments.Count;
-				renderPassInfo.pAttachments = attachments.Pin ();
-				renderPassInfo.subpassCount = (uint)spDescs.Count;
-				renderPassInfo.pSubpasses = spDescs.Pin ();
-				renderPassInfo.dependencyCount = (uint)dependencies.Count;
-				renderPassInfo.pDependencies = dependencies.Pin ();
+				renderPassInfo.pAttachments = attachments;
+				renderPassInfo.pSubpasses = spDescs;
+				renderPassInfo.pDependencies = dependencies;
 				if (PNext != null)
 					renderPassInfo.pNext = PNext.GetPointer ();
 
@@ -121,9 +118,8 @@ namespace vke {
 
 				if (PNext != null)
 					PNext.ReleasePointer ();
-				attachments.Unpin ();
-				spDescs.Unpin ();
-				dependencies.Unpin ();
+
+				renderPassInfo.Dispose ();
 			}
 			base.Activate ();
 		}
@@ -207,8 +203,7 @@ namespace vke {
 			info.renderPass = handle;
 			info.renderArea.extent.width = width;
 			info.renderArea.extent.height = height;
-			info.clearValueCount = (uint)ClearValues.Count;
-			info.pClearValues = ClearValues.Pin ();
+			info.pClearValues = ClearValues;
 			info.framebuffer = frameBuffer.handle;
 
 			vkCmdBeginRenderPass (cmd.Handle, ref info, contents);

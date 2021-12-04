@@ -86,7 +86,7 @@ namespace vke {
 				};
 
 				VkInstanceCreateInfo instanceCreateInfo = VkInstanceCreateInfo.New ();
-				instanceCreateInfo.pApplicationInfo = appInfo.Pin (pctx);
+				instanceCreateInfo.pApplicationInfo = appInfo;
 
 				if (instanceExtensions.Count > 0) {
 					instanceCreateInfo.enabledExtensionCount = (uint)instanceExtensions.Count;

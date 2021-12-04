@@ -75,9 +75,8 @@ namespace vke {
 			}
 
 			VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.New ();
-			deviceCreateInfo.queueCreateInfoCount = (uint)qInfos.Count;
-			deviceCreateInfo.pQueueCreateInfos = qInfos.Pin ();
-			deviceCreateInfo.pEnabledFeatures = enabledFeatures.Pin ();
+			deviceCreateInfo.pQueueCreateInfos = qInfos;
+			deviceCreateInfo.pEnabledFeatures = enabledFeatures;
 
 			if (deviceExtensions.Count > 0) {
 				deviceCreateInfo.enabledExtensionCount = (uint)deviceExtensions.Count;
@@ -85,8 +84,9 @@ namespace vke {
 			}
 
 			Utils.CheckResult (vkCreateDevice (phy.Handle, ref deviceCreateInfo, IntPtr.Zero, out dev));
-			qInfos.Unpin ();
-			enabledFeatures.Unpin ();
+
+			deviceCreateInfo.Dispose();
+
 			foreach (List<float> fa in prioritiesLists)
 				fa.Unpin ();
 

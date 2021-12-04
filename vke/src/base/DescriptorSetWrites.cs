@@ -116,15 +116,14 @@ namespace vke {
 							descPtrArray.Add (descriptors[i].Pin (pinCtx));
 							i++;
 						}
-						pDescriptors = descPtrArray.Pin (pinCtx);
 					} else {
 						pDescriptors = descriptors[i].Pin (pinCtx);
 						i++;
 					}
-					if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
+					/*if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
 						wds.pBufferInfo = pDescriptors;
 					else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
-						wds.pImageInfo = pDescriptors;
+						wds.pImageInfo = pDescriptors;*/
 
 					WriteDescriptorSets[wdsPtr] = wds;
 					wdsPtr++;
@@ -156,10 +155,11 @@ namespace vke {
 						pDescriptors = descriptors[i].Pin (pinCtx);
 						i++;
 					}
+					/*
 					if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
 						wds.pBufferInfo = pDescriptors;
 					else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
-						wds.pImageInfo = pDescriptors;
+						wds.pImageInfo = pDescriptors;*/
 
 					WriteDescriptorSets[wdsPtr] = wds;
 					wdsPtr++;
@@ -190,7 +190,7 @@ namespace vke {
             wds.descriptorCount = binding.descriptorCount;
             wds.dstBinding = binding.binding;
             wds.dstSet = destSet.handle;
-            wds.pBufferInfo = descriptor.Pin ();
+            wds.pBufferInfo = descriptor;
 
 			WriteDescriptorSets.Add (wds);
         }
@@ -202,7 +202,7 @@ namespace vke {
             wds.descriptorCount = binding.descriptorCount;
             wds.dstBinding = binding.binding;
             wds.dstSet = destSet.handle;
-            wds.pImageInfo = descriptor.Pin ();
+            wds.pImageInfo = descriptor;
 
             WriteDescriptorSets.Add (wds);
         }

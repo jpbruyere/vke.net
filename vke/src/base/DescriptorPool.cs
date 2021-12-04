@@ -23,7 +23,7 @@ namespace vke {
 		/// </summary>
 		/// <param name="device">the logical device that create the pool.</param>
 		/// <param name="maxSets">maximum number of descriptor sets that can be allocated from the pool</param>
-		public DescriptorPool (Device device, uint maxSets = 1) : base (device) {            
+		public DescriptorPool (Device device, uint maxSets = 1) : base (device) {
             MaxSets = maxSets;
         }
 		/// <summary>
@@ -37,19 +37,18 @@ namespace vke {
 
 			PoolSizes.AddRange (poolSizes);
 
-            Activate ();            
+            Activate ();
         }
 		#endregion
 
 		public sealed override void Activate () {
-			if (state != ActivableState.Activated) {            
+			if (state != ActivableState.Activated) {
 				VkDescriptorPoolCreateInfo info = VkDescriptorPoolCreateInfo.New();
-				info.poolSizeCount = (uint)PoolSizes.Count;
-				info.pPoolSizes = PoolSizes.Pin ();
+				info.pPoolSizes = PoolSizes;
 				info.maxSets = MaxSets;
 
 				Utils.CheckResult (vkCreateDescriptorPool (Dev.Handle, ref info, IntPtr.Zero, out handle));
-				PoolSizes.Unpin ();
+				info.Dispose();
 			}
 			base.Activate ();
 		}
@@ -66,12 +65,11 @@ namespace vke {
         public void Allocate (DescriptorSet descriptorSet) {
             VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.New();
             allocInfo.descriptorPool = handle;
-            allocInfo.descriptorSetCount = (uint)descriptorSet.descriptorSetLayouts.Count;
-            allocInfo.pSetLayouts = descriptorSet.descriptorSetLayouts.Pin();
+            allocInfo.pSetLayouts = descriptorSet.descriptorSetLayouts;
 
             Utils.CheckResult (vkAllocateDescriptorSets (Dev.Handle, ref allocInfo, out descriptorSet.handle));
 
-			descriptorSet.descriptorSetLayouts.Unpin ();
+			allocInfo.Dispose();
         }
         public void FreeDescriptorSet (params DescriptorSet[] descriptorSets) {
             if (descriptorSets.Length == 1) {

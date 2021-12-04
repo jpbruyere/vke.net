@@ -16,7 +16,7 @@ namespace vke {
         public SubPass () {
         }
 		public SubPass (params VkImageLayout[] layouts) {
-			for (uint i = 0; i < layouts.Length; i++) 
+			for (uint i = 0; i < layouts.Length; i++)
 				AddColorReference (i, layouts[i]);
 		}
 
@@ -54,33 +54,30 @@ namespace vke {
                 VkSubpassDescription subpassDescription = new VkSubpassDescription ();
                 subpassDescription.pipelineBindPoint = VkPipelineBindPoint.Graphics;
                 if (colorRefs.Count > 0) {
-                    subpassDescription.colorAttachmentCount = (uint)colorRefs.Count;
-                    subpassDescription.pColorAttachments = colorRefs.Pin(); ; 
+                    subpassDescription.pColorAttachments = colorRefs;
                 }
                 if (inputRefs.Count > 0) {
-                    subpassDescription.inputAttachmentCount = (uint)inputRefs.Count;
-                    subpassDescription.pInputAttachments = inputRefs.Pin (); ;
+                    subpassDescription.pInputAttachments = inputRefs; ;
                 }
                 if (preservedRefs.Count > 0) {
-                    subpassDescription.preserveAttachmentCount = (uint)preservedRefs.Count;
                     subpassDescription.pPreserveAttachments = preservedRefs.Pin (); ;
                 }
 				if (resolveRefs.Count > 0)
-					subpassDescription.pResolveAttachments = resolveRefs.Pin ();
+					subpassDescription.pResolveAttachments = resolveRefs;
 
 				if (DepthReference.HasValue)
-                    subpassDescription.pDepthStencilAttachment = DepthReference.Value.Pin();
+                    subpassDescription.pDepthStencilAttachment = DepthReference.Value;
 
                 return subpassDescription;
-            }        
+            }
         }
 
 		internal void UnpinLists () {
-			if (colorRefs.Count > 0) 
-				colorRefs.Unpin (); 
-			if (inputRefs.Count > 0) 			
+			if (colorRefs.Count > 0)
+				colorRefs.Unpin ();
+			if (inputRefs.Count > 0)
 				inputRefs.Unpin ();
-			if (preservedRefs.Count > 0) 
+			if (preservedRefs.Count > 0)
 				preservedRefs.Unpin ();
 			if (resolveRefs.Count > 0)
 				resolveRefs.Unpin ();
