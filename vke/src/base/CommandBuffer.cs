@@ -39,9 +39,14 @@ namespace vke {
 		public void Submit (VkQueue queue, VkSemaphore wait = default, VkSemaphore signal = default, Fence fence = null) {
 			VkSubmitInfo submit_info = VkSubmitInfo.New ();
 			submit_info.pWaitDstStageMask = VkPipelineStageFlags.ColorAttachmentOutput;
-			if (signal != VkSemaphore.Null)
+			if (signal == VkSemaphore.Null)
+				submit_info.pSignalSemaphores = null;
+			else
 				submit_info.pSignalSemaphores = signal;
-			if (wait != VkSemaphore.Null)
+
+			if (wait == VkSemaphore.Null)
+				submit_info.pWaitSemaphores = null;
+			else
 				submit_info.pWaitSemaphores = wait;
 			submit_info.pCommandBuffers = handle;
 
