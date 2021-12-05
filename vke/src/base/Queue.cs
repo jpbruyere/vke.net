@@ -49,6 +49,8 @@ namespace vke {
 
 			vkQueuePresentKHR (handle, ref present);
 
+			idx.Unpin();
+
 			present.Dispose();
 		}
 	}

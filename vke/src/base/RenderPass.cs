@@ -113,9 +113,6 @@ namespace vke {
 
 				handle = Dev.CreateRenderPass (renderPassInfo);
 
-				foreach (SubPass sp in subpasses)
-					sp.UnpinLists ();
-
 				if (PNext != null)
 					PNext.ReleasePointer ();
 
@@ -208,7 +205,7 @@ namespace vke {
 
 			vkCmdBeginRenderPass (cmd.Handle, ref info, contents);
 
-			ClearValues.Unpin ();
+			info.Dispose ();
 		}
 		/// <summary>
 		/// Switch to next subpass

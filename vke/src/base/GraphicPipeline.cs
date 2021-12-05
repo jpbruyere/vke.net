@@ -99,6 +99,10 @@ namespace vke {
 
 					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 
+					vertInputInfo.Dispose();
+					viewportState.Dispose();
+					dynStatesInfo.Dispose();
+					colorBlendInfo.Dispose();
 					info.Dispose ();
 				}
 			}

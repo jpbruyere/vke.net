@@ -11,18 +11,18 @@ namespace vke {
 	/// Hold shader specialization constant value and type
 	/// </summary>
 	public class SpecializationConstant<T> : SpecializationConstant {
-		T val;		
+		T val;
 
-        public T Value => val;        
+        public T Value => val;
 
 		#region CTOR
-		public SpecializationConstant (uint id, T value) : base(id) {            
+		public SpecializationConstant (uint id, T value) : base(id) {
             val = value;
         }
 		#endregion
 
 		public override uint Size => (uint)Marshal.SizeOf<T> ();
-		internal unsafe override void WriteTo (IntPtr ptr) {			
+		internal unsafe override void WriteTo (IntPtr ptr) {
 			if (typeof (T) == typeof (float)) {
 				float v = Convert.ToSingle (Value);
 				System.Buffer.MemoryCopy (&v, ptr.ToPointer (), 4, 4);
@@ -82,7 +82,6 @@ namespace vke {
 		public void Dispose () {
 			infos.Dispose();
 			Marshal.FreeHGlobal (pData);
-			entries.Unpin ();
 		}
 	}
 }
