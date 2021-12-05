@@ -9,8 +9,6 @@ namespace vke {
 	/// This class is a helper class for VkPipelineShaderStageCreateInfo creation.
 	/// </summary>
 	public class ShaderInfo : IDisposable {
-		readonly FixedUtf8String EntryPoint;
-
 		protected VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo.New ();
 		protected Device dev;
 
@@ -70,9 +68,7 @@ namespace vke {
 
 		protected virtual void Dispose (bool disposing) {
 			if (!disposedValue) {
-				if (disposing)
-					EntryPoint.Dispose ();
-				else
+				if (!disposing)
 					System.Diagnostics.Debug.WriteLine ("VKE ShaderInfo disposed by finalizer");
 
 				dev?.DestroyShaderModule (info.module);

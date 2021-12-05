@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
+using System.Linq;
 
 namespace vke {
 	/// <summary>
@@ -108,28 +109,19 @@ namespace vke {
 					VkWriteDescriptorSet wds = WriteDescriptorSets[wdsPtr];
 					if (dstSetOverride != null)
 						wds.dstSet = dstSetOverride.Value.Handle;
-					IntPtr pDescriptors = IntPtr.Zero;
 
-					if (wds.descriptorCount > 1) {
-						List<IntPtr> descPtrArray = new List<IntPtr> ();
-						for (int d = 0; d < wds.descriptorCount; d++) {
-							descPtrArray.Add (descriptors[i].Pin (pinCtx));
-							i++;
-						}
-					} else {
-						pDescriptors = descriptors[i].Pin (pinCtx);
-						i++;
-					}
-					/*if (descriptors[firstDescriptor] is VkDescriptorBufferInfo)
-						wds.pBufferInfo = pDescriptors;
+					if (descriptors[i] is VkDescriptorBufferInfo)
+						wds.pBufferInfo = descriptors.SubArray (i,(int)wds.descriptorCount).Cast<VkDescriptorBufferInfo>().ToArray();
 					else if (descriptors[firstDescriptor] is VkDescriptorImageInfo)
-						wds.pImageInfo = pDescriptors;*/
-
+						wds.pImageInfo = descriptors.SubArray (i,(int)wds.descriptorCount).Cast<VkDescriptorImageInfo>().ToArray();
+					i+=(int)wds.descriptorCount;
 					WriteDescriptorSets[wdsPtr] = wds;
 					wdsPtr++;
 				}
 				vkUpdateDescriptorSets (dev.Handle, (uint)WriteDescriptorSets.Count, WriteDescriptorSets.Pin (pinCtx), 0, IntPtr.Zero);
 			}
+			foreach (VkWriteDescriptorSet wds in WriteDescriptorSets)
+				wds.Dispose();
 		}
 		/// <summary>
 		/// execute the descriptors writes targeting descriptorSets setted on AddWriteInfo call

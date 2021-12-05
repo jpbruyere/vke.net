@@ -81,8 +81,8 @@ namespace vke {
 				VkApplicationInfo appInfo = new VkApplicationInfo () {
 					sType = VkStructureType.ApplicationInfo,
 					apiVersion = new Vulkan.Version (VK_MAJOR, VK_MINOR, 0),
-					pApplicationName = ENGINE_NAME.Pin (pctx),
-					pEngineName = APPLICATION_NAME.Pin (pctx),
+					pApplicationName = ENGINE_NAME,
+					pEngineName = APPLICATION_NAME,
 				};
 
 				VkInstanceCreateInfo instanceCreateInfo = VkInstanceCreateInfo.New ();

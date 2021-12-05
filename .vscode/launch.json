@@ -13,7 +13,10 @@
 			"args": [],
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"stopAtEntry": false,
-			"console": "internalConsole"
+			"console": "internalConsole",
+			"env": {
+				"VK_INSTANCE_LAYERS": "VK_LAYER_KHRONOS_validation"
+			  }
 		},
 		{
 			"name": ".NET Core Launch (Triangle)",
