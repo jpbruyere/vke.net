@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
 
@@ -38,7 +39,6 @@ namespace vke {
 
 		public void Activate (VkPhysicalDeviceFeatures enabledFeatures, params string[] extensions) {
 			List<VkDeviceQueueCreateInfo> qInfos = new List<VkDeviceQueueCreateInfo> ();
-			List<List<float>> prioritiesLists = new List<List<float>> ();//store pinned lists for later unpin
 
 			foreach (IGrouping<uint, Queue> qfams in queues.GroupBy (q => q.qFamIndex)) {
 				int qTot = qfams.Count ();
@@ -60,9 +60,8 @@ namespace vke {
 					sType = VkStructureType.DeviceQueueCreateInfo,
 					queueCount = qCountReached ? phy.QueueFamilies[qfams.Key].queueCount : qIndex,
 					queueFamilyIndex = qfams.Key,
-					pQueuePriorities = priorities.Pin ()
+					pQueuePriorities = priorities
 				});
-				prioritiesLists.Add (priorities);//add for unpined
 			}
 
 			//enable only supported exceptions
@@ -86,9 +85,8 @@ namespace vke {
 			Utils.CheckResult (vkCreateDevice (phy.Handle, ref deviceCreateInfo, IntPtr.Zero, out dev));
 
 			deviceCreateInfo.Dispose();
-
-			foreach (List<float> fa in prioritiesLists)
-				fa.Unpin ();
+			foreach (VkDeviceQueueCreateInfo qI in qInfos)
+				qI.Dispose();
 
 			if (deviceExtensions.Count > 0)
 				deviceExtensions.Unpin ();
@@ -169,7 +167,7 @@ namespace vke {
 			// Iterate over all memory types available for the Device used in this example
 			for (uint i = 0; i < phy.memoryProperties.memoryTypeCount; i++) {
 				if ((typeBits & 1) == 1) {
-					if ((phy.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+					if ((phy.memoryProperties.memoryTypes.AsSpan[(int)i].propertyFlags & properties) == properties) {
 						return i;
 					}
 				}
@@ -197,8 +195,8 @@ namespace vke {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
 					UIntPtr shaderSize = (UIntPtr)shaderCode.Length;
-					VkShaderModule shaderModule = CreateShaderModule (shaderCode.Pin (), shaderSize);
-					shaderCode.Unpin ();
+					Span<uint> tmp = MemoryMarshal.Cast<byte, uint> (shaderCode);
+					VkShaderModule shaderModule = CreateShaderModule (tmp.ToArray(), shaderSize);
 					return shaderModule;
 				}
 			}
@@ -209,11 +207,12 @@ namespace vke {
 		/// <param name="code">unmanaged pointer holding the spirv code. Pointer must stay valid only during
 		/// the call to this method.</param>
 		/// <param name="codeSize">spirv code byte size.</param>
-		public VkShaderModule CreateShaderModule (IntPtr code, UIntPtr codeSize) {
+		public VkShaderModule CreateShaderModule (uint[] code, UIntPtr codeSize) {
 			VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
 			moduleCreateInfo.codeSize = codeSize;
 			moduleCreateInfo.pCode = code;
-			Utils.CheckResult (vkCreateShaderModule (VkDev, ref moduleCreateInfo, IntPtr.Zero, out VkShaderModule shaderModule));
+			Utils.CheckResult (vkCreateShaderModule (Handle, ref moduleCreateInfo, IntPtr.Zero, out VkShaderModule shaderModule));
+			moduleCreateInfo.Dispose();
 			return shaderModule;
 		}
 

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019  Jean-Philippe Bruyère <jp_bruyere@hotmail.com>
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+using System;
 using vke;
 using Vulkan;
 
@@ -24,7 +25,6 @@ namespace ClearScreen {
 		//bound to it, and a draw and present semaphore to sync the rendering.
 		protected override void initVulkan () {
 			base.initVulkan ();
-
 			//there are several method to clear the screen with vulkan. One is to
 			//use the renderpass CLEAR load operation so that attachment layout transitioning
 			//is handled automatically by the render pass.

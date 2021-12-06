@@ -101,6 +101,9 @@ namespace vke {
 				if (result != VkResult.Success)
 					throw new InvalidOperationException ("Could not create Vulkan instance. Error: " + result);
 
+				instanceCreateInfo.Dispose();
+				appInfo.Dispose();
+
 				Vk.LoadInstanceFunctionPointers (inst);
 			}
 		}

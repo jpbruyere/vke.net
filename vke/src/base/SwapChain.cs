@@ -99,7 +99,7 @@ namespace vke {
 		/// </summary>
 		public void Create () {
 
-			Dev.WaitIdle ();							
+			Dev.WaitIdle ();
 
 			VkSurfaceCapabilitiesKHR capabilities = Dev.phy.GetSurfaceCapabilities (presentQueue.Surface);
 
@@ -128,7 +128,7 @@ namespace vke {
 			presentComplete = Dev.CreateSemaphore ();
 			presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 			Handle = newSwapChain;
-							
+
 			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out uint imageCount, IntPtr.Zero));
 			if (imageCount == 0)
 				throw new Exception ("Swapchain image count is 0.");
@@ -175,7 +175,7 @@ namespace vke {
 			if (state == ActivableState.Activated) {
 				if (!disposing)
 					System.Diagnostics.Debug.WriteLine ("VKE Swapchain disposed by finalizer");
-				
+
 				_destroy ();
 
 			} else if (disposing)

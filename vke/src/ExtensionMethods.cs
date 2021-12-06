@@ -87,7 +87,7 @@ namespace vke {
 		#region shaderc
 
 
-		public static ShaderInfo CreateShaderInfo (this shaderc.Compiler comp, Device dev, string shaderPath, shaderc.ShaderKind shaderKind,
+		/*public static ShaderInfo CreateShaderInfo (this shaderc.Compiler comp, Device dev, string shaderPath, shaderc.ShaderKind shaderKind,
 			SpecializationInfo specializationInfo = null, string entryPoint = "main") {
 
 			using (shaderc.Result res = comp.Compile (shaderPath, shaderKind)) {
@@ -96,7 +96,7 @@ namespace vke {
 				VkShaderStageFlags stageFlags = Utils.ShaderKindToStageFlag (shaderKind);
 				return new ShaderInfo (dev, stageFlags, res.CodePointer, (UIntPtr)res.CodeLength, specializationInfo, entryPoint);
 			}
-		}
+		}*/
 		#endregion
 
 		#region temp

@@ -60,7 +60,7 @@ namespace vke {
                     subpassDescription.pInputAttachments = inputRefs; ;
                 }
                 if (preservedRefs.Count > 0) {
-                    subpassDescription.pPreserveAttachments = preservedRefs.Pin (); ;
+                    subpassDescription.pPreserveAttachments = preservedRefs; ;
                 }
 				if (resolveRefs.Count > 0)
 					subpassDescription.pResolveAttachments = resolveRefs;

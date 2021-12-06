@@ -15,7 +15,7 @@ namespace vke {
 		public VkShaderStageFlags Stage => info.stage;
 		public VkPipelineShaderStageCreateInfo Info => info;
 
-		public void RecreateModule(IntPtr code, UIntPtr codeSize) {
+		public void RecreateModule(uint[] code, UIntPtr codeSize) {
 			if (dev == null)
 				throw new Exception ("[ShaderInfo]Trying to recreate unowned shader module.");
 			dev.DestroyShaderModule (info.module);
@@ -32,7 +32,7 @@ namespace vke {
 		/// <param name="codeSize">Code size in byte</param>
 		/// <param name="specializationInfo">Specialization info.</param>
 		/// <param name="entryPoint">shader entry point</param>
-		public ShaderInfo (Device dev, VkShaderStageFlags stageFlags, IntPtr code, UIntPtr codeSize, SpecializationInfo specializationInfo = null, string entryPoint = "main"):
+		public ShaderInfo (Device dev, VkShaderStageFlags stageFlags, uint[] code, UIntPtr codeSize, SpecializationInfo specializationInfo = null, string entryPoint = "main"):
 			this(stageFlags, dev.CreateShaderModule (code, codeSize), specializationInfo, entryPoint) {
 			this.dev = dev;//keep dev for destroying module created in this CTOR
 		}
@@ -72,6 +72,7 @@ namespace vke {
 					System.Diagnostics.Debug.WriteLine ("VKE ShaderInfo disposed by finalizer");
 
 				dev?.DestroyShaderModule (info.module);
+				info.Dispose();
 
 				disposedValue = true;
 			}

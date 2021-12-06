@@ -44,12 +44,10 @@ namespace vke {
 			uint idx = swapChain.currentImageIndex;
 			VkSwapchainKHR sc = swapChain.Handle;
 			present.pSwapchains = sc;
-			present.pImageIndices = idx.Pin();
+			present.pImageIndices = idx;
 			present.pWaitSemaphores = wait;
 
 			vkQueuePresentKHR (handle, ref present);
-
-			idx.Unpin();
 
 			present.Dispose();
 		}

@@ -18,7 +18,7 @@ namespace vke {
 		public Fence (Device dev, bool signaled = false, string name = "fence") : base (dev, name) {
 			info.flags = signaled ? VkFenceCreateFlags.Signaled : 0;
 			Activate ();
-		}	
+		}
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
 			=> new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Fence, handle.Handle);

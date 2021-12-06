@@ -451,9 +451,8 @@ namespace vke {
 
 				if (info.sharingMode == VkSharingMode.Concurrent && queuesFamillies?.Length > 0) {
 					info.queueFamilyIndexCount = (uint)queuesFamillies.Length;
-					info.pQueueFamilyIndices = queuesFamillies.Pin ();
+					info.pQueueFamilyIndices = queuesFamillies;
 					Utils.CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
-					queuesFamillies.Unpin ();
 				} else
 					Utils.CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
 

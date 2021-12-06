@@ -117,6 +117,8 @@ namespace vke {
 					PNext.ReleasePointer ();
 
 				renderPassInfo.Dispose ();
+				foreach (VkSubpassDescription spd in spDescs)
+					spd.Dispose ();
 			}
 			base.Activate ();
 		}

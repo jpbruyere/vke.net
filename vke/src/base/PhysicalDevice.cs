@@ -77,6 +77,7 @@ namespace vke {
 			// Gather physical Device memory properties
 			IntPtr tmp = Marshal.AllocHGlobal (Marshal.SizeOf<VkPhysicalDeviceMemoryProperties> ());
 			vkGetPhysicalDeviceMemoryProperties (phy, tmp);
+
 			memoryProperties = Marshal.PtrToStructure<VkPhysicalDeviceMemoryProperties> (tmp);
 			Marshal.FreeHGlobal (tmp);
 
@@ -88,6 +89,7 @@ namespace vke {
 
 			vkGetPhysicalDeviceQueueFamilyProperties (phy, out queueFamilyCount, QueueFamilies.Pin ());
 			QueueFamilies.Unpin ();
+			Console.WriteLine("PhysicalDeviceCollection");
 
 			HasSwapChainSupport = GetDeviceExtensionSupported (Ext.D.VK_KHR_swapchain);
 		}
