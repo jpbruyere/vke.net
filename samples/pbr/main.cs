@@ -52,7 +52,7 @@ namespace pbrSample {
 			base.initVulkan ();
 
 			//UpdateFrequency = 20;
-			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 64f);
+			camera = new Camera (Helpers.DegreesToRadians (45f), 1f, 0.1f, 64f);
 			camera.SetPosition (0, 0, -2);
 
 			pbrPipeline = new PBRPipeline (presentQueue,

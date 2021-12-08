@@ -5,6 +5,7 @@
 using System;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
     public sealed class ComputePipeline : Pipeline {
@@ -32,13 +33,13 @@ namespace vke {
 				Cache?.Activate ();
 
 				using (ShaderInfo shader = new ShaderInfo (Dev, VkShaderStageFlags.Compute, SpirVPath)) {
-					VkComputePipelineCreateInfo info = VkComputePipelineCreateInfo.New ();
+					VkComputePipelineCreateInfo info = default;
 					info.layout = layout.Handle;
 					info.stage = shader.Info;
 					info.basePipelineHandle = 0;
 					info.basePipelineIndex = 0;
 
-					Utils.CheckResult (Vk.vkCreateComputePipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
+					CheckResult (Vk.vkCreateComputePipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 				}
 			}
 			base.Activate ();

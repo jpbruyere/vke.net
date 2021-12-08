@@ -23,7 +23,7 @@ namespace deferred {
 
 		public float depthBiasConstant = 1.5f;
 		public float depthBiasSlope = 1.75f;
-		float lightFOV = Utils.DegreesToRadians (60);
+		float lightFOV = Helpers.DegreesToRadians (60);
 		float lightFarPlane;
 
 

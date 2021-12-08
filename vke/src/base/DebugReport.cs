@@ -5,10 +5,11 @@ using System;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	[Obsolete("Use the new VK_EXT_debug_utils extension")]
-    public class DebugReport : IDisposable {        
+    public class DebugReport : IDisposable {
         VkDebugReportCallbackEXT handle;
 		Instance inst;
 
@@ -52,7 +53,7 @@ namespace vke {
 			Console.ForegroundColor = ConsoleColor.White;
             return VkBool32.False;
         }
-        
+
         public DebugReport (Instance instance, VkDebugReportFlagsEXT flags = VkDebugReportFlagsEXT.ErrorEXT | VkDebugReportFlagsEXT.WarningEXT) {
 			inst = instance;
 
@@ -62,7 +63,7 @@ namespace vke {
                 pfnCallback = Marshal.GetFunctionPointerForDelegate (debugCallbackDelegate)
             };
 
-            Utils.CheckResult (vkCreateDebugReportCallbackEXT (inst.Handle, ref dbgInfo, IntPtr.Zero, out handle));
+            CheckResult (vkCreateDebugReportCallbackEXT (inst.Handle, ref dbgInfo, IntPtr.Zero, out handle));
         }
 
 		#region IDisposable Support

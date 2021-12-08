@@ -5,6 +5,7 @@ using System;
 using System.Xml.Serialization;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -74,7 +75,7 @@ namespace vke {
 
 			VkDebugUtilsObjectNameInfoEXT dmo = DebugUtilsInfo;
 			dmo.pObjectName = name.Pin();
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (Dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		/// <summary>

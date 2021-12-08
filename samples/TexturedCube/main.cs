@@ -192,7 +192,7 @@ namespace TextureCube {
 			nextTexture = null;
 		}
 		void updateMatrices () {
-			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 5.0f);
+			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 5.0f);
 			matrices.view =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *

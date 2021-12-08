@@ -150,7 +150,7 @@ namespace deferred {
 				);
 #endif
 
-			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
+			camera = new Camera (Helpers.DegreesToRadians (45f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, 2);
 
 			renderer = new DeferredPbrRenderer (dev, swapChain, presentQueue, cubemapPathes[2], camera.NearPlane, camera.FarPlane);

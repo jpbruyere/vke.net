@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	[Serializable]
@@ -43,11 +44,11 @@ namespace vke {
 
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
-				VkDescriptorPoolCreateInfo info = VkDescriptorPoolCreateInfo.New();
+				VkDescriptorPoolCreateInfo info = default;
 				info.pPoolSizes = PoolSizes;
 				info.maxSets = MaxSets;
 
-				Utils.CheckResult (vkCreateDescriptorPool (Dev.Handle, ref info, IntPtr.Zero, out handle));
+				CheckResult (vkCreateDescriptorPool (Dev.Handle, ref info, IntPtr.Zero, out handle));
 				info.Dispose();
 			}
 			base.Activate ();
@@ -63,24 +64,24 @@ namespace vke {
             return ds;
         }
         public void Allocate (DescriptorSet descriptorSet) {
-            VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.New();
+            VkDescriptorSetAllocateInfo allocInfo = default;
             allocInfo.descriptorPool = handle;
             allocInfo.pSetLayouts = descriptorSet.descriptorSetLayouts;
 
-            Utils.CheckResult (vkAllocateDescriptorSets (Dev.Handle, ref allocInfo, out descriptorSet.handle));
+            CheckResult (vkAllocateDescriptorSets (Dev.Handle, ref allocInfo, out descriptorSet.handle));
 
 			allocInfo.Dispose();
         }
         public void FreeDescriptorSet (params DescriptorSet[] descriptorSets) {
             if (descriptorSets.Length == 1) {
-                Utils.CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, 1, ref descriptorSets[0].handle));
+                CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, 1, ref descriptorSets[0].handle));
                 return;
             }
-            Utils.CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, (uint)descriptorSets.Length, descriptorSets.Pin()));
+            CheckResult (vkFreeDescriptorSets (Dev.Handle, handle, (uint)descriptorSets.Length, descriptorSets.Pin()));
 			descriptorSets.Unpin ();
         }
         public void Reset () {
-            Utils.CheckResult (vkResetDescriptorPool (Dev.Handle, handle, 0));
+            CheckResult (vkResetDescriptorPool (Dev.Handle, handle, 0));
         }
 
 		public override string ToString () {

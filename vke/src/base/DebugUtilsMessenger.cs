@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke.DebugUtils {
 	/// <summary>
@@ -73,13 +74,13 @@ namespace vke.DebugUtils {
 				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
 				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT) {
 			inst = instance;
-			VkDebugUtilsMessengerCreateInfoEXT info = VkDebugUtilsMessengerCreateInfoEXT.New ();
+			VkDebugUtilsMessengerCreateInfoEXT info = default;
 			info.messageType = typeMask;
 			info.messageSeverity = severityMask;
 			info.pfnUserCallback = Marshal.GetFunctionPointerForDelegate (onMessageDelegate);
 			info.pUserData = IntPtr.Zero;
 
-			Utils.CheckResult (vkCreateDebugUtilsMessengerEXT (inst.VkInstance, ref info, IntPtr.Zero, out handle));
+			CheckResult (vkCreateDebugUtilsMessengerEXT (inst.VkInstance, ref info, IntPtr.Zero, out handle));
 		}
 		/// <summary>
 		/// Create a new debug utils messenger with default message callback outputing to Console.

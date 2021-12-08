@@ -82,11 +82,11 @@ namespace ExternalMemmories
 				Console.ResetColor();
 
 
-				VkPhysicalDeviceImageFormatInfo2 imgFormatInfo2 = VkPhysicalDeviceImageFormatInfo2.New();
-				VkImageFormatProperties2 imgProps2 = VkImageFormatProperties2.New();
+				VkPhysicalDeviceImageFormatInfo2 imgFormatInfo2 = default;
+				VkImageFormatProperties2 imgProps2 = default;
 
-				VkPhysicalDeviceExternalImageFormatInfo extImgFormatInfo = VkPhysicalDeviceExternalImageFormatInfo.New();
-				VkExternalImageFormatProperties extProps = VkExternalImageFormatProperties.New ();
+				VkPhysicalDeviceExternalImageFormatInfo extImgFormatInfo = default;
+				VkExternalImageFormatProperties extProps = default;
 
 				imgFormatInfo2.format = format;
 				imgFormatInfo2.tiling = VkImageTiling.Optimal;

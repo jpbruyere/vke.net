@@ -16,6 +16,20 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build VulkanContext",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/VulkanContext/VulkanContext.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build Triangle",
 			"command": "dotnet",
 			"type": "process",

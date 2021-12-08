@@ -46,7 +46,7 @@ namespace vke {
 			bufferImageGranularity = dev.phy.Limits.bufferImageGranularity;
 			memInfo.allocationSize = size;
 			memInfo.memoryTypeIndex = memoryTypeIndex;
-			Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+			CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
 		/// <summary>
 		/// Allocate memory for a new resource in this memory pool.
@@ -140,7 +140,7 @@ namespace vke {
 		/// <param name="size">Size.</param>
 		/// <param name="offset">Offset.</param>
 		public void Map (ulong size = Vk.WholeSize, ulong offset = 0) {
-			Utils.CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, size, 0, ref mappedPointer));
+			CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, size, 0, ref mappedPointer));
 		}
 		/// <summary>
 		/// Unmap previously mapped memory of this pool.

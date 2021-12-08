@@ -7,15 +7,13 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Vulkan;
 
-namespace Vulkan {
-	public static partial class Utils {
+namespace vke {
+	public static partial class Helpers {
 		/// <summary>Throw an erro if VkResult != Success.</summary>
-		public static void CheckResult (VkResult result, string errorString = "Call failed") {
-            if (result != VkResult.Success)
-                throw new InvalidOperationException (errorString + ": " + result.ToString ());
-        }
 		static void xmlMakeTypeFieldsAsAttributes (Type t, ref XmlAttributeOverrides overrides)
 		{
 			foreach (FieldInfo fi in t.GetFields (BindingFlags.Public | BindingFlags.Instance))
@@ -84,8 +82,8 @@ namespace Vulkan {
 		}
 		/// <summary>Convert angle from degree to radian.</summary>
 		public static float DegreesToRadians (float degrees) {
-            return degrees * (float)Math.PI / 180f;
-        }
+			return degrees * (float)Math.PI / 180f;
+		}
 
 		/// <summary>
 		/// Populate a Vector3 with values from a float array
@@ -97,7 +95,7 @@ namespace Vulkan {
 		/// Populate a Vector4 with values from a float array
 		/// </summary>
 		public static void FromFloatArray (ref Vector4 v, float[] floats) {
-			v = Unsafe.As<float[], Vector4[]>(ref floats)[0];
+			MemoryMarshal.Cast<float, Vector4>(floats.AsSpan());
 		}
 		/// <summary>
 		/// Populate a Quaternion with values from a float array
@@ -110,7 +108,7 @@ namespace Vulkan {
 		/// </summary>
 		public static void FromByteArray (ref Vector2 v, byte[] byteArray, int offset) {
 			v = Unsafe.As<byte[], Vector2[]>(ref Unsafe.AsRef(byteArray.SubArray(offset, 8)))[0];
-        }
+		}
 		/// <summary>
 		/// Populate a Vector3 with values from a byte array starting at offset
 		/// </summary>
@@ -151,142 +149,142 @@ namespace Vulkan {
 
 		// Fixed sub resource on first mip level and layer
 		public static void setImageLayout (
-            VkCommandBuffer cmdbuffer,
-            VkImage image,
-            VkImageAspectFlags aspectMask,
-            VkImageLayout oldImageLayout,
-            VkImageLayout newImageLayout,
-            VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-            VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
-            VkImageSubresourceRange subresourceRange = new VkImageSubresourceRange {
-                aspectMask = aspectMask,
-                baseMipLevel = 0,
-                levelCount = 1,
-                layerCount = 1,
-            };
-            setImageLayout (cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange);
-        }
+			VkCommandBuffer cmdbuffer,
+			VkImage image,
+			VkImageAspectFlags aspectMask,
+			VkImageLayout oldImageLayout,
+			VkImageLayout newImageLayout,
+			VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
+			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+			VkImageSubresourceRange subresourceRange = new VkImageSubresourceRange {
+				aspectMask = aspectMask,
+				baseMipLevel = 0,
+				levelCount = 1,
+				layerCount = 1,
+			};
+			setImageLayout (cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange);
+		}
 
-        // Create an image memory barrier for changing the layout of
-        // an image and put it into an active command buffer
-        // See chapter 11.4 "Image Layout" for details
+		// Create an image memory barrier for changing the layout of
+		// an image and put it into an active command buffer
+		// See chapter 11.4 "Image Layout" for details
 
-        public static void setImageLayout (
-            VkCommandBuffer cmdbuffer,
-            VkImage image,
-            VkImageAspectFlags aspectMask,
-            VkImageLayout oldImageLayout,
-            VkImageLayout newImageLayout,
-            VkImageSubresourceRange subresourceRange,
-            VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
-            VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
-            // Create an image barrier object
-            VkImageMemoryBarrier imageMemoryBarrier = VkImageMemoryBarrier.New();
-            imageMemoryBarrier.srcQueueFamilyIndex = Vk.QueueFamilyIgnored;
-            imageMemoryBarrier.dstQueueFamilyIndex = Vk.QueueFamilyIgnored;
-            imageMemoryBarrier.oldLayout = oldImageLayout;
-            imageMemoryBarrier.newLayout = newImageLayout;
-            imageMemoryBarrier.image = image;
-            imageMemoryBarrier.subresourceRange = subresourceRange;
+		public static void setImageLayout (
+			VkCommandBuffer cmdbuffer,
+			VkImage image,
+			VkImageAspectFlags aspectMask,
+			VkImageLayout oldImageLayout,
+			VkImageLayout newImageLayout,
+			VkImageSubresourceRange subresourceRange,
+			VkPipelineStageFlags srcStageMask = VkPipelineStageFlags.AllCommands,
+			VkPipelineStageFlags dstStageMask = VkPipelineStageFlags.AllCommands) {
+			// Create an image barrier object
+			VkImageMemoryBarrier imageMemoryBarrier = default;
+			imageMemoryBarrier.srcQueueFamilyIndex = Vk.QueueFamilyIgnored;
+			imageMemoryBarrier.dstQueueFamilyIndex = Vk.QueueFamilyIgnored;
+			imageMemoryBarrier.oldLayout = oldImageLayout;
+			imageMemoryBarrier.newLayout = newImageLayout;
+			imageMemoryBarrier.image = image;
+			imageMemoryBarrier.subresourceRange = subresourceRange;
 
-            // Source layouts (old)
-            // Source access mask controls actions that have to be finished on the old layout
-            // before it will be transitioned to the new layout
-            switch (oldImageLayout) {
-                case VkImageLayout.Undefined:
-                    // Image layout is undefined (or does not matter)
-                    // Only valid as initial layout
-                    // No flags required, listed only for completeness
-                    imageMemoryBarrier.srcAccessMask = 0;
-                    break;
+			// Source layouts (old)
+			// Source access mask controls actions that have to be finished on the old layout
+			// before it will be transitioned to the new layout
+			switch (oldImageLayout) {
+				case VkImageLayout.Undefined:
+					// Image layout is undefined (or does not matter)
+					// Only valid as initial layout
+					// No flags required, listed only for completeness
+					imageMemoryBarrier.srcAccessMask = 0;
+					break;
 
-                case VkImageLayout.Preinitialized:
-                    // Image is preinitialized
-                    // Only valid as initial layout for linear images, preserves memory contents
-                    // Make sure host writes have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.HostWrite;
-                    break;
+				case VkImageLayout.Preinitialized:
+					// Image is preinitialized
+					// Only valid as initial layout for linear images, preserves memory contents
+					// Make sure host writes have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.HostWrite;
+					break;
 
-                case VkImageLayout.ColorAttachmentOptimal:
-                    // Image is a color attachment
-                    // Make sure any writes to the color buffer have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.ColorAttachmentWrite;
-                    break;
+				case VkImageLayout.ColorAttachmentOptimal:
+					// Image is a color attachment
+					// Make sure any writes to the color buffer have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.ColorAttachmentWrite;
+					break;
 
-                case VkImageLayout.DepthStencilAttachmentOptimal:
-                    // Image is a depth/stencil attachment
-                    // Make sure any writes to the depth/stencil buffer have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.DepthStencilAttachmentWrite;
-                    break;
+				case VkImageLayout.DepthStencilAttachmentOptimal:
+					// Image is a depth/stencil attachment
+					// Make sure any writes to the depth/stencil buffer have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.DepthStencilAttachmentWrite;
+					break;
 
-                case VkImageLayout.TransferSrcOptimal:
-                    // Image is a transfer source
-                    // Make sure any reads from the image have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
-                    break;
+				case VkImageLayout.TransferSrcOptimal:
+					// Image is a transfer source
+					// Make sure any reads from the image have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
+					break;
 
-                case VkImageLayout.TransferDstOptimal:
-                    // Image is a transfer destination
-                    // Make sure any writes to the image have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferWrite;
-                    break;
+				case VkImageLayout.TransferDstOptimal:
+					// Image is a transfer destination
+					// Make sure any writes to the image have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferWrite;
+					break;
 
-                case VkImageLayout.ShaderReadOnlyOptimal:
-                    // Image is read by a shader
-                    // Make sure any shader reads from the image have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.ShaderRead;
-                    break;
-            }
+				case VkImageLayout.ShaderReadOnlyOptimal:
+					// Image is read by a shader
+					// Make sure any shader reads from the image have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.ShaderRead;
+					break;
+			}
 
-            // Target layouts (new)
-            // Destination access mask controls the dependency for the new image layout
-            switch (newImageLayout) {
-                case VkImageLayout.TransferDstOptimal:
-                    // Image will be used as a transfer destination
-                    // Make sure any writes to the image have been finished
-                    imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferWrite;
-                    break;
+			// Target layouts (new)
+			// Destination access mask controls the dependency for the new image layout
+			switch (newImageLayout) {
+				case VkImageLayout.TransferDstOptimal:
+					// Image will be used as a transfer destination
+					// Make sure any writes to the image have been finished
+					imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferWrite;
+					break;
 
-                case VkImageLayout.TransferSrcOptimal:
-                    // Image will be used as a transfer source
-                    // Make sure any reads from and writes to the image have been finished
-                    imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VkAccessFlags.TransferRead;
-                    imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferRead;
-                    break;
+				case VkImageLayout.TransferSrcOptimal:
+					// Image will be used as a transfer source
+					// Make sure any reads from and writes to the image have been finished
+					imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VkAccessFlags.TransferRead;
+					imageMemoryBarrier.dstAccessMask = VkAccessFlags.TransferRead;
+					break;
 
-                case VkImageLayout.ColorAttachmentOptimal:
-                    // Image will be used as a color attachment
-                    // Make sure any writes to the color buffer have been finished
-                    imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
-                    imageMemoryBarrier.dstAccessMask = VkAccessFlags.ColorAttachmentWrite;
-                    break;
+				case VkImageLayout.ColorAttachmentOptimal:
+					// Image will be used as a color attachment
+					// Make sure any writes to the color buffer have been finished
+					imageMemoryBarrier.srcAccessMask = VkAccessFlags.TransferRead;
+					imageMemoryBarrier.dstAccessMask = VkAccessFlags.ColorAttachmentWrite;
+					break;
 
-                case VkImageLayout.DepthStencilAttachmentOptimal:
-                    // Image layout will be used as a depth/stencil attachment
-                    // Make sure any writes to depth/stencil buffer have been finished
-                    imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VkAccessFlags.DepthStencilAttachmentWrite;
-                    break;
+				case VkImageLayout.DepthStencilAttachmentOptimal:
+					// Image layout will be used as a depth/stencil attachment
+					// Make sure any writes to depth/stencil buffer have been finished
+					imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VkAccessFlags.DepthStencilAttachmentWrite;
+					break;
 
-                case VkImageLayout.ShaderReadOnlyOptimal:
-                    // Image will be read in a shader (sampler, input attachment)
-                    // Make sure any writes to the image have been finished
-                    if (imageMemoryBarrier.srcAccessMask == 0) {
-                        imageMemoryBarrier.srcAccessMask = VkAccessFlags.HostWrite | VkAccessFlags.TransferWrite;
-                    }
-                    imageMemoryBarrier.dstAccessMask = VkAccessFlags.ShaderRead;
-                    break;
-            }
+				case VkImageLayout.ShaderReadOnlyOptimal:
+					// Image will be read in a shader (sampler, input attachment)
+					// Make sure any writes to the image have been finished
+					if (imageMemoryBarrier.srcAccessMask == 0) {
+						imageMemoryBarrier.srcAccessMask = VkAccessFlags.HostWrite | VkAccessFlags.TransferWrite;
+					}
+					imageMemoryBarrier.dstAccessMask = VkAccessFlags.ShaderRead;
+					break;
+			}
 
-            // Put barrier inside setup command buffer
-            Vk.vkCmdPipelineBarrier (
-                cmdbuffer,
-                srcStageMask,
-                dstStageMask,
-                0,
-                0, IntPtr.Zero,
-                0, IntPtr.Zero,
-                1, ref imageMemoryBarrier);
-        }
+			// Put barrier inside setup command buffer
+			Vk.vkCmdPipelineBarrier (
+				cmdbuffer,
+				srcStageMask,
+				dstStageMask,
+				0,
+				0, IntPtr.Zero,
+				0, IntPtr.Zero,
+				1, ref imageMemoryBarrier);
+		}
 		/// <summary>
 		/// Find usage flags and aspect flag from image layout
 		/// </summary>

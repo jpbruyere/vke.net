@@ -5,6 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -46,10 +47,10 @@ namespace vke {
 
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
-        	    VkCommandPoolCreateInfo infos = VkCommandPoolCreateInfo.New();
+        	    VkCommandPoolCreateInfo infos = default;
     	        infos.queueFamilyIndex = QFamIndex;
 				infos.flags = Flags;
-	            Utils.CheckResult (vkCreateCommandPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
+	            CheckResult (vkCreateCommandPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}
@@ -60,12 +61,12 @@ namespace vke {
 		/// <returns>The command buffer in the Init state.</returns>
 		public PrimaryCommandBuffer AllocateCommandBuffer () {
             VkCommandBuffer buff;
-            VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New();
+            VkCommandBufferAllocateInfo infos = default;
             infos.commandPool = handle;
             infos.level = VkCommandBufferLevel.Primary;
             infos.commandBufferCount = 1;
 
-            Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
+            CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
 
             return new PrimaryCommandBuffer (Dev.Handle, this, buff);
         }
@@ -76,12 +77,12 @@ namespace vke {
 		/// <returns>The command buffer in the Init state.</returns>
 		public SecondaryCommandBuffer AllocateSecondaryCommandBuffer () {
 			VkCommandBuffer buff;
-			VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New ();
+			VkCommandBufferAllocateInfo infos = default;
 			infos.commandPool = handle;
 			infos.level = VkCommandBufferLevel.Secondary;
 			infos.commandBufferCount = 1;
 
-			Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
+			CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, out buff));
 
 			return new SecondaryCommandBuffer (Dev.Handle, this, buff);
 		}
@@ -92,12 +93,12 @@ namespace vke {
 		/// <returns>An array of command buffers alloocated from this pool.</returns>
 		/// <param name="count">Buffer count to create.</param>
 		public PrimaryCommandBuffer[] AllocateCommandBuffer (uint count) {
-			VkCommandBufferAllocateInfo infos = VkCommandBufferAllocateInfo.New ();
+			VkCommandBufferAllocateInfo infos = default;
 			infos.commandPool = handle;
 			infos.level = VkCommandBufferLevel.Primary;
 			infos.commandBufferCount = count;
 			VkCommandBuffer[] buffs = new VkCommandBuffer[count];
-			Utils.CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, buffs.Pin()));
+			CheckResult (vkAllocateCommandBuffers (Dev.Handle, ref infos, buffs.Pin()));
 			buffs.Unpin ();
 			PrimaryCommandBuffer[] cmds = new PrimaryCommandBuffer[count];
 			for (int i = 0; i < count; i++)

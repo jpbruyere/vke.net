@@ -164,7 +164,7 @@ namespace vke {
 		/// in sync with the parameters. It's automatically called after rotation, move, etc...
 		/// </summary>
 		void update () {
-			Projection =  Vulkan.Utils.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar);
+			Projection =  Helpers.CreatePerspectiveFieldOfView (fov, aspectRatio, zNear, zFar);
 
 			Matrix4x4 translation = Matrix4x4.CreateTranslation (position * zoom);
 			if (Type == CamType.LookAt) {

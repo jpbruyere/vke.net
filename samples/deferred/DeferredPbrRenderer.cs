@@ -408,7 +408,7 @@ namespace deferred {
 			camera.AspectRatio = (float)width / height;
 
 			matrices.projection = camera.Projection;
-			//matrices.projection = Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60), 1, 0.1f, 16f);
+			//matrices.projection = Utils.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (60), 1, 0.1f, 16f);
 			matrices.view = camera.View;
 			//matrices.view = Matrix4x4.CreateLookAt (lights[0].position.ToVector3 (), Vector3.Zero, Vector3.UnitY);
 			matrices.model = camera.Model;

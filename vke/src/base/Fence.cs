@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -13,7 +14,7 @@ namespace vke {
 	/// </summary>
 	public class Fence : Activable {
 		internal VkFence handle;
-		VkFenceCreateInfo info = VkFenceCreateInfo.New ();
+		VkFenceCreateInfo info = default;
 
 		public Fence (Device dev, bool signaled = false, string name = "fence") : base (dev, name) {
 			info.flags = signaled ? VkFenceCreateFlags.Signaled : 0;
@@ -25,7 +26,7 @@ namespace vke {
 
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
-				Utils.CheckResult (vkCreateFence (Dev.Handle, ref info, IntPtr.Zero, out handle));
+				CheckResult (vkCreateFence (Dev.Handle, ref info, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}

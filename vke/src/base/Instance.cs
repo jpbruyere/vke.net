@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -85,7 +86,7 @@ namespace vke {
 					pEngineName = APPLICATION_NAME,
 				};
 
-				VkInstanceCreateInfo instanceCreateInfo = VkInstanceCreateInfo.New ();
+				VkInstanceCreateInfo instanceCreateInfo = default;
 				instanceCreateInfo.pApplicationInfo = appInfo;
 
 				if (instanceExtensions.Count > 0) {
@@ -109,11 +110,11 @@ namespace vke {
 		}
 		public static string[] SupportedExtensions () => SupportedExtensions (IntPtr.Zero);
 		public static string[] SupportedExtensions (IntPtr layer) {
-			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out uint count, IntPtr.Zero));
+			CheckResult (vkEnumerateInstanceExtensionProperties (layer, out uint count, IntPtr.Zero));
 
 			int sizeStruct = Marshal.SizeOf<VkExtensionProperties> ();
 			IntPtr ptrSupExts = Marshal.AllocHGlobal (sizeStruct * (int)count);
-			Utils.CheckResult (vkEnumerateInstanceExtensionProperties (layer, out count, ptrSupExts));
+			CheckResult (vkEnumerateInstanceExtensionProperties (layer, out count, ptrSupExts));
 
 			string[] result = new string[count];
 			IntPtr tmp = ptrSupExts;
@@ -132,7 +133,7 @@ namespace vke {
 		/// </summary>
 		public VkSurfaceKHR CreateSurface (IntPtr hWindow) {
 			ulong surf;
-			Utils.CheckResult ((VkResult)Glfw.Glfw3.CreateWindowSurface (inst.Handle, hWindow, IntPtr.Zero, out surf), "Create Surface Failed.");
+			CheckResult ((VkResult)Glfw.Glfw3.CreateWindowSurface (inst.Handle, hWindow, IntPtr.Zero, out surf), "Create Surface Failed.");
 			return surf;
 		}
 		public void GetDelegate<T> (string name, out T del) {

@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	public static class ExtensionMethods {
@@ -31,7 +32,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.CommandBuffer,
 				(ulong)obj.Handle.ToInt64 ()) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkImageView obj, Device dev, string name) {
@@ -39,7 +40,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.ImageView,
 				(ulong)obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkSampler obj, Device dev, string name) {
@@ -47,7 +48,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Sampler,
 				(ulong)obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkPipeline obj, Device dev, string name) {
@@ -55,7 +56,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Pipeline,
 				obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkDescriptorSet obj, Device dev, string name) {
@@ -63,7 +64,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.DescriptorSet,
 				(ulong)obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkSemaphore obj, Device dev, string name) {
@@ -71,7 +72,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Semaphore,
 				(ulong)obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		public static void SetDebugMarkerName (this VkFence obj, Device dev, string name) {
@@ -79,7 +80,7 @@ namespace vke {
 				return;
 			VkDebugUtilsObjectNameInfoEXT dmo = new VkDebugUtilsObjectNameInfoEXT (VkObjectType.Fence,
 				(ulong)obj.Handle) { pObjectName = name.Pin () };
-			Utils.CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
+			CheckResult (vkSetDebugUtilsObjectNameEXT (dev.Handle, ref dmo));
 			name.Unpin ();
 		}
 		#endregion
@@ -107,5 +108,26 @@ namespace vke {
 		}
 		#endregion
 
+		public static VkSurfaceKHR CreateSurface (this VkInstance inst, IntPtr hWindow) {
+			ulong surf;
+			CheckResult ((VkResult)Glfw.Glfw3.CreateWindowSurface (inst.Handle, hWindow, IntPtr.Zero, out surf), "Create Surface Failed.");
+			return surf;
+		}
+
+		public static VkSurfaceFormatKHR [] GetSurfaceFormats (this VkPhysicalDevice phy, VkSurfaceKHR surf)
+		{
+			vkGetPhysicalDeviceSurfaceFormatsKHR (phy, surf, out uint count, IntPtr.Zero);
+			VkSurfaceFormatKHR [] formats = new VkSurfaceFormatKHR [count];
+			vkGetPhysicalDeviceSurfaceFormatsKHR (phy, surf, out count, formats.Pin ());
+			formats.Unpin ();
+			return formats;
+		}
+		public static VkPresentModeKHR[] GetSurfacePresentModes (this VkPhysicalDevice phy, VkSurfaceKHR surf) {
+			vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out uint count, IntPtr.Zero);
+			int[] modes = new int[count];
+			vkGetPhysicalDeviceSurfacePresentModesKHR (phy, surf, out count, modes.Pin ());
+			modes.Unpin ();
+			return modes.Cast<VkPresentModeKHR>().ToArray();
+		}
 	}
 }

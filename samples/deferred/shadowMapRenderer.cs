@@ -23,7 +23,7 @@ namespace deferred {
 
 		public float depthBiasConstant = 1.5f;
 		public float depthBiasSlope = 1.75f;
-		float lightFOV = Utils.DegreesToRadians (60);
+		float lightFOV = Helpers.DegreesToRadians (60);
 		float lightFarPlane;
 
 
@@ -112,7 +112,7 @@ namespace deferred {
 		}
 
 		public void update_light_matrices () {
-			Matrix4x4 proj = Utils.CreatePerspectiveFieldOfView (lightFOV, 1, 0.1f, lightFarPlane);
+			Matrix4x4 proj = Helpers.CreatePerspectiveFieldOfView (lightFOV, 1, 0.1f, lightFarPlane);
 			for (int i = 0; i < renderer.lights.Length; i++) {
 				Matrix4x4 view = Matrix4x4.CreateLookAt (renderer.lights[i].position.ToVector3 (), Vector3.Zero, Vector3.UnitY);
 				renderer.lights[i].mvp = view * proj;

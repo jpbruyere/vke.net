@@ -35,12 +35,12 @@ namespace vke {
 		/// VkPipelineBindPoint.Graphics is set by default,
 		/// </summary>
 		public VkPipelineBindPoint bindPoint = VkPipelineBindPoint.Graphics;
-		public VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = VkPipelineInputAssemblyStateCreateInfo.New ();
-		public VkPipelineRasterizationStateCreateInfo rasterizationState = VkPipelineRasterizationStateCreateInfo.New ();
+		public VkPipelineInputAssemblyStateCreateInfo inputAssemblyState;
+		public VkPipelineRasterizationStateCreateInfo rasterizationState;
 		public List<VkViewport> Viewports = new List<VkViewport> ();
 		public List<VkRect2D> Scissors = new List<VkRect2D> ();
-		public VkPipelineDepthStencilStateCreateInfo depthStencilState = VkPipelineDepthStencilStateCreateInfo.New ();
-		public VkPipelineMultisampleStateCreateInfo multisampleState = VkPipelineMultisampleStateCreateInfo.New ();
+		public VkPipelineDepthStencilStateCreateInfo depthStencilState;
+		public VkPipelineMultisampleStateCreateInfo multisampleState;
 		public List<VkPipelineColorBlendAttachmentState> blendAttachments = new List<VkPipelineColorBlendAttachmentState> ();
 		public List<VkDynamicState> dynamicStates = new List<VkDynamicState> ();
 		public List<VkVertexInputBindingDescription> vertexBindings = new List<VkVertexInputBindingDescription> ();
@@ -122,7 +122,7 @@ namespace vke {
 			for (uint i = 0; i < attribsDesc.Length; i++) {
 				vertexAttributes.Add (new VkVertexInputAttributeDescription (binding, i + currentAttributeIndex, attribsDesc[i], currentAttributeoffset));
 				VkFormatSize fs;
-				Utils.vkGetFormatSize (attribsDesc[i], out fs);
+				Helpers.vkGetFormatSize (attribsDesc[i], out fs);
 				currentAttributeoffset += fs.blockSizeInBits / 8;
 			}
 			currentAttributeIndex += (uint)attribsDesc.Length;

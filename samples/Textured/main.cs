@@ -176,7 +176,7 @@ namespace Textured {
 		}
 
 		void updateMatrices () {
-			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
+			matrices.projection = Matrix4x4.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (60f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 			matrices.view = Matrix4x4.CreateTranslation (0, 0, -2.5f * zoom);
 			matrices.model =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitZ, rotZ) *

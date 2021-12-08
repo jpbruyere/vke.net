@@ -45,7 +45,7 @@ namespace vke {
 		public IntPtr WindowHandle => hWin;
 
 		/**Default camera initialized with a Field of view of 40° and and aspect ratio of 1. */
-		protected Camera camera = new Camera (Utils.DegreesToRadians (45f), 1f);
+		protected Camera camera = new Camera (Helpers.DegreesToRadians (45f), 1f);
 
 		public Modifier KeyModifiers = 0;
 		IntPtr currentCursor;

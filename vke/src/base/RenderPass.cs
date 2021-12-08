@@ -104,7 +104,7 @@ namespace vke {
 				foreach (SubPass sp in subpasses)
 					spDescs.Add (sp.SubpassDescription);
 
-				VkRenderPassCreateInfo renderPassInfo = VkRenderPassCreateInfo.New();
+				VkRenderPassCreateInfo renderPassInfo = default;
 				renderPassInfo.pAttachments = attachments;
 				renderPassInfo.pSubpasses = spDescs;
 				renderPassInfo.pDependencies = dependencies;
@@ -198,16 +198,16 @@ namespace vke {
 		/// </summary>
 		public void Begin (PrimaryCommandBuffer cmd, FrameBuffer frameBuffer, uint width, uint height, VkSubpassContents contents = VkSubpassContents.Inline) {
 
-			VkRenderPassBeginInfo info = VkRenderPassBeginInfo.New();
-			info.renderPass = handle;
-			info.renderArea.extent.width = width;
-			info.renderArea.extent.height = height;
-			info.pClearValues = ClearValues;
-			info.framebuffer = frameBuffer.handle;
+			using (VkRenderPassBeginInfo info = new VkRenderPassBeginInfo {
+						renderPass = handle,
+						renderArea = new VkRect2D (default, new VkExtent2D (width, height)),
+						pClearValues = ClearValues,
+						framebuffer = frameBuffer.handle
+			}){
 
-			vkCmdBeginRenderPass (cmd.Handle, ref info, contents);
+				vkCmdBeginRenderPass (cmd.Handle, info, contents);
 
-			info.Dispose ();
+			}
 		}
 		/// <summary>
 		/// Switch to next subpass

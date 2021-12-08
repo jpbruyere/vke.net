@@ -9,7 +9,7 @@ namespace vke {
 	/// This class is a helper class for VkPipelineShaderStageCreateInfo creation.
 	/// </summary>
 	public class ShaderInfo : IDisposable {
-		protected VkPipelineShaderStageCreateInfo info = VkPipelineShaderStageCreateInfo.New ();
+		protected VkPipelineShaderStageCreateInfo info;
 		protected Device dev;
 
 		public VkShaderStageFlags Stage => info.stage;
@@ -42,7 +42,7 @@ namespace vke {
 		/// <param name="dev">vke Device</param>
 		/// <param name="_stageFlags">Stage flags.</param>
 		/// <param name="_spirvPath">
-		/// Path to a compiled SpirV Shader on disk or as embedded ressource. See <see cref="Utils.GetStreamFromPath"/> for more information.
+		/// Path to a compiled SpirV Shader on disk or as embedded ressource. See <see cref="Helpers.GetStreamFromPath"/> for more information.
 		/// </param>
 		/// <param name="specializationInfo">Specialization info</param>
 		/// <param name="entryPoint">shader entry point, 'main' by default.</param>

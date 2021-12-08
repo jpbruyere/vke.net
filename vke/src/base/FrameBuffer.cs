@@ -7,6 +7,7 @@ using System.Linq;
 using Vulkan;
 
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 
@@ -18,7 +19,7 @@ namespace vke {
 		RenderPass renderPass;
 
 		public List<Image> attachments = new List<Image> ();
-		VkFramebufferCreateInfo createInfo = VkFramebufferCreateInfo.New ();
+		VkFramebufferCreateInfo createInfo;
 		/// <summary>Framebuffer width.</summary>
 		public uint Width => createInfo.width;
 		/// <summary>Framebuffer height.</summary>
@@ -65,8 +66,8 @@ namespace vke {
 					VkImageUsageFlags usage = 0;
 					VkImageAspectFlags aspectFlags = 0;
 
-					Utils.QueryLayoutRequirements (ad.initialLayout, ref usage, ref aspectFlags);
-					Utils.QueryLayoutRequirements (ad.finalLayout, ref usage, ref aspectFlags);
+					Helpers.QueryLayoutRequirements (ad.initialLayout, ref usage, ref aspectFlags);
+					Helpers.QueryLayoutRequirements (ad.finalLayout, ref usage, ref aspectFlags);
 					foreach (SubPass sp in renderPass.SubPasses) {
 						//TODO:check subpass usage
 					}
@@ -92,7 +93,7 @@ namespace vke {
 				if (PNext != null)
 					createInfo.pNext = PNext.GetPointer();
 
-				Utils.CheckResult (vkCreateFramebuffer (renderPass.Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
+				CheckResult (vkCreateFramebuffer (renderPass.Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
 
 				createInfo.Dispose();
 

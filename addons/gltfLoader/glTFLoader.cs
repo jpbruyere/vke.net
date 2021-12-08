@@ -384,11 +384,11 @@ namespace vke.glTF {
 			}
 
 			if (gltfNode.Translation != null)
-				FromFloatArray (ref translation, gltfNode.Translation);
+				Helpers.FromFloatArray (ref translation, gltfNode.Translation);
 			if (gltfNode.Translation != null)
-				FromFloatArray (ref rotation, gltfNode.Rotation);
+				Helpers.FromFloatArray (ref rotation, gltfNode.Rotation);
 			if (gltfNode.Translation != null)
-				FromFloatArray (ref scale, gltfNode.Scale);
+				Helpers.FromFloatArray (ref scale, gltfNode.Scale);
 
 			localTransform *=
 				Matrix4x4.CreateScale (scale) *
@@ -555,7 +555,7 @@ namespace vke.glTF {
 				pbr.alphaCutoff = mat.AlphaCutoff;
 				pbr.alphaMode = (AlphaMode)mat.AlphaMode;
 
-				FromFloatArray (ref pbr.emissiveFactor, mat.EmissiveFactor);
+				Helpers.FromFloatArray (ref pbr.emissiveFactor, mat.EmissiveFactor);
 
 				if (mat.EmissiveTexture != null) {
 					pbr.emissiveTexture = mat.EmissiveTexture.Index;
@@ -588,7 +588,7 @@ namespace vke.glTF {
 							pbr.availableAttachments |= AttachmentType.Color;
 					}
 
-					FromFloatArray (ref pbr.baseColorFactor, mat.PbrMetallicRoughness.BaseColorFactor);
+					Helpers.FromFloatArray (ref pbr.baseColorFactor, mat.PbrMetallicRoughness.BaseColorFactor);
 
 					if (mat.PbrMetallicRoughness.MetallicRoughnessTexture != null) {
 						pbr.metallicRoughnessTexture = mat.PbrMetallicRoughness.MetallicRoughnessTexture.Index;

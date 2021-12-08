@@ -200,17 +200,17 @@ namespace vke {
 
 			Matrix4x4[] matrices = {
 				// POSITIVE_X
-				Matrix4x4.CreateRotationX(Utils.DegreesToRadians(180)) * Matrix4x4.CreateRotationY(Utils.DegreesToRadians(90)),
+				Matrix4x4.CreateRotationX(Helpers.DegreesToRadians(180)) * Matrix4x4.CreateRotationY(Helpers.DegreesToRadians(90)),
 				// NEGATIVE_X
-				Matrix4x4.CreateRotationX(Utils.DegreesToRadians(180)) * Matrix4x4.CreateRotationY(Utils.DegreesToRadians(-90)),
+				Matrix4x4.CreateRotationX(Helpers.DegreesToRadians(180)) * Matrix4x4.CreateRotationY(Helpers.DegreesToRadians(-90)),
 				// POSITIVE_Y
-				Matrix4x4.CreateRotationX(Utils.DegreesToRadians(-90)),
+				Matrix4x4.CreateRotationX(Helpers.DegreesToRadians(-90)),
 				// NEGATIVE_Y
-				Matrix4x4.CreateRotationX(Utils.DegreesToRadians(90)),
+				Matrix4x4.CreateRotationX(Helpers.DegreesToRadians(90)),
 				// POSITIVE_Z
-				Matrix4x4.CreateRotationX(Utils.DegreesToRadians(180)),
+				Matrix4x4.CreateRotationX(Helpers.DegreesToRadians(180)),
 				// NEGATIVE_Z
-				Matrix4x4.CreateRotationZ(Utils.DegreesToRadians(180))
+				Matrix4x4.CreateRotationZ(Helpers.DegreesToRadians(180))
 			};
 
 			VkImageSubresourceRange subRes = new VkImageSubresourceRange (VkImageAspectFlags.Color, 0, numMips, 0, 6);
@@ -244,7 +244,7 @@ namespace vke {
 							float viewPortSize = (float)Math.Pow (0.5, m) * dim;
 							cmd.SetViewport (viewPortSize, viewPortSize);
 							cmd.PushConstant (pl.Layout, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment,
-								matrices[f] * Matrix4x4.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (90), 1f, 0.1f, 512f));
+								matrices[f] * Matrix4x4.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (90), 1f, 0.1f, 512f));
 							if (target == CBTarget.IRRADIANCE) {
 								cmd.PushConstant (pl.Layout, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, deltaPhi, (uint)Marshal.SizeOf<Matrix4x4> ());
 								cmd.PushConstant (pl.Layout, VkShaderStageFlags.Vertex | VkShaderStageFlags.Fragment, deltaTheta, (uint)Marshal.SizeOf<Matrix4x4> () + 4);

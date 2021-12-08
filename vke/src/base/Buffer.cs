@@ -4,6 +4,7 @@
 using System;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 
@@ -12,7 +13,7 @@ namespace vke {
 	/// </summary>
 	public class Buffer : Resource {
 		internal VkBuffer handle;
-		protected VkBufferCreateInfo createInfo = VkBufferCreateInfo.New ();
+		protected VkBufferCreateInfo createInfo;
 		/// <summary>Native handle of this vulkan buffer.</summary>
 		/// <value>The handle.</value>
 		public VkBuffer Handle => handle;
@@ -47,7 +48,7 @@ namespace vke {
 		/// </summary>
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
-				Utils.CheckResult (vkCreateBuffer (Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
+				CheckResult (vkCreateBuffer (Dev.Handle, ref createInfo, IntPtr.Zero, out handle));
 #if MEMORY_POOLS
 				Dev.resourceManager.Add (this);
 #else
@@ -66,9 +67,9 @@ namespace vke {
 
 		internal override void bindMemory () {
 #if MEMORY_POOLS
-			Utils.CheckResult (vkBindBufferMemory (Dev.Handle, handle, memoryPool.vkMemory, poolOffset));
+			CheckResult (vkBindBufferMemory (Dev.Handle, handle, memoryPool.vkMemory, poolOffset));
 #else
-			Utils.CheckResult (vkBindBufferMemory (Dev.Handle, handle, vkMemory, 0));
+			CheckResult (vkBindBufferMemory (Dev.Handle, handle, vkMemory, 0));
 #endif
 		}
 		#endregion

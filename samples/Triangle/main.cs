@@ -111,7 +111,7 @@ namespace Triangle {
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotX) *
 				Matrix4x4.CreateTranslation (0, 0, -3f * zoom) *
-				Utils.CreatePerspectiveFieldOfView (Utils.DegreesToRadians (45f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
+				Helpers.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (45f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 
 			base.UpdateView ();
 		}

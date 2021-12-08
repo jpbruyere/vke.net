@@ -6,7 +6,7 @@ namespace vke
 	public abstract class SampleBase : VkWindow {
 		public SampleBase (string name = "VkWindow", uint _width = 800, uint _height = 600, bool vSync = false) :
 			base (name, _width, _height, vSync){}
-		/*protected override void initVulkan()
+		protected override void initVulkan()
 		{
 			base.initVulkan();
 #if DEBUG
@@ -16,6 +16,6 @@ namespace vke
 				Console.ResetColor ();
 			}
 #endif
-		}*/
+		}
 	}
 }

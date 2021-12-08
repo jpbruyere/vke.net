@@ -89,7 +89,6 @@ namespace vke {
 
 			vkGetPhysicalDeviceQueueFamilyProperties (phy, out queueFamilyCount, QueueFamilies.Pin ());
 			QueueFamilies.Unpin ();
-			Console.WriteLine("PhysicalDeviceCollection");
 
 			HasSwapChainSupport = GetDeviceExtensionSupported (Ext.D.VK_KHR_swapchain);
 		}
@@ -168,10 +167,10 @@ namespace vke {
 			return result == VkResult.Success;
 		}
 		public VkPhysicalDeviceToolPropertiesEXT[] GetToolProperties () {
-			Utils.CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out uint count, IntPtr.Zero));
+			CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out uint count, IntPtr.Zero));
 			int sizeStruct = Marshal.SizeOf<VkPhysicalDeviceToolPropertiesEXT> ();
 			IntPtr ptrTools = Marshal.AllocHGlobal (sizeStruct * (int)count);
-			Utils.CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out count, ptrTools));
+			CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out count, ptrTools));
 
 			VkPhysicalDeviceToolPropertiesEXT[] result = new VkPhysicalDeviceToolPropertiesEXT[count];
 			IntPtr tmp = ptrTools;

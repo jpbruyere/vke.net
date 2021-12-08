@@ -44,7 +44,7 @@ namespace deferredDebug {
 		}
 
 		Program () : base(true) {
-			camera.Model = Matrix4x4.CreateRotationX (Utils.DegreesToRadians (-90)) * Matrix4x4.CreateRotationY (Utils.DegreesToRadians (180));
+			camera.Model = Matrix4x4.CreateRotationX (Helpers.DegreesToRadians (-90)) * Matrix4x4.CreateRotationY (Helpers.DegreesToRadians (180));
 			camera.SetRotation (-0.1f,-0.4f);
 			camera.SetPosition (0, 0, -3);
 

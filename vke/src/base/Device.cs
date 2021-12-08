@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Vulkan;
 using static Vulkan.Vk;
-
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -73,7 +73,7 @@ namespace vke {
 					Console.WriteLine ($"Unsupported device extension: {extensions[i]}");
 			}
 
-			VkDeviceCreateInfo deviceCreateInfo = VkDeviceCreateInfo.New ();
+			VkDeviceCreateInfo deviceCreateInfo = new VkDeviceCreateInfo ();
 			deviceCreateInfo.pQueueCreateInfos = qInfos;
 			deviceCreateInfo.pEnabledFeatures = enabledFeatures;
 
@@ -82,7 +82,7 @@ namespace vke {
 				deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.Pin ();
 			}
 
-			Utils.CheckResult (vkCreateDevice (phy.Handle, ref deviceCreateInfo, IntPtr.Zero, out dev));
+			CheckResult (vkCreateDevice (phy.Handle, ref deviceCreateInfo, IntPtr.Zero, out dev));
 
 			deviceCreateInfo.Dispose();
 			foreach (VkDeviceQueueCreateInfo qI in qInfos)
@@ -106,8 +106,8 @@ namespace vke {
 		/// <returns>The semaphore native handle</returns>
 		public VkSemaphore CreateSemaphore () {
 			VkSemaphore tmp;
-			VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo.New ();
-			Utils.CheckResult (vkCreateSemaphore (dev, ref info, IntPtr.Zero, out tmp));
+			VkSemaphoreCreateInfo info = default;
+			CheckResult (vkCreateSemaphore (dev, ref info, IntPtr.Zero, out tmp));
 			return tmp;
 		}
 		public void DestroySemaphore (VkSemaphore semaphore) {
@@ -123,24 +123,24 @@ namespace vke {
 		/// Wait for this logical device to enter the idle state.
 		/// </summary>
 		public void WaitIdle () {
-			Utils.CheckResult (vkDeviceWaitIdle (dev));
+			CheckResult (vkDeviceWaitIdle (dev));
 		}
 		public VkRenderPass CreateRenderPass (VkRenderPassCreateInfo info) {
 			VkRenderPass renderPass;
-			Utils.CheckResult (vkCreateRenderPass (dev, ref info, IntPtr.Zero, out renderPass));
+			CheckResult (vkCreateRenderPass (dev, ref info, IntPtr.Zero, out renderPass));
 			return renderPass;
 		}
 
 		public VkImageView CreateImageView (VkImage image, VkFormat format, VkImageViewType viewType = VkImageViewType.ImageView2D, VkImageAspectFlags aspectFlags = VkImageAspectFlags.Color) {
 			VkImageView view;
-			VkImageViewCreateInfo infos = VkImageViewCreateInfo.New ();
+			VkImageViewCreateInfo infos = default;
 			infos.image = image;
 			infos.viewType = viewType;
 			infos.format = format;
 			infos.components = new VkComponentMapping { r = VkComponentSwizzle.R, g = VkComponentSwizzle.G, b = VkComponentSwizzle.B, a = VkComponentSwizzle.A };
 			infos.subresourceRange = new VkImageSubresourceRange (aspectFlags);
 
-			Utils.CheckResult (vkCreateImageView (dev, ref infos, IntPtr.Zero, out view));
+			CheckResult (vkCreateImageView (dev, ref infos, IntPtr.Zero, out view));
 			return view;
 		}
 		public void DestroyImageView (VkImageView view) {
@@ -191,7 +191,7 @@ namespace vke {
 		/// <returns>the vulkan shader module.</returns>
 		/// <param name="filename">path of the spv shader.</param>
 		public VkShaderModule CreateShaderModule (string filename) {
-			using (Stream stream = Utils.GetStreamFromPath (filename)) {
+			using (Stream stream = Helpers.GetStreamFromPath (filename)) {
 				using (BinaryReader br = new BinaryReader (stream)) {
 					byte[] shaderCode = br.ReadBytes ((int)stream.Length);
 					UIntPtr shaderSize = (UIntPtr)shaderCode.Length;
@@ -208,12 +208,10 @@ namespace vke {
 		/// the call to this method.</param>
 		/// <param name="codeSize">spirv code byte size.</param>
 		public VkShaderModule CreateShaderModule (uint[] code, UIntPtr codeSize) {
-			VkShaderModuleCreateInfo moduleCreateInfo = VkShaderModuleCreateInfo.New ();
-			moduleCreateInfo.codeSize = codeSize;
-			moduleCreateInfo.pCode = code;
-			Utils.CheckResult (vkCreateShaderModule (Handle, ref moduleCreateInfo, IntPtr.Zero, out VkShaderModule shaderModule));
-			moduleCreateInfo.Dispose();
-			return shaderModule;
+			using (VkShaderModuleCreateInfo moduleCreateInfo = new VkShaderModuleCreateInfo (codeSize, code)) {
+				CheckResult (vkCreateShaderModule (Handle, moduleCreateInfo, IntPtr.Zero, out VkShaderModule shaderModule));
+				return shaderModule;
+			}
 		}
 
 		#region IDisposable Support

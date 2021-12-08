@@ -5,6 +5,7 @@ using System;
 using Vulkan;
 
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 
@@ -36,10 +37,10 @@ namespace vke {
 		}
 
 		public void Present (VkPresentInfoKHR present) {
-			Utils.CheckResult (vkQueuePresentKHR (handle, ref present));
+			CheckResult (vkQueuePresentKHR (handle, ref present));
 		}
 		public void Present (SwapChain swapChain, VkSemaphore wait) {
-			VkPresentInfoKHR present = VkPresentInfoKHR.New();
+			VkPresentInfoKHR present = default;
 
 			uint idx = swapChain.currentImageIndex;
 			VkSwapchainKHR sc = swapChain.Handle;
@@ -89,7 +90,7 @@ namespace vke {
 			cmd.Submit (handle, wait, signal, fence);
 		}
 		public void WaitIdle () {
-			Utils.CheckResult (vkQueueWaitIdle (handle));
+			CheckResult (vkQueueWaitIdle (handle));
 		}
 
 		uint searchQFamily (VkQueueFlags requestedFlags) {

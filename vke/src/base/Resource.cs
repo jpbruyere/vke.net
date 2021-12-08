@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using Vulkan;
 
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -66,7 +67,7 @@ namespace vke {
 #if !MEMORY_POOLS
 		protected uint importedMemoryTypeBits = 0;
 		protected void allocateMemory () {
-			VkMemoryAllocateInfo memInfo = VkMemoryAllocateInfo.New ();
+			VkMemoryAllocateInfo memInfo = default;
 			memInfo.allocationSize = memReqs.size;
 			/*if (importedMemoryTypeBits > 0)
 				memReqs.memoryTypeBits = importedMemoryTypeBits;*/
@@ -74,22 +75,22 @@ namespace vke {
 
 			if (importExportHandleTypes > 0) {
 				if (importedHandle != IntPtr.Zero) {
-					VkImportMemoryHostPointerInfoEXT importInfo = VkImportMemoryHostPointerInfoEXT.New ();
+					VkImportMemoryHostPointerInfoEXT importInfo = default;
 					importInfo.pHostPointer = importedHandle.Pin();
 					importInfo.handleType = importExportHandleTypes;
 					memInfo.pNext = importInfo.Pin ();
-					Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+					CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 					importedHandle.Unpin();
 					importInfo.Unpin ();
 				} else {
-					VkExportMemoryAllocateInfo exportInfo = VkExportMemoryAllocateInfo.New ();
+					VkExportMemoryAllocateInfo exportInfo = default;
 					exportInfo.handleTypes = importExportHandleTypes;
 					memInfo.pNext = exportInfo.Pin ();
-					Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+					CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 					exportInfo.Unpin ();
 				}
 			} else
-				Utils.CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
+				CheckResult (vkAllocateMemory (Dev.Handle, ref memInfo, IntPtr.Zero, out vkMemory));
 		}
 #endif
 		public bool IsMapped => mappedData != IntPtr.Zero;
@@ -99,7 +100,7 @@ namespace vke {
 				memoryPool.Map ();
 			mappedData = new IntPtr (memoryPool.MappedData.ToInt64 () + (long)(poolOffset + offset));
 #else
-			Utils.CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, AllocatedDeviceMemorySize, 0, ref mappedData));
+			CheckResult (vkMapMemory (Dev.Handle, vkMemory, offset, AllocatedDeviceMemorySize, 0, ref mappedData));
 #endif
 		}
 		public void Unmap () {

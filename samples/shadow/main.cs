@@ -100,7 +100,7 @@ namespace deferred {
 				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
 #endif
 
-			camera = new Camera (Utils.DegreesToRadians (45f), 1f, 0.1f, 16f);
+			camera = new Camera (Helpers.DegreesToRadians (45f), 1f, 0.1f, 16f);
 			camera.SetPosition (0, 0, -2);
 
 			//renderer = new DeferredPbrRenderer (presentQueue, cubemapPathes[2], swapChain.Width, swapChain.Height, camera.NearPlane, camera.FarPlane);

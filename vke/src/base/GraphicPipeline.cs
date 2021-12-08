@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Vulkan;
 using System.Linq;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	public class GraphicPipeline : Pipeline {
@@ -53,20 +54,20 @@ namespace vke {
 
 				using (PinnedObjects pctx = new PinnedObjects ()) {
 
-					VkPipelineColorBlendStateCreateInfo colorBlendInfo = VkPipelineColorBlendStateCreateInfo.New ();
+					VkPipelineColorBlendStateCreateInfo colorBlendInfo = default;
 					colorBlendInfo.logicOpEnable = cfg.ColorBlendLogicOpEnable;
 					colorBlendInfo.logicOp = cfg.ColorBlendLogicOp;
 					colorBlendInfo.blendConstants = cfg.ColorBlendConstants;
 					colorBlendInfo.pAttachments = cfg.blendAttachments;
 
-					VkPipelineDynamicStateCreateInfo dynStatesInfo = VkPipelineDynamicStateCreateInfo.New ();
+					VkPipelineDynamicStateCreateInfo dynStatesInfo = default;
 					dynStatesInfo.pDynamicStates = cfg.dynamicStates;
 
-					VkPipelineVertexInputStateCreateInfo vertInputInfo = VkPipelineVertexInputStateCreateInfo.New ();
+					VkPipelineVertexInputStateCreateInfo vertInputInfo = default;
 					vertInputInfo.pVertexBindingDescriptions = cfg.vertexBindings;
 					vertInputInfo.pVertexAttributeDescriptions = cfg.vertexAttributes;
 
-					VkPipelineViewportStateCreateInfo viewportState = VkPipelineViewportStateCreateInfo.New ();
+					VkPipelineViewportStateCreateInfo viewportState = default;
 					if (cfg.Viewports.Count > 0) {
 						viewportState.pViewports = cfg.Viewports;
 					} else
@@ -77,7 +78,7 @@ namespace vke {
 					} else
 						viewportState.scissorCount = 1;
 
-					VkGraphicsPipelineCreateInfo info = VkGraphicsPipelineCreateInfo.New ();
+					VkGraphicsPipelineCreateInfo info = default;
 					info.renderPass = RenderPass.handle;
 					info.layout = Layout.handle;
 					info.pVertexInputState = vertInputInfo;
@@ -92,12 +93,12 @@ namespace vke {
 					info.subpass = cfg.SubpassIndex;
 
 					if (enableTesselation) {
-						VkPipelineTessellationStateCreateInfo tessellationInfo = VkPipelineTessellationStateCreateInfo.New();
+						VkPipelineTessellationStateCreateInfo tessellationInfo = default;
 						tessellationInfo.patchControlPoints = cfg.TessellationPatchControlPoints;
 						info.pTessellationState = tessellationInfo;
 					}
 
-					Utils.CheckResult (vkCreateGraphicsPipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
+					CheckResult (vkCreateGraphicsPipelines (Dev.Handle, Cache == null ? VkPipelineCache.Null : Cache.handle, 1, ref info, IntPtr.Zero, out handle));
 
 					vertInputInfo.Dispose();
 					viewportState.Dispose();

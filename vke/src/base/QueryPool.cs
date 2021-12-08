@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	public class TimestampQueryPool : QueryPool {
@@ -87,7 +88,7 @@ namespace vke {
 		}
 	}
 
-	public abstract class QueryPool : Activable {        
+	public abstract class QueryPool : Activable {
         protected VkQueryPool handle;
 		protected readonly VkQueryPoolCreateInfo createInfos;
 		public readonly VkQueryType QueryType;
@@ -97,7 +98,7 @@ namespace vke {
 		protected QueryPool (Device device, VkQueryType queryType, VkQueryPipelineStatisticFlags statisticFlags, uint count = 1)
 		: base(device)
         {
-			createInfos = VkQueryPoolCreateInfo.New (queryType, statisticFlags, count);
+			createInfos = VkQueryPoolCreateInfo.CreateNew (queryType, statisticFlags, count);
 
 			//Activate ();
         }
@@ -109,8 +110,8 @@ namespace vke {
 
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
-				VkQueryPoolCreateInfo infos = createInfos;     	        
-	            Utils.CheckResult (vkCreateQueryPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
+				VkQueryPoolCreateInfo infos = createInfos;
+	            CheckResult (vkCreateQueryPool (Dev.Handle, ref infos, IntPtr.Zero, out handle));
 			}
 			base.Activate ();
 		}
@@ -123,7 +124,7 @@ namespace vke {
 			return results;
 		}
 
-		    
+
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");
 		}

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -38,7 +39,7 @@ namespace vke {
 		public override void Activate () {
 			if (state != ActivableState.Activated) {
 				VkDescriptorSetLayoutCreateInfo info = new VkDescriptorSetLayoutCreateInfo (Flags, (uint)Bindings.Count, Bindings.Pin());
-	            Utils.CheckResult (vkCreateDescriptorSetLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
+	            CheckResult (vkCreateDescriptorSetLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
 				Bindings.Unpin ();
 			}
 			base.Activate ();

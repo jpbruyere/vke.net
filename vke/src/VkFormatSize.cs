@@ -2,8 +2,9 @@
 //
 // This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 using System;
+using Vulkan;
 
-namespace Vulkan {
+namespace vke {
 	[Flags]
 	public enum VkFormatSizeFlag {
 		SizePacked				= 0x00000001,
@@ -12,7 +13,7 @@ namespace Vulkan {
 		SizeDepth				= 0x00000008,
 		SizeStencil				= 0x00000010,
 	};
-	
+
 	public struct VkFormatSize {
 		public VkFormatSizeFlag		flags;
 		public uint		paletteSizeInBits;
@@ -23,7 +24,7 @@ namespace Vulkan {
 	};
 
 
-    public static partial class Utils {        
+    public static partial class Helpers {
 		public static void vkGetFormatSize(VkFormat format, out VkFormatSize pFormatSize )
 		{
 		    switch ( format )

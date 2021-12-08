@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	public sealed class PipelineLayout : Activable {
@@ -46,7 +47,7 @@ namespace vke {
 			if (state != ActivableState.Activated) {
 				foreach (DescriptorSetLayout dsl in DescriptorSetLayouts)
 					dsl.Activate ();
-				VkPipelineLayoutCreateInfo info = VkPipelineLayoutCreateInfo.New();
+				VkPipelineLayoutCreateInfo info = default;
 				VkDescriptorSetLayout[] dsls = DescriptorSetLayouts.Select (dsl => dsl.handle).ToArray ();
 
 				if (dsls.Length > 0) {
@@ -55,7 +56,7 @@ namespace vke {
 				if (PushConstantRanges.Count > 0) {
 					info.pPushConstantRanges = PushConstantRanges;
 				}
-				Utils.CheckResult (vkCreatePipelineLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
+				CheckResult (vkCreatePipelineLayout (Dev.Handle, ref info, IntPtr.Zero, out handle));
 
 				info.Dispose();
 

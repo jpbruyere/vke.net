@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using Vulkan;
 
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -54,7 +55,7 @@ namespace vke {
 			string path = Path.Combine (globalConfigPath, cacheFile);
 
 			if (state != ActivableState.Activated) {
-				VkPipelineCacheCreateInfo info = VkPipelineCacheCreateInfo.New ();							
+				VkPipelineCacheCreateInfo info = default;
 
 				if (File.Exists (path) && LoadOnActivation) {
 					using (FileStream fs = File.Open (path, FileMode.Open)) {
@@ -67,7 +68,7 @@ namespace vke {
 					}
 				}
 
-				Utils.CheckResult (vkCreatePipelineCache (Dev.Handle, ref info, IntPtr.Zero, out handle));
+				CheckResult (vkCreatePipelineCache (Dev.Handle, ref info, IntPtr.Zero, out handle));
 
 				if (info.pInitialData != IntPtr.Zero)
 					Marshal.FreeHGlobal (info.pInitialData);
@@ -95,9 +96,9 @@ namespace vke {
 				File.Delete (path);
 
 			UIntPtr dataSize;
-			Utils.CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, IntPtr.Zero));
+			CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, IntPtr.Zero));
 			byte[] pData = new byte[(int)dataSize];
-			Utils.CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, pData.Pin ()));
+			CheckResult (vkGetPipelineCacheData (Dev.Handle, handle, out dataSize, pData.Pin ()));
 			pData.Unpin ();
 
 			using (FileStream fs = File.Open (path, FileMode.CreateNew)) 

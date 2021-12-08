@@ -5,6 +5,7 @@
 using System;
 using Vulkan;
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -56,7 +57,7 @@ namespace vke {
 		: base (_presentableQueue.dev) {
 
 			presentQueue = _presentableQueue;
-			createInfos = VkSwapchainCreateInfoKHR.New ();
+			createInfos = default;
 
 			VkSurfaceFormatKHR[] formats = Dev.phy.GetSurfaceFormats (presentQueue.Surface);
 			for (int i = 0; i < formats.Length; i++) {
@@ -120,7 +121,7 @@ namespace vke {
 			} else
 				createInfos.imageExtent = capabilities.currentExtent;
 
-			Utils.CheckResult (vkCreateSwapchainKHR (Dev.Handle, ref createInfos, IntPtr.Zero, out VkSwapchainKHR newSwapChain));
+			CheckResult (vkCreateSwapchainKHR (Dev.Handle, ref createInfos, IntPtr.Zero, out VkSwapchainKHR newSwapChain));
 
 			if (Handle.Handle != 0)
 				_destroy ();
@@ -129,11 +130,11 @@ namespace vke {
 			presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 			Handle = newSwapChain;
 
-			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out uint imageCount, IntPtr.Zero));
+			CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out uint imageCount, IntPtr.Zero));
 			if (imageCount == 0)
 				throw new Exception ("Swapchain image count is 0.");
 			VkImage[] imgs = new VkImage[imageCount];
-			Utils.CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out imageCount, imgs.Pin ()));
+			CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out imageCount, imgs.Pin ()));
 			imgs.Unpin ();
 
 			images = new Image[imgs.Length];
@@ -155,7 +156,7 @@ namespace vke {
 				Create ();
 				return -1;
 			}
-			Utils.CheckResult (res);
+			CheckResult (res);
 			return (int)currentImageIndex;
 		}
 

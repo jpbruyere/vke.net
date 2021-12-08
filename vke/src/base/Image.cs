@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Vulkan;
 
 using static Vulkan.Vk;
+using static Vulkan.Utils;
 
 namespace vke {
 	/// <summary>
@@ -24,7 +25,7 @@ namespace vke {
 		public static VkFormat DefaultTextureFormat = VkFormat.R8g8b8a8Unorm;
 
 		internal VkImage handle;
-		VkImageCreateInfo info = VkImageCreateInfo.New ();
+		VkImageCreateInfo info;
 		uint[] queuesFamillies;
 
 		/// <summary>
@@ -436,14 +437,14 @@ namespace vke {
 		}
 		internal override void bindMemory () {
 #if MEMORY_POOLS
-			Utils.CheckResult (vkBindImageMemory (Dev.Handle, handle, memoryPool.vkMemory, poolOffset));
+			CheckResult (vkBindImageMemory (Dev.Handle, handle, memoryPool.vkMemory, poolOffset));
 #else
-			Utils.CheckResult (vkBindImageMemory (Dev.Handle, handle, vkMemory, 0));
+			CheckResult (vkBindImageMemory (Dev.Handle, handle, vkMemory, 0));
 #endif
 		}
 		public sealed override void Activate () {
 			if (state != ActivableState.Activated) {
-				VkExternalMemoryImageCreateInfo externalImgInfo = VkExternalMemoryImageCreateInfo.New ();
+				VkExternalMemoryImageCreateInfo externalImgInfo = default;
 				if (importExportHandleTypes > 0 && importedHandle != IntPtr.Zero) {
 					externalImgInfo.handleTypes = importExportHandleTypes;
 					info.pNext = externalImgInfo.Pin ();
@@ -452,9 +453,9 @@ namespace vke {
 				if (info.sharingMode == VkSharingMode.Concurrent && queuesFamillies?.Length > 0) {
 					info.queueFamilyIndexCount = (uint)queuesFamillies.Length;
 					info.pQueueFamilyIndices = queuesFamillies;
-					Utils.CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
+					CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
 				} else
-					Utils.CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
+					CheckResult (vkCreateImage (Dev.Handle, ref info, IntPtr.Zero, out handle));
 
 				if (importExportHandleTypes > 0 && importedHandle != IntPtr.Zero)
 					externalImgInfo.Unpin ();
@@ -473,7 +474,7 @@ namespace vke {
 		}
 
 		public Image ExportTo (Device targetdev, VkExternalMemoryHandleTypeFlags handleTypes) {
-			VkMemoryHostPointerPropertiesEXT hostPointerProps = VkMemoryHostPointerPropertiesEXT.New();
+			VkMemoryHostPointerPropertiesEXT hostPointerProps = default;
 			VkResult res = vkGetMemoryHostPointerPropertiesEXT (Dev.Handle, handleTypes, importedHandle, out hostPointerProps);
 			if (res != VkResult.Success)
 				return null;
@@ -496,7 +497,7 @@ namespace vke {
 				layerCount = 1;
 
 			VkImageView view = default (VkImageView);
-			VkImageViewCreateInfo viewInfo = VkImageViewCreateInfo.New ();
+			VkImageViewCreateInfo viewInfo = default;
 			viewInfo.image = handle;
 			viewInfo.viewType = type;
 			viewInfo.format = Format;
@@ -510,7 +511,7 @@ namespace vke {
 			viewInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
 			viewInfo.subresourceRange.layerCount = layerCount < 0 ? info.arrayLayers : (uint)layerCount;
 
-			Utils.CheckResult (vkCreateImageView (Dev.Handle, ref viewInfo, IntPtr.Zero, out view));
+			CheckResult (vkCreateImageView (Dev.Handle, ref viewInfo, IntPtr.Zero, out view));
 
 			if (Descriptor.imageView.Handle != 0)
 				Dev.DestroyImageView (Descriptor.imageView);
@@ -536,7 +537,7 @@ namespace vke {
 							   VkSamplerMipmapMode mipmapMode = VkSamplerMipmapMode.Linear, VkSamplerAddressMode addressMode = VkSamplerAddressMode.Repeat,
 			float maxAnisotropy = 1.0f, float minLod = 0.0f, float maxLod = -1f) {
 			VkSampler sampler;
-			VkSamplerCreateInfo sampInfo = VkSamplerCreateInfo.New ();
+			VkSamplerCreateInfo sampInfo = default;
 			sampInfo.maxAnisotropy = maxAnisotropy;
 			sampInfo.maxAnisotropy = 1.0f;// device->enabledFeatures.samplerAnisotropy ? device->properties.limits.maxSamplerAnisotropy : 1.0f;
 										  //samplerInfo.anisotropyEnable = device->enabledFeatures.samplerAnisotropy;
@@ -551,7 +552,7 @@ namespace vke {
 			sampInfo.compareOp = VkCompareOp.Never;
 			sampInfo.borderColor = VkBorderColor.FloatOpaqueWhite;
 
-			Utils.CheckResult (vkCreateSampler (Dev.Handle, ref sampInfo, IntPtr.Zero, out sampler));
+			CheckResult (vkCreateSampler (Dev.Handle, ref sampInfo, IntPtr.Zero, out sampler));
 
 			if (Descriptor.sampler.Handle != 0)
 				Dev.DestroySampler (Descriptor.sampler);
@@ -616,7 +617,7 @@ namespace vke {
 			uint srcQueueFamilyIndex = Vk.QueueFamilyIgnored,
 			uint dstQueueFamilyIndex = Vk.QueueFamilyIgnored) {
 
-			VkImageMemoryBarrier imageMemoryBarrier = VkImageMemoryBarrier.New ();
+			VkImageMemoryBarrier imageMemoryBarrier = default;
 			imageMemoryBarrier.srcQueueFamilyIndex = srcQueueFamilyIndex;
 			imageMemoryBarrier.dstQueueFamilyIndex = dstQueueFamilyIndex;
 			imageMemoryBarrier.oldLayout = oldImageLayout;
@@ -649,7 +650,7 @@ namespace vke {
 			uint srcQueueFamilyIndex = Vk.QueueFamilyIgnored,
 			uint dstQueueFamilyIndex = Vk.QueueFamilyIgnored) {
 			// Create an image barrier object
-			VkImageMemoryBarrier imageMemoryBarrier = VkImageMemoryBarrier.New ();
+			VkImageMemoryBarrier imageMemoryBarrier = default;
 			imageMemoryBarrier.srcQueueFamilyIndex = srcQueueFamilyIndex;
 			imageMemoryBarrier.dstQueueFamilyIndex = dstQueueFamilyIndex;
 			imageMemoryBarrier.oldLayout = oldImageLayout;

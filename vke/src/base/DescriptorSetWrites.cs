@@ -62,7 +62,7 @@ namespace vke {
 		/// with another descriptorSet in parametters
 		/// </summary>
 	 	public void AddWriteInfo (DescriptorSet destSet, VkDescriptorSetLayoutBinding binding) {
-			VkWriteDescriptorSet wds = VkWriteDescriptorSet.New();
+			VkWriteDescriptorSet wds = default;
 			wds.descriptorType = binding.descriptorType;
 			wds.descriptorCount = binding.descriptorCount;
 			wds.dstBinding = binding.binding;
@@ -82,7 +82,7 @@ namespace vke {
 		/// provide a desDescriptor!
 		/// </summary>
 		public void AddWriteInfo (VkDescriptorSetLayoutBinding binding) {
-            VkWriteDescriptorSet wds = VkWriteDescriptorSet.New();
+            VkWriteDescriptorSet wds = default;
             wds.descriptorType = binding.descriptorType;
             wds.descriptorCount = binding.descriptorCount;
             wds.dstBinding = binding.binding;
@@ -107,6 +107,7 @@ namespace vke {
 				while (i < descriptors.Length) {
 					int firstDescriptor = i;
 					VkWriteDescriptorSet wds = WriteDescriptorSets[wdsPtr];
+					wds.sType = VkStructureType.WriteDescriptorSet;
 					if (dstSetOverride != null)
 						wds.dstSet = dstSetOverride.Value.Handle;
 
@@ -177,7 +178,7 @@ namespace vke {
         public void AddWriteInfo (DescriptorSet destSet, VkDescriptorSetLayoutBinding binding, VkDescriptorBufferInfo descriptor) {
 			if (!descriptors.Contains (descriptor))
 				descriptors.Add (descriptor);
-            VkWriteDescriptorSet wds = VkWriteDescriptorSet.New();
+            VkWriteDescriptorSet wds = default;
             wds.descriptorType = binding.descriptorType;
             wds.descriptorCount = binding.descriptorCount;
             wds.dstBinding = binding.binding;
@@ -189,7 +190,7 @@ namespace vke {
         public void AddWriteInfo (DescriptorSet destSet, VkDescriptorSetLayoutBinding binding, VkDescriptorImageInfo descriptor) {
 			if (!descriptors.Contains (descriptor))
 				descriptors.Add (descriptor);
-            VkWriteDescriptorSet wds = VkWriteDescriptorSet.New();
+            VkWriteDescriptorSet wds = default;
             wds.descriptorType = binding.descriptorType;
             wds.descriptorCount = binding.descriptorCount;
             wds.dstBinding = binding.binding;
