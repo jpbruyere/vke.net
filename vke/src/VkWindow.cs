@@ -244,8 +244,8 @@ namespace vke {
 				updateViewRequested = true;
 			}
 		}
-		protected virtual void onMouseButtonDown (MouseButton button) { }
-		protected virtual void onMouseButtonUp (MouseButton button) { }
+		protected virtual void onMouseButtonDown (MouseButton button, Modifier mods) { }
+		protected virtual void onMouseButtonUp (MouseButton button, Modifier mods) { }
 		protected virtual void onKeyDown (Key key, int scanCode, Modifier modifiers) {
 			switch (key) {
 				case Key.F4:
@@ -297,9 +297,9 @@ namespace vke {
 		};
 		static MouseButtonDelegate HandleMouseButtonDelegate = (IntPtr window, Glfw.MouseButton button, InputAction action, Modifier mods) => {
 			if (action == InputAction.Press)
-				windows[window].onMouseButtonDown (button);
+				windows[window].onMouseButtonDown (button, mods);
 			else
-				windows[window].onMouseButtonUp (button);
+				windows[window].onMouseButtonUp (button, mods);
 		};
 		static ScrollDelegate HandleScrollDelegate = (IntPtr window, double xOffset, double yOffset) => {
 			windows[window].onScroll (xOffset, yOffset);
