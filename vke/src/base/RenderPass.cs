@@ -17,7 +17,7 @@ namespace vke {
 		internal List<VkAttachmentDescription> attachments = new List<VkAttachmentDescription> ();
 		internal List<SubPass> subpasses = new List<SubPass> ();
 		List<VkSubpassDependency> dependencies = new List<VkSubpassDependency> ();
-		public List<VkClearValue> ClearValues = new List<VkClearValue> ();
+		public List<VkClearValue> ClearValues { get; set; } = new List<VkClearValue> ();
 		public VkAttachmentDescription [] Attachments => attachments.ToArray ();
 		public SubPass [] SubPasses => subpasses.ToArray ();
 

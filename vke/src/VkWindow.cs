@@ -66,6 +66,10 @@ namespace vke {
 		/// Override this property to change the list of enabled device extensions
 		/// </summary>
 		public virtual string[] EnabledDeviceExtensions => new string[] { Ext.D.VK_KHR_swapchain };
+		/// <summary>
+		/// Override this property to change the pNext chain of de device creation structure.
+		/// </summary>
+		public virtual IntPtr DeviceCreationPNext => IntPtr.Zero;
 
 		/// <summary>
 		/// Frequency in millisecond of the call to the Update method
@@ -164,7 +168,7 @@ namespace vke {
 			createQueues ();
 
 			//activate the device to have effective queues created accordingly to what's available
-			dev.Activate (enabledFeatures, EnabledDeviceExtensions);
+			dev.Activate (DeviceCreationPNext, enabledFeatures, EnabledDeviceExtensions);
 
 			swapChain = new SwapChain (presentQueue as PresentQueue, Width, Height, SwapChain.PREFERED_FORMAT,
 				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.ImmediateKHR);

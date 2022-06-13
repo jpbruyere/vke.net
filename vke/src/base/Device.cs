@@ -37,7 +37,7 @@ namespace vke {
 			phy = _phy;
 		}
 
-		public void Activate (VkPhysicalDeviceFeatures enabledFeatures, params string[] extensions) {
+		public void Activate (IntPtr pNext, VkPhysicalDeviceFeatures enabledFeatures, params string[] extensions) {
 			List<VkDeviceQueueCreateInfo> qInfos = new List<VkDeviceQueueCreateInfo> ();
 
 			foreach (IGrouping<uint, Queue> qfams in queues.GroupBy (q => q.qFamIndex)) {
