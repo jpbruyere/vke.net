@@ -45,7 +45,7 @@ namespace SimpleCompute {
 			dev = new Device (phy);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
 
-			dev.Activate (default (VkPhysicalDeviceFeatures));
+			dev.Activate (IntPtr.Zero, default (VkPhysicalDeviceFeatures));
 
 			createRandomDatas ();
 

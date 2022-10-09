@@ -95,7 +95,7 @@ namespace delaunay {
 
 			grPipeline = new GraphicPipeline (cfg);
 			
-			cfg.DisposeShaders ();
+			//cfg.DisposeShaders ();
 
 			plCompute = new ComputePipeline (
 				new PipelineLayout (dev, new VkPushConstantRange (VkShaderStageFlags.Compute, 2 * sizeof (int)), dslCompute),
@@ -192,7 +192,7 @@ namespace delaunay {
 
 					cmd.Dispatch (imgDim, imgDim);
 
-					VkMemoryBarrier memBar = VkMemoryBarrier.New ();
+					VkMemoryBarrier memBar = new VkMemoryBarrier();
 					memBar.srcAccessMask = VkAccessFlags.ShaderWrite;
 					memBar.dstAccessMask = VkAccessFlags.ShaderRead;
 					Vk.vkCmdPipelineBarrier (cmd.Handle, VkPipelineStageFlags.ComputeShader, VkPipelineStageFlags.ComputeShader, VkDependencyFlags.ByRegion,
@@ -219,8 +219,7 @@ namespace delaunay {
 
 			printResults ();
 		}
-
-		protected override void onMouseButtonDown (MouseButton button) {
+		protected override void onMouseButtonDown(MouseButton button, Modifier mods) {
 			int xPad = (int)swapChain.Width / 2 - (int)imgDim * (int)zoom / 2;
 			int yPad = (int)swapChain.Height / 2 - (int)imgDim * (int)zoom / 2;
 
@@ -228,7 +227,7 @@ namespace delaunay {
 			int localY = (int)((lastMouseY - yPad) / zoom);
 
 			if (localX < 0 || localY < 0 || localX >= imgDim || localY >= imgDim)
-				base.onMouseButtonDown (button);
+				base.onMouseButtonDown (button, mods);
 			else {
 				addSeed ((uint)localX, (uint)localY);
 				stagingDataBuff.Update (datas);

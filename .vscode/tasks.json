@@ -44,6 +44,20 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build Compute",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/compute/compute.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build Textured",
 			"command": "dotnet",
 			"type": "process",
@@ -120,6 +134,34 @@
 			"args": [
 				"build",
 				"${workspaceFolder}/samples/ImmutableSampler/ImmutableSampler.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build Multithreading",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/Multithreading/Multithreading.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build Multithreading2",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/Multithreading2/Multithreading2.csproj",
 				"/property:GenerateFullPaths=true",
 				"/property:SolutionDir=${workspaceFolder}/",
 				"/property:Configuration=Debug",
