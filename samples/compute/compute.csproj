@@ -4,6 +4,6 @@
   </PropertyGroup>
               
   <ItemGroup>    
-    <Compile Include="main.cs" /> 
+    <Compile Include="stroker.cs" /> 
   </ItemGroup>     
 </Project>
