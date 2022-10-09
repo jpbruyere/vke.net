@@ -56,6 +56,7 @@ namespace vke {
 		/// destroyed on Dispose.
 		/// </summary>
 		public ShaderInfo (VkShaderStageFlags stageFlags, VkShaderModule module, SpecializationInfo specializationInfo = null, string entryPoint = "main") {
+			info = VkPipelineShaderStageCreateInfo.New;
 			info.stage = stageFlags;
 			info.pName = entryPoint;
 			info.module = module;

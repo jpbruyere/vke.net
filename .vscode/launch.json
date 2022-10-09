@@ -44,6 +44,17 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (Compute)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build Compute",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/compute",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
 			"name": ".NET Core Launch (ExternalMemmories)",
 			"type": "coreclr",
 			"request": "launch",
@@ -104,6 +115,28 @@
 			"request": "launch",
 			"preLaunchTask": "build immutableSampler",
 			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/ImmutableSampler",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"console": "internalConsole",
+			"stopAtEntry": false
+		},
+		{
+			"name": ".NET Core Launch (Multithreading)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build Multithreading",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/Multithreading",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"console": "internalConsole",
+			"stopAtEntry": false
+		},
+		{
+			"name": ".NET Core Launch (Multithreading2)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build Multithreading2",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/Multithreading2",
 			"args": [],
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"console": "internalConsole",

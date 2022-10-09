@@ -33,7 +33,7 @@ namespace vke {
 				Cache?.Activate ();
 
 				using (ShaderInfo shader = new ShaderInfo (Dev, VkShaderStageFlags.Compute, SpirVPath)) {
-					VkComputePipelineCreateInfo info = default;
+					VkComputePipelineCreateInfo info = new VkComputePipelineCreateInfo();
 					info.layout = layout.Handle;
 					info.stage = shader.Info;
 					info.basePipelineHandle = 0;
