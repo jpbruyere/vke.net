@@ -42,7 +42,7 @@ namespace ExternalMemmories
 			gQ = new Queue (dev, Vulkan.VkQueueFlags.Graphics);
 			VkPhysicalDeviceFeatures features = default;
 
-			dev.Activate (features, new string[] {
+			dev.Activate (IntPtr.Zero, features, new string[] {
 				Ext.D.VK_KHR_external_memory,
 				Ext.D.VK_EXT_external_memory_host,
 				Ext.D.VK_EXT_external_memory_dma_buf,
@@ -68,7 +68,7 @@ namespace ExternalMemmories
 		public void listFormat () {
 
 			foreach (VkFormat format in Enum.GetValues(typeof(VkFormat))) {
-				if (format == VkFormat.G16B16R163plane444UnormKHR)
+				if (format == VkFormat.G16B16R16_3plane444Unorm)
 					break;
 
 				vkGetPhysicalDeviceFormatProperties (phy.Handle, format, out VkFormatProperties props);

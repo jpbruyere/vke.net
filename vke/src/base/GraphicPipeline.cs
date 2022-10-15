@@ -81,8 +81,8 @@ namespace vke {
 					VkGraphicsPipelineCreateInfo info = default;
 					info.renderPass = RenderPass.handle;
 					info.layout = Layout.handle;
-					info.pVertexInputState = vertInputInfo;
-					info.pInputAssemblyState = cfg.inputAssemblyState;
+					//info.pVertexInputState = vertInputInfo;
+					//info.pInputAssemblyState = cfg.inputAssemblyState;
 					info.pRasterizationState = cfg.rasterizationState;
 					info.pColorBlendState = colorBlendInfo;
 					info.pMultisampleState = cfg.multisampleState;
@@ -91,6 +91,7 @@ namespace vke {
 					info.pDynamicState = dynStatesInfo;
 					info.pStages = shaderStages;
 					info.subpass = cfg.SubpassIndex;
+					
 
 					if (enableTesselation) {
 						VkPipelineTessellationStateCreateInfo tessellationInfo = default;

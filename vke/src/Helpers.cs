@@ -95,7 +95,8 @@ namespace vke {
 		/// Populate a Vector4 with values from a float array
 		/// </summary>
 		public static void FromFloatArray (ref Vector4 v, float[] floats) {
-			MemoryMarshal.Cast<float, Vector4>(floats.AsSpan());
+			v = Unsafe.As<float[], Vector4[]>(ref floats)[0];
+			//v = MemoryMarshal.Cast<float, Vector4>(floats.AsSpan())[0];
 		}
 		/// <summary>
 		/// Populate a Quaternion with values from a float array

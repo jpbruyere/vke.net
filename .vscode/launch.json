@@ -44,6 +44,21 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (MeshShader)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build MeshShader",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/MeshShader",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole",
+			"env": {
+				"VK_ICD_FILENAMES": "/usr/local/share/vulkan/icd.d/radeon_icd.x86_64.json",
+				"RADV_PERFTEST": "ext_ms"
+			}
+		},
+		{
 			"name": ".NET Core Launch (Compute)",
 			"type": "coreclr",
 			"request": "launch",

@@ -38,6 +38,12 @@ namespace ClearScreen {
 
 			//allocate default cmd buffers of the VkWindow class.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
+
+			var stringEnumConverter = new System.Text.Json.Serialization.JsonStringEnumConverter();
+			var options = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
+			options.Converters.Add (stringEnumConverter);
+			string json = System.Text.Json.JsonSerializer.Serialize(renderPass, options);
+			Console.WriteLine(json);
 		}
 
 		void buildCommandBuffers() {

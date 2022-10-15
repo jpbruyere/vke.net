@@ -33,7 +33,7 @@
 
 	<ItemGroup>
 		<Compile Include="$(MSBuildThisFileDirectory)common\Utils.cs;$(MSBuildThisFileDirectory)common\SampleBase.cs"/>
-		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom">
+		<GLSLShader Include="shaders\**\*.frag;shaders\**\*.vert;shaders\**\*.comp;shaders\**\*.geom;shaders\**\*.mesh;shaders\**\*.task">
 			<LogicalName>shaders.%(Filename)%(Extension).spv</LogicalName>
 		</GLSLShader>
 		<EmbeddedResource Include="ui\**\*.*">
