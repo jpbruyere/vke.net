@@ -2,6 +2,20 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "build SpirVTasks",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/SpirVTasks/SpirVTasks.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build ExternalMemmories",
 			"command": "dotnet",
 			"type": "process",
@@ -36,6 +50,20 @@
 			"args": [
 				"build",
 				"${workspaceFolder}/samples/Triangle/Triangle.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build MeshShader",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/MeshShader/MeshShader.csproj",
 				"/property:GenerateFullPaths=true",
 				"/property:SolutionDir=${workspaceFolder}/",
 				"/property:Configuration=Debug",

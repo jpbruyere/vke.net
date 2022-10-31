@@ -153,9 +153,15 @@ namespace vke {
 
 			instance = new Instance (EnabledLayers, instExts.ToArray());
 
-			hSurf = instance.CreateSurface (hWin);
-
 			selectPhysicalDevice ();
+
+			if (phy == null) {
+				instance.Dispose();
+				terminateGLFW();
+				throw new Exception("Required physical device not found.");
+			}
+
+			hSurf = instance.CreateSurface (hWin);
 
 			VkPhysicalDeviceFeatures enabledFeatures = default;
 			configureEnabledFeatures (phy.Features, ref enabledFeatures);
@@ -392,6 +398,15 @@ namespace vke {
 
 		#region IDisposable Support
 		protected bool isDisposed;
+		void terminateGLFW() {
+				if (currentCursor != IntPtr.Zero)
+					Glfw3.DestroyCursor (currentCursor);
+				if (hWin != IntPtr.Zero) {
+					windows.Remove (hWin);
+					Glfw3.DestroyWindow (hWin);
+				}
+				Glfw3.Terminate ();			
+		}
 
 		protected virtual void Dispose (bool disposing) {
 			if (!isDisposed) {
@@ -413,15 +428,7 @@ namespace vke {
 				} else
 					Debug.WriteLine ("a VkWindow has not been correctly disposed");
 
-				if (currentCursor != IntPtr.Zero)
-					Glfw3.DestroyCursor (currentCursor);
-
-				windows.Remove (hWin);
-
-				Glfw3.DestroyWindow (hWin);
-				Glfw3.Terminate ();
-
-
+				terminateGLFW();
 				isDisposed = true;
 			}
 		}

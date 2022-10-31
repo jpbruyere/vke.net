@@ -8,4 +8,6 @@
   <FileExtension Name=".vert" ContentType="GLSLShader" />
 	<FileExtension Name=".tesc" ContentType="GLSLShader" />
 	<FileExtension Name=".tese" ContentType="GLSLShader" />
+	<FileExtension Name=".mesh" ContentType="GLSLShader" />
+  <FileExtension Name=".task" ContentType="GLSLShader" />
 </ProjectSchemaDefinitions>
