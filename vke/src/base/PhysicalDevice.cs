@@ -166,16 +166,16 @@ namespace vke {
 				tiling, usage, flags, out properties);
 			return result == VkResult.Success;
 		}
-		public VkPhysicalDeviceToolPropertiesEXT[] GetToolProperties () {
-			CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out uint count, IntPtr.Zero));
-			int sizeStruct = Marshal.SizeOf<VkPhysicalDeviceToolPropertiesEXT> ();
+		public VkPhysicalDeviceToolProperties[] GetToolProperties () {
+			CheckResult (vkGetPhysicalDeviceToolProperties (phy , out uint count, IntPtr.Zero));
+			int sizeStruct = Marshal.SizeOf<VkPhysicalDeviceToolProperties> ();
 			IntPtr ptrTools = Marshal.AllocHGlobal (sizeStruct * (int)count);
-			CheckResult (vkGetPhysicalDeviceToolPropertiesEXT (phy , out count, ptrTools));
+			CheckResult (vkGetPhysicalDeviceToolProperties (phy , out count, ptrTools));
 
-			VkPhysicalDeviceToolPropertiesEXT[] result = new VkPhysicalDeviceToolPropertiesEXT[count];
+			VkPhysicalDeviceToolProperties[] result = new VkPhysicalDeviceToolProperties[count];
 			IntPtr tmp = ptrTools;
 			for (int i = 0; i < count; i++) {
-				result[i] = Marshal.PtrToStructure<VkPhysicalDeviceToolPropertiesEXT> (tmp);
+				result[i] = Marshal.PtrToStructure<VkPhysicalDeviceToolProperties> (tmp);
 				tmp += sizeStruct;
 			}
 
