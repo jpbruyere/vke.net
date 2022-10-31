@@ -12,13 +12,6 @@ using System.Collections.Generic;
 
 namespace MeshShader {
 	class Program : SampleBase {
-#if DEBUG
-		/*public override string[] EnabledLayers  =>
-			new string[] {
-				"VK_LAYER_KHRONOS_validation"
-			};*/
-
-#endif
 		public override string[] EnabledInstanceExtensions => new string[] {
 			Ext.I.VK_KHR_get_physical_device_properties2,
 			Ext.I.VK_EXT_debug_utils,
@@ -27,27 +20,12 @@ namespace MeshShader {
 			Ext.D.VK_KHR_swapchain,
 			Ext.D.VK_KHR_spirv_1_4,
 			Ext.D.VK_EXT_mesh_shader
-			//"VK_NV_mesh_shader"
 		};
-		protected override void configureEnabledFeatures(VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features)
-		{
-			base.configureEnabledFeatures(available_features, ref enabled_features);
-			
-			
-		}
-		vke.DebugUtils.Messenger dbgmsg;
 		protected override void selectPhysicalDevice () {
 			PhysicalDeviceCollection phys = instance.GetAvailablePhysicalDevice ();
 			phy = instance.GetAvailablePhysicalDevice ().FirstOrDefault (p => p.Properties.deviceType == VkPhysicalDeviceType.DiscreteGpu && p.HasSwapChainSupport);
 			Console.WriteLine($"Using gpu: {phy.Properties.deviceName}");
 			
-			dbgmsg = new vke.DebugUtils.Messenger (instance,
-				VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT | VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT | VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT,
-				VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT |
-				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT |
-				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
-				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);
-
 			VkPhysicalDeviceFeatures2 phyFeat2 = VkPhysicalDeviceFeatures2.New;
 			VkPhysicalDeviceMeshShaderFeaturesEXT meshFeat = VkPhysicalDeviceMeshShaderFeaturesEXT.New;
 			
@@ -84,7 +62,6 @@ namespace MeshShader {
 		float rotX, rotY, zoom = 1f;
 
 		HostBuffer<Matrix4x4> uboMVPmatrix; //a host mappable buffer for mvp matrice.
-
 		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;//descriptor set for the mvp matrice.
 
@@ -94,38 +71,23 @@ namespace MeshShader {
 		protected override void initVulkan () {
 			base.initVulkan ();
 
-			
+			uboMVPmatrix = new HostBuffer<Matrix4x4> (dev, VkBufferUsageFlags.UniformBuffer, 1, true);
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
 			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false)) {
-				//Create the pipeline layout, it will be automatically activated on pipeline creation, so that sharing layout among different pipelines will benefit
-				//from the reference counting to automatically dispose unused layout on pipeline clean up. It's the same for DescriptorSetLayout.
-				/*cfg.Layout = new PipelineLayout (dev,
-					new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer)));*/
-				cfg.Layout = new PipelineLayout (dev);
-				//create a default renderpass with just a color attachment for the swapchain image, a default subpass is automatically created and the renderpass activation
-				//will follow the pipeline life cicle and will be automatically disposed when no longuer used.
+				cfg.Layout = new PipelineLayout (dev,
+					new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.MeshEXT, VkDescriptorType.UniformBuffer)));
 				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
-				//configuration of vertex bindings and attributes
 
-				//shader are automatically compiled by SpirVTasks if added to the project. The resulting shaders are automatically embedded in the assembly.
-				//To specifiy that the shader path is a resource name, put the '#' prefix. Else the path will be search on disk.
 				cfg.AddShaders (
 					new ShaderInfo (dev, VkShaderStageFlags.MeshEXT, "#shaders.main.mesh.spv"),
 					new ShaderInfo (dev, VkShaderStageFlags.Fragment, "#shaders.main.frag.spv")
 				);
-
-				//create and activate the pipeline with the configuration we've just done.
 				pipeline = new GraphicPipeline (cfg);
 			}
 
-			//because descriptor layout used for a pipeline are only activated on pipeline activation, descriptor set must not be allocated before, except if the layout has been manually activated,
-			//but in this case, layout will need also to be explicitly disposed.
-			//descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
-
-			//Write the content of the descriptor, the mvp matrice.
-			//DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
-			//Descriptor property of the mvp buffer will return a default descriptor with no offset of the full size of the buffer.
-			//uboUpdate.Write (dev, uboMVPmatrix.Descriptor);
+			descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
+			uboUpdate.Write (dev, uboMVPmatrix.Descriptor);
 
 			//allocate the default VkWindow buffers, one per swapchain image. Their will be only reset when rebuilding and not reallocated.
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
@@ -133,13 +95,13 @@ namespace MeshShader {
 
 		//view update override, see base method for more informations.
 		public override void UpdateView () {
-			/*uboMVPmatrix.AsSpan()[0] =
+			uboMVPmatrix.AsSpan()[0] =
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitY, rotY) *
 				Matrix4x4.CreateFromAxisAngle (Vector3.UnitX, rotX) *
 				Matrix4x4.CreateTranslation (0, 0, -3f * zoom) *
 				Helpers.CreatePerspectiveFieldOfView (Helpers.DegreesToRadians (45f), (float)swapChain.Width / (float)swapChain.Height, 0.1f, 256.0f);
 
-			base.UpdateView ();*/
+			base.UpdateView ();
 		}
 		protected override void onMouseMove (double xPos, double yPos) {
 			double diffX = lastMouseX - xPos;
@@ -166,7 +128,7 @@ namespace MeshShader {
 				cmds[i].SetViewport (swapChain.Width, swapChain.Height);
 				cmds[i].SetScissor (swapChain.Width, swapChain.Height);
 
-				//cmds[i].BindDescriptorSet (pipeline.Layout, descriptorSet);
+				cmds[i].BindDescriptorSet (pipeline.Layout, descriptorSet);
 
 				cmds[i].BindPipeline (pipeline);
 
@@ -200,8 +162,7 @@ namespace MeshShader {
 					//the descriptor pool
 					descriptorPool.Dispose ();
 					//resources have to be explicityly disposed.
-					//uboMVPmatrix.Dispose ();
-					dbgmsg?.Dispose ();
+					uboMVPmatrix.Dispose ();
 				}
 			}
 
