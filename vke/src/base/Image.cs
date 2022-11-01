@@ -475,7 +475,7 @@ namespace vke {
 
 		public Image ExportTo (Device targetdev, VkExternalMemoryHandleTypeFlags handleTypes) {
 			VkMemoryHostPointerPropertiesEXT hostPointerProps = default;
-			VkResult res = vkGetMemoryHostPointerPropertiesEXT (Dev.Handle, handleTypes, importedHandle, out hostPointerProps);
+			VkResult res = vkGetMemoryHostPointerPropertiesEXT (Dev.Handle, handleTypes, importedHandle, ref hostPointerProps);
 			if (res != VkResult.Success)
 				return null;
 			Image img = new Image (targetdev, memoryFlags, this.info, queuesFamillies);
