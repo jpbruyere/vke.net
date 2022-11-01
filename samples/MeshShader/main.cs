@@ -25,29 +25,17 @@ namespace MeshShader {
 			PhysicalDeviceCollection phys = instance.GetAvailablePhysicalDevice ();
 			phy = instance.GetAvailablePhysicalDevice ().FirstOrDefault (p => p.Properties.deviceType == VkPhysicalDeviceType.DiscreteGpu && p.HasSwapChainSupport);
 			Console.WriteLine($"Using gpu: {phy.Properties.deviceName}");
-			
+
 			VkPhysicalDeviceFeatures2 phyFeat2 = VkPhysicalDeviceFeatures2.New;
-			VkPhysicalDeviceMeshShaderFeaturesEXT meshFeat = VkPhysicalDeviceMeshShaderFeaturesEXT.New;
-			
-			IntPtr pPhyFeat2 = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceFeatures2>());
-			IntPtr pMeshFeat = Marshal.AllocHGlobal(Marshal.SizeOf<VkPhysicalDeviceMeshShaderFeaturesEXT>());
-			
-			Marshal.StructureToPtr<VkPhysicalDeviceMeshShaderFeaturesEXT>(meshFeat, pMeshFeat,false);
-			phyFeat2.pNext = pMeshFeat;
-			Marshal.StructureToPtr<VkPhysicalDeviceFeatures2>(phyFeat2, pPhyFeat2,false);
+			using (var meshFeat = new PNext<VkPhysicalDeviceMeshShaderFeaturesEXT>()) {
+				phyFeat2.pNext = meshFeat;
+				Vk.vkGetPhysicalDeviceFeatures2(phy.Handle, ref phyFeat2);
 
-			Vk.vkGetPhysicalDeviceFeatures2(phy.Handle, pPhyFeat2);
-
-			phyFeat2 = Marshal.PtrToStructure<VkPhysicalDeviceFeatures2>(pPhyFeat2);
-			meshFeat = Marshal.PtrToStructure<VkPhysicalDeviceMeshShaderFeaturesEXT>(pMeshFeat);
-			Marshal.FreeHGlobal(pPhyFeat2);
-			Marshal.FreeHGlobal(pMeshFeat);
-			
-			Console.WriteLine($"Mesh Shader Support:\t{meshFeat.meshShader}");
-			Console.WriteLine($"Task Shader Support:\t{meshFeat.taskShader}");
-
-			if (!(meshFeat.meshShader && meshFeat.taskShader)) {
-				phy = null;				
+				Console.WriteLine($"Mesh Shader Support:\t{meshFeat.Val.meshShader}");
+				Console.WriteLine($"Task Shader Support:\t{meshFeat.Val.taskShader}");
+				if (!(meshFeat.Val.meshShader && meshFeat.Val.taskShader)) {
+					phy = null;				
+				}
 			}
 		}		
 		

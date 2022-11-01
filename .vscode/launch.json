@@ -53,10 +53,6 @@
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"stopAtEntry": false,
 			"console": "internalConsole",
-			"env": {
-				"VK_ICD_FILENAMES": "/usr/local/share/vulkan/icd.d/radeon_icd.x86_64.json",
-				"RADV_PERFTEST": "rt,ext_ms"
-			}
 		},
 		{
 			"name": ".NET Core Launch (Compute)",
