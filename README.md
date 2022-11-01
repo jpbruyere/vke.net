@@ -43,8 +43,23 @@ vke is in beta development stage.
 # Requirements
 - [GLFW](https://www.glfw.org/) if you use the `VkWindow` class.
 - [Vulkan Sdk](https://www.lunarg.com/vulkan-sdk/), **glslc** has to be in the path.
+- on linux, dlib is required.
 
-`vke.net` supports `netcoreapp3.0`.
+# Building
+
+SPirVTasks is an addon to the net build system to allow compilation of shaders during msbuild process. It has to be built first:
+
+```
+dotnet build /p:Configuration=ReleaseSpirVTasks
+```
+
+Then normal compilation:
+```
+dotnet build
+```
+
+
+`vke.net` supports `netcoreapp3.1`.
 
 # Tutorials
 
