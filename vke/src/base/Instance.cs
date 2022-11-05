@@ -32,10 +32,6 @@ namespace vke {
 		public IntPtr Handle => inst.Handle;
 		public VkInstance VkInstance => inst;
 
-		static class Strings {
-
-			public static FixedUtf8String main = "main";
-		}
 		const string strValidationLayer = "VK_LAYER_KHRONOS_validation";
 		const string strRenderDocLayer = "VK_LAYER_RENDERDOC_Capture";
 

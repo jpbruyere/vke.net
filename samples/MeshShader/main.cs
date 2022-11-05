@@ -34,8 +34,21 @@ namespace MeshShader {
 				Console.WriteLine($"Mesh Shader Support:\t{meshFeat.Val.meshShader}");
 				Console.WriteLine($"Task Shader Support:\t{meshFeat.Val.taskShader}");
 				if (!(meshFeat.Val.meshShader && meshFeat.Val.taskShader)) {
-					phy = null;				
+					phy = null;
+					return;	
 				}
+			}
+
+			VkPhysicalDeviceProperties2 phyProp2 = VkPhysicalDeviceProperties2.New;
+			using (var meshP = new PNext<VkPhysicalDeviceMeshShaderPropertiesEXT>()) {
+				phyProp2.pNext = meshP;
+
+				Vk.vkGetPhysicalDeviceProperties2(phy.Handle, ref phyProp2);
+
+				Console.WriteLine($"maxMeshOutputPrimitives:\t{meshP.Val.maxMeshOutputPrimitives}");
+				Console.WriteLine($"prefersLocalInvocationPrimitiveOutput:\t{meshP.Val.prefersLocalInvocationPrimitiveOutput}");
+				Console.WriteLine($"maxMeshOutputVertices:\t{meshP.Val.maxMeshOutputVertices}");
+				Console.WriteLine($"prefersLocalInvocationVertexOutput:\t{meshP.Val.prefersLocalInvocationVertexOutput}");
 			}
 		}		
 		

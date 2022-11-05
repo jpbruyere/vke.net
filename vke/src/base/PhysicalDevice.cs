@@ -49,8 +49,8 @@ namespace vke {
 	/// </summary>
 	public class PhysicalDevice {
 		readonly IntPtr phy;
-
-		public VkPhysicalDeviceMemoryProperties memoryProperties { get; private set; }
+		VkPhysicalDeviceMemoryProperties _memoryProperties;
+		public VkPhysicalDeviceMemoryProperties memoryProperties => _memoryProperties;
 		public VkQueueFamilyProperties [] QueueFamilies { get; private set; }
 		public VkPhysicalDeviceProperties Properties {
 			get {
@@ -75,11 +75,7 @@ namespace vke {
 			phy = vkPhy;
 
 			// Gather physical Device memory properties
-			IntPtr tmp = Marshal.AllocHGlobal (Marshal.SizeOf<VkPhysicalDeviceMemoryProperties> ());
-			vkGetPhysicalDeviceMemoryProperties (phy, tmp);
-
-			memoryProperties = Marshal.PtrToStructure<VkPhysicalDeviceMemoryProperties> (tmp);
-			Marshal.FreeHGlobal (tmp);
+			vkGetPhysicalDeviceMemoryProperties (phy, out _memoryProperties);
 
 			vkGetPhysicalDeviceQueueFamilyProperties (phy, out uint queueFamilyCount, IntPtr.Zero);
 			QueueFamilies = new VkQueueFamilyProperties [queueFamilyCount];

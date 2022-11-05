@@ -42,12 +42,12 @@ namespace ExternalMemmories
 			gQ = new Queue (dev, Vulkan.VkQueueFlags.Graphics);
 			VkPhysicalDeviceFeatures features = default;
 
-			dev.Activate (features, new string[] {
+			dev.Activate (IntPtr.Zero, features, 
 				Ext.D.VK_KHR_external_memory,
 				Ext.D.VK_EXT_external_memory_host,
 				Ext.D.VK_EXT_external_memory_dma_buf,
-				Ext.D.VK_KHR_external_memory_fd,
-			});
+				Ext.D.VK_KHR_external_memory_fd
+			);
 		}
 		public bool TryGetImageFormatProperties (VkFormat format, VkImageTiling tiling,
 			VkImageUsageFlags usage, out VkImageFormatProperties properties,
@@ -68,7 +68,7 @@ namespace ExternalMemmories
 		public void listFormat () {
 
 			foreach (VkFormat format in Enum.GetValues(typeof(VkFormat))) {
-				if (format == VkFormat.G16B16R163plane444UnormKHR)
+				if (format == VkFormat.G16B16R16_3plane444Unorm)
 					break;
 
 				vkGetPhysicalDeviceFormatProperties (phy.Handle, format, out VkFormatProperties props);
@@ -101,7 +101,7 @@ namespace ExternalMemmories
 					foreach (VkExternalMemoryHandleTypeFlags handleType in Enum.GetValues (typeof(VkExternalMemoryHandleTypeFlags))) {
 						extImgFormatInfo.handleType = handleType;
 
-						VkResult res = vkGetPhysicalDeviceImageFormatProperties2 (phy.Handle, ref imgFormatInfo2, out imgProps2);
+						VkResult res = vkGetPhysicalDeviceImageFormatProperties2 (phy.Handle, ref imgFormatInfo2, ref imgProps2);
 						if (res == VkResult.Success) {
 							Console.WriteLine ($"\t{handleType}: f:{extProps.externalMemoryProperties.externalMemoryFeatures} c:{extProps.externalMemoryProperties.compatibleHandleTypes} e:{extProps.externalMemoryProperties.exportFromImportedHandleTypes}");
 						}
