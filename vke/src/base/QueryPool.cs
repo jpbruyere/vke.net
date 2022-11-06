@@ -27,6 +27,7 @@ namespace vke {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, query);
 		}
 		public void Start (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
+			vkCmdResetQueryPool(cmd.Handle, handle, 0, 2);
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, 0);
 		}
 		public void End (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
@@ -123,7 +124,9 @@ namespace vke {
 			results.Unpin ();
 			return results;
 		}
-
+		public void Reset() {
+			vkResetQueryPool(Dev.Handle, handle, 0, createInfos.queryCount);
+		}
 
 		public override string ToString () {
 			return string.Format ($"{base.ToString ()}[0x{handle.Handle.ToString("x")}]");

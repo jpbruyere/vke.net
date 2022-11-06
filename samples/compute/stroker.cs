@@ -13,7 +13,7 @@ namespace delaunay {
 		public override string[] EnabledLayers  =>
 			new string[] {
 				"VK_LAYER_KHRONOS_validation"
-				,"VK_LAYER_RENDERDOC_Capture"
+				//,"VK_LAYER_RENDERDOC_Capture"
 			};
 
 #endif
@@ -21,8 +21,7 @@ namespace delaunay {
 			Ext.I.VK_EXT_debug_utils,
 		};
 		public override string[] EnabledDeviceExtensions => new string[] {
-			Ext.D.VK_KHR_swapchain,
-			Ext.D.VK_AMD_shader_info
+			Ext.D.VK_KHR_swapchain
 		};
 		Program() : base ("Stroker", 800, 600, false) {
 
@@ -67,17 +66,32 @@ namespace delaunay {
 			}
 		}
 
+		//200 fixed points for repeatability
+		public float[] fixedPoints = new float[] {
+			1,187, 374,293, 328,53, 145,144, 566,100, 325,270, 486,240, 350,263, 145,195, 512,283, 10,391, 377,336, 408,142, 310,195, 389,152, 429,356, 590,290,
+			520,119, 553,197, 506,222, 476,296, 139,261, 382,320, 177,302, 140,174, 168,302, 373,393, 115,9, 503,312, 31,75, 369,301, 426,225, 321,260, 415,33,
+			439,114, 441,299, 386,118, 549,111, 448,390, 123,351, 36,304, 152,85, 59,383, 161,0, 321,337, 275,56, 265,262, 563,15, 17,267, 69,393, 65,85, 13,379,
+			420,213, 67,130, 40,365, 166,344, 345,69, 77,341, 299,198, 278,231, 230,276, 329,355, 495,237, 183,395, 214,350, 148,31, 516,88, 462,339, 443,122,
+			307,226, 507,377, 559,248, 339,239, 339,107, 315,34, 323,212, 122,215, 360,167, 398,52, 73,42, 136,49, 581,76, 399,79, 1,141, 241,112, 69,77, 590,358,
+			439,176, 454,371, 194,91, 16,14, 277,108, 201,286, 524,128, 371,140, 110,242, 110,162, 204,289, 584,296, 300, 200, 200, 300
+		};
+		TimestampQueryPool queryPool;
+		ulong accumulatedDurations = 0;
+		int frameCount = 0;
+
 		protected override void initVulkan () {
 			base.initVulkan ();
 
 			path = new Vector2[maxPointCount];
-			
-			addPoint(50,50);
-			addPoint(100,150);
-			addPoint(150,60);
-			/*addPoint(200,100);
-			addPoint(300,200);*/
 
+			queryPool = new TimestampQueryPool(dev,2);
+			//queryPool.Reset();
+			
+			for (int i = 0; i < fixedPoints.Length/2; i++)
+			{
+				addPoint(fixedPoints[i*2],fixedPoints[i*2+1]);	
+			}
+			
 			pathBuff = new HostBuffer<Vector2>(dev, VkBufferUsageFlags.StorageBuffer, path, true);
 
 			vbo = new GPUBuffer<Vector2> (dev, VkBufferUsageFlags.StorageBuffer | VkBufferUsageFlags.VertexBuffer, (int)(maxPointCount - 1) * 4);
@@ -158,18 +172,32 @@ namespace delaunay {
 		}
 
 		public override void Update () {
-
+			
 			using (CommandPool cmdPoolCompute = new CommandPool (dev, computeQ.qFamIndex)) {
 
 				PrimaryCommandBuffer cmd = cmdPoolCompute.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+
+				queryPool.Start(cmd);
 
 				plStroke.Bind (cmd);
 				plStroke.BindDescriptorSet (cmd, dsetStroke);
 				cmd.PushConstant (plStroke.Layout, VkShaderStageFlags.Compute, lineWidth * 0.5f);
 				cmd.Dispatch (pointCount);
+
+				queryPool.End(cmd);
+
 				cmd.End ();
 				computeQ.Submit (cmd);
 				dev.WaitIdle();
+				
+				ulong[] results = queryPool.GetResults();
+				accumulatedDurations += results[1] - results[0];
+				if (++frameCount == 1000) {
+					Console.WriteLine($"ms:{accumulatedDurations * phy.Limits.timestampPeriod * 0.00000001f}");
+					accumulatedDurations = 0;
+					frameCount = 0;
+				}
+
 			}
 			if (rebuildBuffers) { 
 				buildCommandBuffers();
@@ -203,6 +231,8 @@ namespace delaunay {
 					pathBuff.Dispose ();
 					vbo.Dispose ();
 					ibo.Dispose ();
+
+					queryPool.Dispose();
 				}
 			}
 
