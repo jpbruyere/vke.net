@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Linq;
 using Vulkan;
 using vke;
+using System.Threading;
 
 //very simple compute example that just do an addition on every items of a random list of numbers.
 namespace SimpleCompute {
@@ -18,12 +19,9 @@ namespace SimpleCompute {
 		Instance instance;
 		PhysicalDevice phy;
 		Device dev;
+		DescriptorSetLayout dsLayout;
 		Queue computeQ;
 
-		HostBuffer inBuff, outBuff;
-		DescriptorPool dsPool;
-		DescriptorSetLayout dsLayout;
-		DescriptorSet dset;
 
 		ComputePipeline plCompute;
 
@@ -49,10 +47,7 @@ namespace SimpleCompute {
 
 			createRandomDatas ();
 
-			inBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, datas);
-			outBuff = new HostBuffer<uint> (dev, VkBufferUsageFlags.StorageBuffer, data_size);
 
-			dsPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.StorageBuffer, 2));
 			dsLayout = new DescriptorSetLayout (dev,
 				new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Compute, VkDescriptorType.StorageBuffer),
 				new VkDescriptorSetLayoutBinding (1, VkShaderStageFlags.Compute, VkDescriptorType.StorageBuffer)
@@ -60,27 +55,58 @@ namespace SimpleCompute {
 
 			plCompute = new ComputePipeline (new PipelineLayout (dev, dsLayout), "#shaders.compute.comp.spv" );
 
+		}
+		const int threadCount = 64;
+		object printMutex = new object();
+		void computeThread() {
+			HostBuffer inBuff, outBuff;
+			DescriptorPool dsPool;
+			DescriptorSet dset;
+
+			inBuff = new HostBuffer<int> (dev, VkBufferUsageFlags.StorageBuffer, datas);
+			outBuff = new HostBuffer<uint> (dev, VkBufferUsageFlags.StorageBuffer, data_size);
+
+			dsPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.StorageBuffer, 2));
 			dset = dsPool.Allocate (dsLayout);
 			DescriptorSetWrites dsUpdate = new DescriptorSetWrites (dset, dsLayout);
 			dsUpdate.Write (dev, inBuff.Descriptor, outBuff.Descriptor);
-		}
 
-		public void Run () {
 			using (CommandPool cmdPool = new CommandPool (dev, computeQ.qFamIndex)) {
 				PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 				plCompute.Bind (cmd);
 				plCompute.BindDescriptorSet (cmd, dset);
 				cmd.Dispatch (data_size * sizeof (int));
 				cmd.End ();
-
-				computeQ.Submit (cmd);
+				lock(computeQ)
+					computeQ.Submit (cmd);
 				computeQ.WaitIdle ();
 			}
+			lock(printMutex)
+				printResults (outBuff);
 
-			printResults ();
+			dsPool.Dispose ();
+			inBuff.Dispose ();
+			outBuff.Dispose ();
+			finishedThread++;
+		}
+		volatile int finishedThread = 0;
+		void createThreads () {
+			//Console.WriteLine ($"count down reset");
+			for (int i = 0; i < threadCount; i++) {
+				Thread t = new Thread (computeThread);
+				t.IsBackground = true;
+				t.Start ();
+			}
 		}
 
-		void printResults () {
+		public void Run () {
+			createThreads();
+			while (finishedThread < threadCount)
+				Thread.Sleep(1);
+			dev.WaitIdle();
+		}
+
+		void printResults (HostBuffer outBuff) {
 			int[] results = new int[data_size];
 
 			outBuff.Map ();
@@ -105,10 +131,6 @@ namespace SimpleCompute {
 
 			plCompute.Dispose ();
 			dsLayout.Dispose ();
-			dsPool.Dispose ();
-
-			inBuff.Dispose ();
-			outBuff.Dispose ();
 
 			dev.Dispose ();
 			instance.Dispose ();

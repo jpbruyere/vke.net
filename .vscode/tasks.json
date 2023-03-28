@@ -58,6 +58,34 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build FillTests",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/FillTests/FillTests.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
+			"label": "build DynamicRendering",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/DynamicRendering/DynamicRendering.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build MeshShader",
 			"command": "dotnet",
 			"type": "process",

@@ -44,6 +44,28 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (FillTests)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build FillTests",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/FillTests",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
+			"name": ".NET Core Launch (DynamicRendering)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build DynamicRendering",
+			"program": "${workspaceFolder}/build/Debug/netcoreapp3.1/DynamicRendering",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
 			"name": ".NET Core Launch (MeshShader)",
 			"type": "coreclr",
 			"request": "launch",
@@ -68,7 +90,12 @@
 			"args": [],
 			"cwd": "${workspaceFolder}/build/Debug/netcoreapp3.1/",
 			"stopAtEntry": false,
-			"console": "internalConsole"
+			"console": "internalConsole",
+			"env": {
+				"VK_ICD_FILENAMES": "/opt/share/vulkan/icd.d/radeon_icd.x86_64.json",
+				"RADV_PERFTEST": "rt,ext_ms",
+				"LD_LIBARY_PATH": "/opt/lib/x86_64-linux-gnu/"
+			}
 		},
 		{
 			"name": ".NET Core Launch (ExternalMemmories)",

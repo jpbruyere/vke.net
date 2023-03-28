@@ -10,11 +10,11 @@ namespace vke
 		{
 			base.initVulkan();
 #if DEBUG
-			foreach (VkPhysicalDeviceToolProperties toolProp in phy.GetToolProperties()) {
+			/*foreach (VkPhysicalDeviceToolProperties toolProp in phy.GetToolProperties()) {
 				Console.ForegroundColor = ConsoleColor.DarkYellow;
 				Console.WriteLine ($"Enabled Tool: {toolProp.name}({toolProp.version})");
 				Console.ResetColor ();
-			}
+			}*/
 #endif
 		}
 	}

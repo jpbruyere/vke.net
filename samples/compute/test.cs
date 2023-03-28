@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
-using CVKL;
-using VK;
+using Glfw;
+using Vulkan;
+using vke;
 using System.Linq;
 
 namespace test {
@@ -53,7 +55,8 @@ namespace test {
 			phy = instance.GetAvailablePhysicalDevice ().FirstOrDefault ();
 			dev = new Device (phy);
 			computeQ = new Queue (dev, VkQueueFlags.Compute);
-			dev.Activate (enabledFeatures, enabledExtensions);
+
+			dev.Activate (IntPtr.Zero, enabledFeatures, enabledExtensions);
 
 			datas = new float[data_size];
 			Random rnd = new Random ();
@@ -72,7 +75,7 @@ namespace test {
 				
 			plCompute = new ComputePipeline (
 				new PipelineLayout (dev, new VkPushConstantRange (VkShaderStageFlags.Compute, sizeof (int)), dsLayoutCompute),
-				"#compute.computeTest.comp.spv" );
+				"#shaders.computeTest.comp.spv" );
 
 			dsetPing = dsPool.Allocate (dsLayoutCompute);
 			dsetPong = dsPool.Allocate (dsLayoutCompute);
@@ -87,7 +90,7 @@ namespace test {
 		public void Run () {
 			using (CommandPool cmdPool = new CommandPool (dev, computeQ.qFamIndex)) {
 
-				CommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
+				PrimaryCommandBuffer cmd = cmdPool.AllocateAndStart (VkCommandBufferUsageFlags.OneTimeSubmit);
 
 				bool pong = false;
 

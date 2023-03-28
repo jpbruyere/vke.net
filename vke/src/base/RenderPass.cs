@@ -36,20 +36,19 @@ namespace vke {
 		/// Create renderpass with a single color attachment and a resolve one if needed
 		/// </summary>
 		public RenderPass (Device device, VkFormat colorFormat, VkSampleCountFlags samples = VkSampleCountFlags.SampleCount1, VkAttachmentLoadOp loadOp = VkAttachmentLoadOp.Clear)
-			: this (device) {
-			Samples = samples;
-
-			AddAttachment (colorFormat, (samples == VkSampleCountFlags.SampleCount1) ? VkImageLayout.PresentSrcKHR : VkImageLayout.ColorAttachmentOptimal, samples,
-				loadOp, VkAttachmentStoreOp.Store);
+			: this (device, samples) {
 			ClearValues.Add (new VkClearValue { color = new VkClearColorValue (0.0f, 0.0f, 0.0f) });
 
 			SubPass subpass0 = new SubPass ();
 			subpass0.AddColorReference (0, VkImageLayout.ColorAttachmentOptimal);
 
 			if (samples != VkSampleCountFlags.SampleCount1) {
+				AddAttachment (colorFormat, VkImageLayout.ColorAttachmentOptimal, samples, VkAttachmentLoadOp.Clear, VkAttachmentStoreOp.DontCare);
 				AddAttachment (colorFormat, VkImageLayout.PresentSrcKHR, VkSampleCountFlags.SampleCount1);
 				ClearValues.Add (new VkClearValue { color = new VkClearColorValue (0.0f, 0.0f, 0.0f) });
 				subpass0.AddResolveReference (1, VkImageLayout.ColorAttachmentOptimal);
+			} else {
+				AddAttachment (colorFormat, VkImageLayout.PresentSrcKHR, samples, loadOp, VkAttachmentStoreOp.Store);
 			}
 
 			AddSubpass (subpass0);

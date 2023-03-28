@@ -147,7 +147,7 @@ namespace delaunay {
 		bool rebuildBuffers = false;
 
 		void buildCommandBuffers() {
-			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
+			cmdPool.Reset ();
 
 			for (int i = 0; i < swapChain.ImageCount; ++i) {
 				FrameBuffer fb = frameBuffers[i];

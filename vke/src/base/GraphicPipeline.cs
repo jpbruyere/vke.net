@@ -21,7 +21,8 @@ namespace vke {
 		/// <param name="renderPass">a managed Render pass that will be activated (if not already) during the pipeline creation.</param>
 		/// <param name="cache">an optional pipeline cache to speed up pipeline creation.</param>
 		/// <param name="name">an optionnal name that will be used by the debug utils extension if enabled.</param>
-		protected GraphicPipeline (RenderPass renderPass, PipelineCache cache = null, string name = "graphic pipeline") : base (renderPass.Dev, cache, name) {
+		protected GraphicPipeline (RenderPass renderPass, PipelineCache cache = null, string name = "graphic pipeline") :
+			base (renderPass?.Dev, cache, name) {
 			RenderPass = renderPass;
 		}
 		/// <summary>
@@ -29,18 +30,23 @@ namespace vke {
 		/// </summary>
 		public GraphicPipeline (GraphicPipelineConfig cfg, string name = "graphic pipeline") : this (cfg.RenderPass, cfg.Cache, name) {
 			layout = cfg.Layout;
-
 			init (cfg);
 		}
-
+		/// <summary>
+		/// Create a new Graphic Pipeline with Dynamic rendering (without RenderPass)
+		/// </summary>
+		public GraphicPipeline (Device dev, GraphicPipelineConfig cfg, string name = "graphic pipeline") : base (dev, cfg.Cache, name) {
+			layout = cfg.Layout;
+			init (cfg);
+		}
         #endregion
 
         public override void Activate () => throw new NotSupportedException ("Please initialize graphic pipeline through the init method");
 
 		protected void init (GraphicPipelineConfig cfg) {
 			if (state != ActivableState.Activated) {
-				Layout.Activate ();
-				RenderPass.Activate ();
+				Layout?.Activate ();
+				RenderPass?.Activate ();
 				Cache?.Activate ();
 
 				bool enableTesselation = false;
@@ -79,8 +85,8 @@ namespace vke {
 						viewportState.scissorCount = 1;
 
 					VkGraphicsPipelineCreateInfo info = default;
-					info.renderPass = RenderPass.handle;
-					info.layout = Layout.handle;
+					info.renderPass = RenderPass == null ?  0 : RenderPass.handle;
+					info.layout = layout == null ? 0 : Layout.handle;
 					info.pVertexInputState = vertInputInfo;
 					info.pInputAssemblyState = cfg.inputAssemblyState;
 					info.pRasterizationState = cfg.rasterizationState;
@@ -120,7 +126,7 @@ namespace vke {
 		protected override void Dispose (bool disposing) {
 			if (disposing) {
 				if (state == ActivableState.Activated)
-					RenderPass.Dispose ();
+					RenderPass?.Dispose ();
 			} else
 				System.Diagnostics.Debug.WriteLine ("GraphicPipeline disposed by finalizer");
 

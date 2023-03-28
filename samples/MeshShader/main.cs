@@ -14,7 +14,7 @@ namespace MeshShader {
 	class Program : SampleBase {
 		public override string[] EnabledInstanceExtensions => new string[] {
 			Ext.I.VK_KHR_get_physical_device_properties2,
-			Ext.I.VK_EXT_debug_utils,
+			//Ext.I.VK_EXT_debug_utils,
 		};
 		public override string[] EnabledDeviceExtensions => new string[] {
 			Ext.D.VK_KHR_swapchain,
@@ -74,7 +74,7 @@ namespace MeshShader {
 
 			uboMVPmatrix = new HostBuffer<Matrix4x4> (dev, VkBufferUsageFlags.UniformBuffer, 1, true);
 			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
-			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount1, false)) {
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, VkSampleCountFlags.SampleCount8, false)) {
 				cfg.Layout = new PipelineLayout (dev,
 					new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.MeshEXT, VkDescriptorType.UniformBuffer)));
 				cfg.RenderPass = new RenderPass (dev, swapChain.ColorFormat, cfg.Samples);
