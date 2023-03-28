@@ -4,9 +4,10 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in flat uint inContourID;
-layout (location = 0) out uvec4 outFragColor;
+layout (location = 0) out vec2 outFragColor;
 
 void main() 
 {
-  outFragColor = uvec4(1u << gl_PrimitiveID, inContourID, 0, 255);
+  uint tmp = 1u << gl_PrimitiveID;
+  outFragColor = vec2(float(tmp), inContourID);
 }

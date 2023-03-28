@@ -3,7 +3,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (set = 0, binding = 0, rgba8ui) readonly uniform uimage2D inputImage;
+layout (set = 0, binding = 0, rg32f) readonly uniform image2D inputImage;
 layout (set = 0, binding = 1, rgba8) writeonly uniform image2D outputImage;
 
 layout(push_constant) uniform PushConsts {
@@ -26,9 +26,9 @@ void main()
     int start = -1;
     for(int i=0; i<is.x; i++) {
         ivec2 uv = ivec2(i, gl_GlobalInvocationID.x);
-        uvec4 ct = imageLoad(inputImage, uv);
-        uint contourID = ct.g;
-        uint primID = ct.r;
+        vec2 ct = imageLoad(inputImage, uv).rg;
+        uint contourID = uint(ct.g);
+        uint primID =  uint(ct.r);
 
         if (primID > 0) {
             imageStore(outputImage, uv, vec4(1.f,0.f,0.f,1.f));
@@ -41,7 +41,7 @@ void main()
                 if ((bc % 2) != 0) {
                     if (start >= 0) {
                         for(int j=start; j<i; j++) {
-                            imageStore(outputImage, ivec2(j, gl_GlobalInvocationID.x), vec4(0.f,1.f,0.f,1.f));
+                            imageStore(outputImage, ivec2(j, gl_GlobalInvocationID.x), vec4(0.f,0.f,1.f,1.f));
                         }
                     }
                     start = i + 1;

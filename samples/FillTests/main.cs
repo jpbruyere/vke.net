@@ -15,7 +15,7 @@ namespace FillTests {
 		static void Main (string[] args) {
 #if DEBUG
 			//Instance.VALIDATION = true;
-			//Instance.RENDER_DOC_CAPTURE = true;
+			Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
@@ -64,7 +64,7 @@ namespace FillTests {
 		DescriptorSet dsComp, dsFSQ;//descriptor set for the mvp matrice.
 		vke.Image imgContour, imgColor;
 
-		VkFormat rastFormat = VkFormat.B8g8r8a8Uint;
+		VkFormat rastFormat = VkFormat.R32g32Sfloat;
 		const VkSampleCountFlags contourSamplesCount = VkSampleCountFlags.SampleCount1;
 
 		void createIbo() {
@@ -95,12 +95,10 @@ namespace FillTests {
 					}
 					Console.WriteLine("");
 				}
-
-				
 			} 
 
 
-			UpdateFrequency = 20;
+			UpdateFrequency = 1;
 
 			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices.ToArray());
 			vbo.SetName("vbo");
@@ -167,11 +165,6 @@ namespace FillTests {
 			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
 		}
 
-		//view update override, see base method for more informations.
-		public override void UpdateView () {
-
-			base.UpdateView ();
-		}
 		Vector2 curMousePos;
 		const float pointSizeSquared = 50;
 		
