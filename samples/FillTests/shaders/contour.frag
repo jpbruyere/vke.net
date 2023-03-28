@@ -8,5 +8,5 @@ layout (location = 0) out uvec4 outFragColor;
 
 void main() 
 {
-  outFragColor = uvec4(1u << gl_PrimitiveID, inContourID, 0, 1);
+  outFragColor = uvec4(1u << gl_PrimitiveID, inContourID, 0, 255);
 }

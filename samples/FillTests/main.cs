@@ -7,14 +7,15 @@ using System.Runtime.InteropServices;
 using vke;
 using Vulkan;
 using Glfw;
+using System.Collections.Generic;
 
 namespace FillTests {
 
 	class Program : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
-			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			//Instance.VALIDATION = true;
+			//Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
@@ -27,7 +28,7 @@ namespace FillTests {
 		
 		[StructLayout(LayoutKind.Sequential)]
 		struct Vertex {
-			Vector2 position;
+			public Vector2 position;
 			UInt32 contourID;
 			public Vertex (float x, float y, UInt32 _contourID) {
 				position = new Vector2 (x, y);
@@ -48,14 +49,14 @@ namespace FillTests {
 			new Vertex (150.0f, 310.0f,  1),
 			new Vertex (100.0f, 210.0f,  1)
 		};*/
-		Vertex[] vertices = {
+		List<Vertex> vertices = new List<Vertex>(){
 			new Vertex (100.0f, 100.0f,  1),
 			new Vertex (500.0f, 400.0f,  1),
 			new Vertex (450.0f,  150.0f,  1),
 			new Vertex (120.0f, 420.0f,  1),
-			new Vertex (100.0f, 100.0f,  1)
 		};
 		HostBuffer vbo;
+		HostBuffer ibo;
 		GraphicPipeline plContours;
 		GraphicPipeline plFSQ;
 		ComputePipeline plComp;
@@ -66,16 +67,47 @@ namespace FillTests {
 		VkFormat rastFormat = VkFormat.B8g8r8a8Uint;
 		const VkSampleCountFlags contourSamplesCount = VkSampleCountFlags.SampleCount1;
 
+		void createIbo() {
+			dev.WaitIdle();
+			ibo?.Dispose();
+			List<UInt16> indices = new List<ushort>(vertices.Count*2);
+			for (int i = 0; i < vertices.Count-1; i++)
+			{
+				indices.Add((UInt16)i);
+				indices.Add((UInt16)(i+1));
+			}
+			indices.Add((UInt16)(vertices.Count-1));
+			indices.Add((UInt16)0);
 
+			ibo = new HostBuffer<UInt16>(dev, VkBufferUsageFlags.IndexBuffer,indices.ToArray());
+			ibo.SetName("ibo");
+		}
 		protected override void initVulkan () {
 			base.initVulkan ();
 
-			UpdateFrequency = 1;
+			foreach (VkFormat format in Enum.GetValues(typeof(VkFormat)))
+			{
+				if (phy.TryGetImageFormatProperties(format, VkImageTiling.Optimal, VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.Storage, out VkImageFormatProperties imgProps)) {
+					Console.Write($"- {format}:");
+					VkFormatProperties p = phy.GetFormatProperties(format);
+					if (p.optimalTilingFeatures.HasFlag(VkFormatFeatureFlags.ColorAttachmentBlend)) {
+						Console.Write($"\tblending");
+					}
+					Console.WriteLine("");
+				}
 
-			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
+				
+			} 
+
+
+			UpdateFrequency = 20;
+
+			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices.ToArray());
 			vbo.SetName("vbo");
 
-			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.LineStrip, contourSamplesCount, false)) {
+			createIbo();
+
+			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.LineList, contourSamplesCount, false)) {
 				cfg.Layout = new PipelineLayout (dev,
 					new VkPushConstantRange (VkShaderStageFlags.Vertex, (uint)Marshal.SizeOf<Vector2>()));
 				cfg.RenderPass = new RenderPass (dev, contourSamplesCount);
@@ -89,6 +121,7 @@ namespace FillTests {
 					VkPipelineStageFlags.ColorAttachmentOutput, VkPipelineStageFlags.ComputeShader,
 					VkAccessFlags.ColorAttachmentWrite, VkAccessFlags.MemoryWrite);				
 				
+				cfg.blendAttachments[0] = (new VkPipelineColorBlendAttachmentState (true, VkBlendFactor.One, VkBlendFactor.One, VkBlendOp.Add,VkBlendFactor.One,VkBlendFactor.One,VkBlendOp.Add));
 
 				cfg.AddVertexBinding<Vertex> (0);
 				cfg.AddVertexAttributes (0, VkFormat.R32g32Sfloat, VkFormat.R32Uint);//position + color
@@ -105,7 +138,6 @@ namespace FillTests {
 				new VkDescriptorPoolSize (VkDescriptorType.StorageImage, 2),
 				new VkDescriptorPoolSize (VkDescriptorType.CombinedImageSampler, 1)
 			);
-
 			
 			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, contourSamplesCount, false)) {
 				cfg.Layout = new PipelineLayout (dev, new DescriptorSetLayout(dev, 
@@ -120,7 +152,6 @@ namespace FillTests {
 				);
 				plFSQ = new GraphicPipeline (cfg);
 			}
-
 		
 			plComp = new ComputePipeline (
 				new PipelineLayout (dev,
@@ -141,8 +172,62 @@ namespace FillTests {
 
 			base.UpdateView ();
 		}
-		protected override void onMouseMove (double xPos, double yPos) {
+		Vector2 curMousePos;
+		const float pointSizeSquared = 50;
+		
+		int curPoint = - 1, hoverPoint = -1;
+		volatile bool updateVbo = false;
+		void addPoint(float x, float y) {
+			vertices.Add(new Vertex(x,y,1));
+		}
+		protected override async void onMouseMove(double xPos, double yPos)
+		{
+			base.onMouseMove(xPos, yPos);
 
+			curMousePos = new Vector2((float)xPos, (float)yPos);
+
+			if (curPoint < 0) {
+				for (int i = 0; i < vertices.Count; i++)
+				{
+					if (Vector2.DistanceSquared(curMousePos, vertices[i].position) < pointSizeSquared) {
+						hoverPoint = i;
+						return;
+					}
+				}
+				hoverPoint = -1;
+			} else {
+				vertices[curPoint] = new Vertex(curMousePos.X, curMousePos.Y, 1);
+				updateVbo = true;
+			}
+		}
+		protected override void onMouseButtonDown(MouseButton button, Modifier mods)
+		{
+			if (hoverPoint < 0) {
+				addPoint(curMousePos.X, curMousePos.Y);
+				updateVbo = true;
+			} else {
+				curPoint = hoverPoint;
+			}
+		}
+		protected override void onMouseButtonUp(MouseButton button, Modifier mods)
+		{
+			curPoint = -1;
+		}
+		protected override void onKeyDown(Key key, int scanCode, Modifier modifiers)
+		{
+			switch (key)
+			{
+				case Key.KeypadSubtract:
+					if (vertices.Count > 3) {
+						vertices.RemoveAt(vertices.Count - 1);
+						updateVbo = true;
+					}
+					break;
+				default:
+					base.onKeyDown(key, scanCode, modifiers);
+					break;
+			}
+			
 		}
 
 		void stroke() {
@@ -160,7 +245,8 @@ namespace FillTests {
 			cmd.PushConstant (plContours.Layout, VkShaderStageFlags.Vertex, new Vector2(swapChain.Width, swapChain.Height));
 
 			cmd.BindVertexBuffer (vbo);
-			cmd.Draw ((uint)vertices.Length);
+			cmd.BindIndexBuffer (ibo, VkIndexType.Uint16);
+			cmd.DrawIndexed ((uint)vertices.Count*2);
 
 			plContours.RenderPass.End (cmd);
 
@@ -204,6 +290,15 @@ namespace FillTests {
 		public override void Update()
 		{
 			dev.WaitIdle();
+
+			if (updateVbo) {
+				vbo?.Dispose();
+				vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices.ToArray());
+				vbo.SetName("vbo");
+				createIbo();
+				updateVbo = false;
+			}
+
 			stroke();
 		}
 		protected override void OnResize () {
@@ -238,6 +333,7 @@ namespace FillTests {
 			buildCommandBuffers ();
 			
 		}
+		
 		//clean up
 		protected override void Dispose (bool disposing) {
 			dev.WaitIdle ();
