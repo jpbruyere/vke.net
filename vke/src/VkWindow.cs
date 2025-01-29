@@ -235,9 +235,10 @@ namespace vke {
 			drawFence.Wait ();
 			drawFence.Reset ();
 
-			presentQueue.Submit (cmds[idx], swapChain.presentComplete, drawComplete[idx], drawFence);
+			presentQueue.Submit (cmds[idx], swapChain.nextImgAvail, drawComplete[idx], drawFence);
 			presentQueue.Present (swapChain, drawComplete[idx]);
 
+			swapChain.semaphoresQueue.Enqueue(swapChain.nextImgAvail);
 			//presentQueue.WaitIdle ();
 		}
 

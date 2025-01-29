@@ -75,6 +75,20 @@ namespace SpirVTasks {
 			get;
 			set;
 		}
+		/// <summary>
+		/// Optional, Specify the target spirv version. Default depends on TargetEnv
+		/// </summary>
+		public ITaskItem TargetSpirV {
+			get;
+			set;
+		}
+		/// <summary>
+		/// Optional, Specify the target client environment. (default=Vulkan1.0)
+		/// </summary>
+		public ITaskItem TargetEnv {
+			get;
+			set;
+		}
 
 		volatile bool success;
 		//due to includes mechanic, file inclusion position has to be recorded
@@ -223,6 +237,13 @@ namespace SpirVTasks {
 			}else
 				optimisationStr = "-O";
 
+			string targetSpirV = "";
+			if (!string.IsNullOrEmpty(TargetSpirV?.ItemSpec))
+				targetSpirV = $"--target-spv={TargetSpirV.ItemSpec}";
+			string targetEnv = "";
+			if (!string.IsNullOrEmpty(TargetEnv?.ItemSpec))
+				targetEnv = $"--target-env={TargetEnv.ItemSpec}";
+
 			Process glslc = new Process();
 			//glslc.StartInfo.StandardOutputEncoding = System.Text.Encoding.ASCII;
 			//glslc.StartInfo.StandardErrorEncoding = System.Text.Encoding.ASCII;
@@ -230,7 +251,7 @@ namespace SpirVTasks {
 			glslc.StartInfo.RedirectStandardOutput = true;
 			glslc.StartInfo.RedirectStandardError = true;
 			glslc.StartInfo.FileName = glslcPath;
-			glslc.StartInfo.Arguments = $"\"{tempFile}\" -o \"{DestinationFile.ItemSpec}\" {macros.ToString()} {optimisationStr}";
+			glslc.StartInfo.Arguments = $"\"{tempFile}\" -o \"{DestinationFile.ItemSpec}\" {macros.ToString()} {optimisationStr} {targetEnv} {targetSpirV}";
 			glslc.StartInfo.CreateNoWindow = true;
 
 			glslc.EnableRaisingEvents = true;

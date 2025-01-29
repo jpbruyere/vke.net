@@ -12,9 +12,12 @@ using System.Collections.Generic;
 
 namespace MeshShader {
 	class Program : SampleBase {
-		public override string[] EnabledInstanceExtensions => new string[] {
+        public override string[] EnabledLayers => new string[] {
+			"VK_LAYER_KHRONOS_validation"
+		};
+        public override string[] EnabledInstanceExtensions => new string[] {
 			Ext.I.VK_KHR_get_physical_device_properties2,
-			//Ext.I.VK_EXT_debug_utils,
+			Ext.I.VK_EXT_debug_utils,
 		};
 		public override string[] EnabledDeviceExtensions => new string[] {
 			Ext.D.VK_KHR_swapchain,

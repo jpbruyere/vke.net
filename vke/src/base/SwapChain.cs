@@ -6,6 +6,7 @@ using System;
 using Vulkan;
 using static Vulkan.Vk;
 using static Vulkan.Utils;
+using System.Collections.Generic;
 
 namespace vke {
 	/// <summary>
@@ -31,7 +32,8 @@ namespace vke {
 		VkSwapchainCreateInfoKHR createInfos;
 		PresentQueue presentQueue;
 
-		public VkSemaphore presentComplete;
+		public Queue<VkSemaphore> semaphoresQueue = new Queue<VkSemaphore>();
+		public VkSemaphore nextImgAvail;
 		public Image[] images;
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
@@ -126,12 +128,10 @@ namespace vke {
 			if (Handle.Handle != 0)
 				_destroy ();
 
-			presentComplete = Dev.CreateSemaphore ();
-			presentComplete.SetDebugMarkerName (Dev, "Semaphore PresentComplete");
 			Handle = newSwapChain;
 
 			CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out uint imageCount, IntPtr.Zero));
-			if (imageCount == 0)
+			if (imageCount == 0)			
 				throw new Exception ("Swapchain image count is 0.");
 			VkImage[] imgs = new VkImage[imageCount];
 			CheckResult (vkGetSwapchainImagesKHR (Dev.Handle, Handle, out imageCount, imgs.Pin ()));
@@ -143,6 +143,12 @@ namespace vke {
 				images[i].CreateView ();
 				images[i].SetName ("SwapChain Img" + i);
 				images[i].Descriptor.imageView.SetDebugMarkerName (Dev, "SwapChain Img" + i + " view");
+
+
+				nextImgAvail = Dev.CreateSemaphore ();
+				nextImgAvail.SetDebugMarkerName (Dev, $"Semaphore " + i + " Img Acquired");
+
+				semaphoresQueue.Enqueue(nextImgAvail);
 			}
 		}
 		/// <summary>
@@ -151,7 +157,8 @@ namespace vke {
 		/// <returns>Swapchain image index or -1 if failed</returns>
 		/// <param name="fence">an optional fence to signal.</param>
 		public int GetNextImage (Fence fence = null) {
-			VkResult res = vkAcquireNextImageKHR (Dev.Handle, Handle, UInt64.MaxValue, presentComplete, fence, out currentImageIndex);
+			nextImgAvail = semaphoresQueue.Dequeue();
+			VkResult res = vkAcquireNextImageKHR (Dev.Handle, Handle, UInt64.MaxValue, nextImgAvail, fence, out currentImageIndex);
 			if (res == VkResult.ErrorOutOfDateKHR || res == VkResult.SuboptimalKHR) {
 				Create ();
 				return -1;
@@ -161,10 +168,14 @@ namespace vke {
 		}
 
 		void _destroy () {
-			for (int i = 0; i < ImageCount; i++)
+			for (int i = 0; i < ImageCount; i++) {
 				images[i].Dispose ();
+			}
+			if (semaphoresQueue.Count < ImageCount)
+				Dev.DestroySemaphore (nextImgAvail);
+			while(semaphoresQueue.Count > 0)
+				Dev.DestroySemaphore (semaphoresQueue.Dequeue());
 			vkDestroySwapchainKHR (Dev.Handle, Handle, IntPtr.Zero);
-			Dev.DestroySemaphore (presentComplete);
 		}
 
 		public override string ToString () {

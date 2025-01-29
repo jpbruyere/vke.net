@@ -12,8 +12,7 @@ using System.Xml.Serialization;
 using Vulkan;
 
 namespace vke {
-	public static partial class Helpers {
-		/// <summary>Throw an erro if VkResult != Success.</summary>
+	public static partial class Helpers {		
 		static void xmlMakeTypeFieldsAsAttributes (Type t, ref XmlAttributeOverrides overrides)
 		{
 			foreach (FieldInfo fi in t.GetFields (BindingFlags.Public | BindingFlags.Instance))

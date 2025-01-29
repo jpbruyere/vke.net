@@ -58,6 +58,20 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build ShaderObject",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/ShaderObject/ShaderObject.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},
+		{
 			"label": "build FillTests",
 			"command": "dotnet",
 			"type": "process",

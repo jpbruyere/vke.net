@@ -13,7 +13,7 @@ namespace FillTests {
 	class Program : SampleBase {
 		static void Main (string[] args) {
 #if DEBUG
-			//Instance.VALIDATION = true;
+			Instance.VALIDATION = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();
