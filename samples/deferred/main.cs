@@ -34,7 +34,7 @@ namespace deferred {
 		Deferred (string name = "VkCrowWindow", uint _width = 800, uint _height = 600, bool vSync = false)
 			: base (name, _width, _height, vSync) { }
 
-	public override string[] EnabledInstanceExtensions => new string[] {
+		public override string[] EnabledInstanceExtensions => new string[] {
 			Ext.I.VK_EXT_debug_utils,
 		};
 

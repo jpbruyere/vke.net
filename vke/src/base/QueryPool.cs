@@ -26,11 +26,17 @@ namespace vke {
 		public void Write (PrimaryCommandBuffer cmd, uint query, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, query);
 		}
-		public void Start (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
-			vkCmdResetQueryPool(cmd.Handle, handle, 0, 2);
-			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, 0);
+		public void Reset(PrimaryCommandBuffer cmd)
+		{
+			Vk.vkCmdResetQueryPool(cmd.Handle, handle, 0u, 2u);
 		}
-		public void End (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
+
+		public void Start(PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe)
+		{
+			Vk.vkCmdWriteTimestamp(cmd.Handle, stageFlags, handle, 0u);
+		}
+
+   		public void End (PrimaryCommandBuffer cmd, VkPipelineStageFlags stageFlags = VkPipelineStageFlags.BottomOfPipe) {
 			vkCmdWriteTimestamp (cmd.Handle, stageFlags, handle, 1);
 		}
 		public float ElapsedMiliseconds {
@@ -40,52 +46,56 @@ namespace vke {
 			}
 		}
 	}
-	public class PipelineStatisticsQueryPool : QueryPool {
+	
+	public class PipelineStatisticsQueryPool : QueryPool
+	{
 
 		public readonly VkQueryPipelineStatisticFlags[] RequestedStats;
 
 		#region CTORS
-		public PipelineStatisticsQueryPool (Device device, VkQueryPipelineStatisticFlags statisticFlags, uint count = 1)
-		: base (device, VkQueryType.PipelineStatistics, statisticFlags, count)
+		public PipelineStatisticsQueryPool(Device device, VkQueryPipelineStatisticFlags statisticFlags, uint count = 1)
+		: base(device, VkQueryType.PipelineStatistics, statisticFlags, count)
 		{
-			List<VkQueryPipelineStatisticFlags> requests = new List<VkQueryPipelineStatisticFlags> ();
+			List<VkQueryPipelineStatisticFlags> requests = new List<VkQueryPipelineStatisticFlags>();
 
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.InputAssemblyVertices))
-				requests.Add (VkQueryPipelineStatisticFlags.InputAssemblyVertices);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.InputAssemblyPrimitives))
-				requests.Add (VkQueryPipelineStatisticFlags.InputAssemblyPrimitives);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.VertexShaderInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.VertexShaderInvocations);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.GeometryShaderInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.GeometryShaderInvocations);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.GeometryShaderPrimitives))
-				requests.Add (VkQueryPipelineStatisticFlags.GeometryShaderPrimitives);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.ClippingInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.ClippingInvocations);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.ClippingPrimitives))
-				requests.Add (VkQueryPipelineStatisticFlags.ClippingPrimitives);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.FragmentShaderInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.FragmentShaderInvocations);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.TessellationControlShaderPatches))
-				requests.Add (VkQueryPipelineStatisticFlags.TessellationControlShaderPatches);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.TessellationEvaluationShaderInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.TessellationEvaluationShaderInvocations);
-			if (statisticFlags.HasFlag (VkQueryPipelineStatisticFlags.ComputeShaderInvocations))
-				requests.Add (VkQueryPipelineStatisticFlags.ComputeShaderInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.InputAssemblyVertices))
+				requests.Add(VkQueryPipelineStatisticFlags.InputAssemblyVertices);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.InputAssemblyPrimitives))
+				requests.Add(VkQueryPipelineStatisticFlags.InputAssemblyPrimitives);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.VertexShaderInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.VertexShaderInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.GeometryShaderInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.GeometryShaderInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.GeometryShaderPrimitives))
+				requests.Add(VkQueryPipelineStatisticFlags.GeometryShaderPrimitives);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.ClippingInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.ClippingInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.ClippingPrimitives))
+				requests.Add(VkQueryPipelineStatisticFlags.ClippingPrimitives);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.FragmentShaderInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.FragmentShaderInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.TessellationControlShaderPatches))
+				requests.Add(VkQueryPipelineStatisticFlags.TessellationControlShaderPatches);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.TessellationEvaluationShaderInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.TessellationEvaluationShaderInvocations);
+			if (statisticFlags.HasFlag(VkQueryPipelineStatisticFlags.ComputeShaderInvocations))
+				requests.Add(VkQueryPipelineStatisticFlags.ComputeShaderInvocations);
 
-			RequestedStats = requests.ToArray ();
+			RequestedStats = requests.ToArray();
 
 			resultLength = (uint)requests.Count;
 
-			Activate ();
+			Activate();
 		}
 		#endregion
 
-		public void Begin (PrimaryCommandBuffer cmd, uint query = 0) {
-			vkCmdBeginQuery (cmd.Handle, handle, query, VkQueryControlFlags.Precise);
+		public void Begin(PrimaryCommandBuffer cmd, uint query = 0)
+		{
+			vkCmdBeginQuery(cmd.Handle, handle, query, VkQueryControlFlags.Precise);
 		}
-		public void End (PrimaryCommandBuffer cmd, uint query = 0) {
-			vkCmdEndQuery (cmd.Handle, handle, query);
+		public void End(PrimaryCommandBuffer cmd, uint query = 0)
+		{
+			vkCmdEndQuery(cmd.Handle, handle, query);
 		}
 	}
 

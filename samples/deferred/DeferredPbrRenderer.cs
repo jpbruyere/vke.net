@@ -232,8 +232,6 @@ namespace deferred {
 				new VkDescriptorSetLayoutBinding (2, VkShaderStageFlags.Fragment, VkDescriptorType.InputAttachment),//normals + AO
 				new VkDescriptorSetLayoutBinding (3, VkShaderStageFlags.Fragment, VkDescriptorType.InputAttachment));//Pos + depth
 
-
-
 			using (GraphicPipelineConfig cfg = GraphicPipelineConfig.CreateDefault (VkPrimitiveTopology.TriangleList, NUM_SAMPLES)) {
 				cfg.rasterizationState.cullMode = VkCullModeFlags.Back;
 				if (NUM_SAMPLES != VkSampleCountFlags.SampleCount1) {

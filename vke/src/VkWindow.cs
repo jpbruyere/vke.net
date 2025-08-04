@@ -176,9 +176,7 @@ namespace vke {
 			//activate the device to have effective queues created accordingly to what's available
 			dev.Activate (DeviceCreationPNext, enabledFeatures, EnabledDeviceExtensions);
 
-			swapChain = new SwapChain (presentQueue as PresentQueue, Width, Height, SwapChain.PREFERED_FORMAT,
-				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.ImmediateKHR);
-			swapChain.Activate ();
+			createSwapchain();
 
 			Width = swapChain.Width;
 			Height = swapChain.Height;
@@ -217,7 +215,14 @@ namespace vke {
 		protected virtual void createQueues () {
 			presentQueue = new PresentQueue (dev, VkQueueFlags.Graphics, hSurf);
 		}
-
+		/// <summary>
+		/// Override this method for custom swapchain creation and activation.
+		/// </summary>
+		protected virtual void createSwapchain() {
+			swapChain = new SwapChain (presentQueue as PresentQueue, Width, Height, SwapChain.PREFERED_FORMAT,
+				VSync ? VkPresentModeKHR.FifoKHR : VkPresentModeKHR.ImmediateKHR);
+			swapChain.Activate ();
+		}
 		/// <summary>
 		/// Main render method called each frame. get next swapchain image, process resize if needed, submit and present to the presentQueue.
 		/// Wait QueueIdle after presenting.
@@ -235,10 +240,8 @@ namespace vke {
 			drawFence.Wait ();
 			drawFence.Reset ();
 
-			presentQueue.Submit (cmds[idx], swapChain.nextImgAvail, drawComplete[idx], drawFence);
+			presentQueue.Submit (cmds[idx], swapChain.ConsumeNextImgSemaphore(), drawComplete[idx], drawFence);
 			presentQueue.Present (swapChain, drawComplete[idx]);
-
-			swapChain.semaphoresQueue.Enqueue(swapChain.nextImgAvail);
 			//presentQueue.WaitIdle ();
 		}
 

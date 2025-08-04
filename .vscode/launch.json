@@ -44,6 +44,17 @@
 			"console": "internalConsole"
 		},
 		{
+			"name": ".NET Core Launch (FramebufferFetchTests)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build FramebufferFetchTests",
+			"program": "${workspaceFolder}/build/Debug/net6/FramebufferFetchTests",
+			"args": [],
+			"cwd": "${workspaceFolder}/build/Debug/net6/",
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		},
+		{
 			"name": ".NET Core Launch (ShaderObject)",
 			"type": "coreclr",
 			"request": "launch",

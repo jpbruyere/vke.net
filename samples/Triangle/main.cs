@@ -15,6 +15,7 @@ namespace FillTests {
 #if DEBUG
 			Instance.VALIDATION = true;
 #endif
+			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Srgb;
 			using (Program vke = new Program ()) {
 				vke.Run ();
 			}

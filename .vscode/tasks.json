@@ -58,6 +58,19 @@
 			"problemMatcher": "$msCompile"
 		},
 		{
+			"label": "build FramebufferFetchTests",
+			"command": "dotnet",
+			"type": "process",
+			"args": [
+				"build",
+				"${workspaceFolder}/samples/FramebufferFetchTests/FramebufferFetchTests.csproj",
+				"/property:GenerateFullPaths=true",
+				"/property:SolutionDir=${workspaceFolder}/",
+				"/property:Configuration=Debug",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
+		},		{
 			"label": "build ShaderObject",
 			"command": "dotnet",
 			"type": "process",

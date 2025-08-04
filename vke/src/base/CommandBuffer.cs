@@ -95,65 +95,73 @@ namespace vke {
 	/// - secondary command buffers, which can be executed by primary command buffers, and which are not directly submitted to queues.
 	/// Command buffer are not derived from activable, because their state is retained by the pool which create them.
 	/// </summary>
-	public abstract class CommandBuffer {
+	public abstract class CommandBuffer
+	{
 		public enum States { Init, Record, Executable, Pending, Invalid };
 
-        protected CommandPool pool;
-        protected VkCommandBuffer handle;
+		protected CommandPool pool;
+		protected VkCommandBuffer handle;
 
-        public VkCommandBuffer Handle => handle;
+		public VkCommandBuffer Handle => handle;
 		public Device Device => pool?.Dev;//this help
-		//public States State { get; internal set; }
+										  //public States State { get; internal set; }
 
-        internal CommandBuffer (VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff)
-        {
-            pool = _pool;
-            handle = _buff;
+		internal CommandBuffer(VkDevice _dev, CommandPool _pool, VkCommandBuffer _buff)
+		{
+			pool = _pool;
+			handle = _buff;
 
 			//State = States.Init;
-        }
+		}
 
 		/// <summary>
 		/// Put the command buffer in the executable state if no errors are present in the recording.
 		/// </summary>
-		public void End () {
-            CheckResult (vkEndCommandBuffer (handle));
-        }
-        /// <summary>
-        /// Update dynamic viewport state
-        /// </summary>
-        public void SetViewport (float width, float height, float x = 0f, float y = 0f, float minDepth = 0.0f, float maxDepth = 1.0f) {
-            VkViewport viewport = new VkViewport {
+		public void End()
+		{
+			CheckResult(vkEndCommandBuffer(handle));
+		}
+		/// <summary>
+		/// Update dynamic viewport state
+		/// </summary>
+		public void SetViewport(float width, float height, float x = 0f, float y = 0f, float minDepth = 0.0f, float maxDepth = 1.0f)
+		{
+			VkViewport viewport = new VkViewport
+			{
 				x = x,
 				y = y,
-                height = height,
-                width = width,
-                minDepth = minDepth,
-                maxDepth = maxDepth,
-            };
-            vkCmdSetViewport (handle, 0, 1, ref viewport);
-        }
-        /// <summary>
-        /// Update dynamic scissor state
-        /// </summary>
-        public void SetScissor (uint width, uint height, int offsetX = 0, int offsetY = 0) {
-            VkRect2D scissor = new VkRect2D (offsetX, offsetY, width, height);
-            vkCmdSetScissor (handle, 0, 1, ref scissor);
-        }
+				height = height,
+				width = width,
+				minDepth = minDepth,
+				maxDepth = maxDepth,
+			};
+			vkCmdSetViewport(handle, 0, 1, ref viewport);
+		}
+		/// <summary>
+		/// Update dynamic scissor state
+		/// </summary>
+		public void SetScissor(uint width, uint height, int offsetX = 0, int offsetY = 0)
+		{
+			VkRect2D scissor = new VkRect2D(offsetX, offsetY, width, height);
+			vkCmdSetScissor(handle, 0, 1, ref scissor);
+		}
 		//TODO:update generator to handle float array in this command
-		public void SetBlendConstants (float r, float g, float b, float a)
+		public void SetBlendConstants(float r, float g, float b, float a)
 		{
 			throw new NotImplementedException();
 			//vkCmdSetBlendConstants(handle, );
 		}
-		public void BindPipeline (Pipeline pipeline, VkPipelineBindPoint bindPoint) {
-            vkCmdBindPipeline (handle, bindPoint, pipeline.Handle);
-        }
-		public void Dispatch (uint groupCountX, uint groupCountY = 1, uint groupCountZ = 1) {
-			vkCmdDispatch (handle, groupCountX, groupCountY, groupCountZ);
+		public void BindPipeline(Pipeline pipeline, VkPipelineBindPoint bindPoint)
+		{
+			vkCmdBindPipeline(handle, bindPoint, pipeline.Handle);
 		}
-		public void BindPipeline (Pipeline pl) {
-			pl.Bind (this);
+		public void Dispatch(uint groupCountX, uint groupCountY = 1, uint groupCountZ = 1)
+		{
+			vkCmdDispatch(handle, groupCountX, groupCountY, groupCountZ);
+		}
+		public void BindPipeline(Pipeline pl)
+		{
+			pl.Bind(this);
 		}
 		/// <summary>
 		/// bind pipeline and descriptor set with default pipeline layout
@@ -161,82 +169,181 @@ namespace vke {
 		/// <param name="pl">pipeline to bind</param>
 		/// <param name="ds">descriptor set</param>
 		/// <param name="firstset">first set to bind</param>
-		public void BindPipeline (Pipeline pl, DescriptorSet ds, uint firstset = 0) {
-			pl.Bind (this);
-			pl.BindDescriptorSet (this, ds, firstset);
+		public void BindPipeline(Pipeline pl, DescriptorSet ds, uint firstset = 0)
+		{
+			pl.Bind(this);
+			pl.BindDescriptorSet(this, ds, firstset);
 		}
-		public void BindDescriptorSet (PipelineLayout pipelineLayout, DescriptorSet descriptorSet, uint firstSet = 0) {
-            vkCmdBindDescriptorSets (handle, VkPipelineBindPoint.Graphics, pipelineLayout.handle, firstSet, 1, ref descriptorSet.handle, 0, IntPtr.Zero);
-        }
-		public void BindDescriptorSet (VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, DescriptorSet descriptorSet, uint firstSet = 0) {
-			vkCmdBindDescriptorSets (handle, bindPoint, pipelineLayout.handle, firstSet, 1, ref descriptorSet.handle, 0, IntPtr.Zero);
+		public void BindDescriptorSet(PipelineLayout pipelineLayout, DescriptorSet descriptorSet, uint firstSet = 0)
+		{
+			vkCmdBindDescriptorSets(handle, VkPipelineBindPoint.Graphics, pipelineLayout.handle, firstSet, 1, ref descriptorSet.handle, 0, IntPtr.Zero);
 		}
-		public void BindDescriptorSets (VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, uint firstSet,params DescriptorSet[] descriptorSets) {
-			vkCmdBindDescriptorSets (handle, bindPoint, pipelineLayout.handle, firstSet, (uint)descriptorSets.Length, descriptorSets.Pin (), 0, IntPtr.Zero);
-			descriptorSets.Unpin ();
+		public void BindDescriptorSet(VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, DescriptorSet descriptorSet, uint firstSet = 0)
+		{
+			vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.handle, firstSet, 1, ref descriptorSet.handle, 0, IntPtr.Zero);
 		}
-		public void BindVertexBuffer (Buffer vertices, uint binding = 0, ulong offset = 0) {
-            vkCmdBindVertexBuffers (handle, binding, 1, ref vertices.handle, ref offset);
-        }
-        public void BindIndexBuffer (Buffer indices, VkIndexType indexType = VkIndexType.Uint32, ulong offset = 0) {
-            vkCmdBindIndexBuffer (handle, indices.handle, offset, indexType);
-        }
-        public void DrawIndexed (uint indexCount, uint instanceCount = 1, uint firstIndex = 0, int vertexOffset = 0, uint firstInstance = 0) {
-            vkCmdDrawIndexed (Handle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
-        }
-        public void Draw (uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0) {
-            vkCmdDraw (Handle, vertexCount, instanceCount, firstVertex, firstInstance);
-        }
-		public void PushConstant (PipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, Object data, uint offset = 0) {
-			vkCmdPushConstants (handle, pipelineLayout.handle, stageFlags, offset, (uint)Marshal.SizeOf (data), data.Pin ());
-			data.Unpin ();
+		public void BindDescriptorSets(VkPipelineBindPoint bindPoint, PipelineLayout pipelineLayout, uint firstSet, params DescriptorSet[] descriptorSets)
+		{
+			vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.handle, firstSet, (uint)descriptorSets.Length, descriptorSets.Pin(), 0, IntPtr.Zero);
+			descriptorSets.Unpin();
 		}
-		public void PushConstant (Pipeline pipeline, object obj, int rangeIndex = 0, uint offset = 0) {
-			PushConstant (pipeline.Layout, pipeline.Layout.PushConstantRanges[rangeIndex].stageFlags, obj, offset);
+		public void BindVertexBuffer(Buffer vertices, uint binding = 0, ulong offset = 0)
+		{
+			vkCmdBindVertexBuffers(handle, binding, 1, ref vertices.handle, ref offset);
 		}
-		public void PushConstant (PipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint size, Object data, uint offset = 0) {
-			vkCmdPushConstants (handle, pipelineLayout.handle, stageFlags, offset, size, data.Pin ());
-			data.Unpin ();
+		public void BindIndexBuffer(Buffer indices, VkIndexType indexType = VkIndexType.Uint32, ulong offset = 0)
+		{
+			vkCmdBindIndexBuffer(handle, indices.handle, offset, indexType);
 		}
-		public void SetMemoryBarrier (VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
-			VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkDependencyFlags dependencyFlags = VkDependencyFlags.ByRegion) {
+		public void DrawIndexed(uint indexCount, uint instanceCount = 1, uint firstIndex = 0, int vertexOffset = 0, uint firstInstance = 0)
+		{
+			vkCmdDrawIndexed(Handle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+		}
+		public void Draw(uint vertexCount, uint instanceCount = 1, uint firstVertex = 0, uint firstInstance = 0)
+		{
+			vkCmdDraw(Handle, vertexCount, instanceCount, firstVertex, firstInstance);
+		}
+		public void PushConstant(PipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, Object data, uint offset = 0)
+		{
+			vkCmdPushConstants(handle, pipelineLayout.handle, stageFlags, offset, (uint)Marshal.SizeOf(data), data.Pin());
+			data.Unpin();
+		}
+		public void PushConstant(Pipeline pipeline, object obj, int rangeIndex = 0, uint offset = 0)
+		{
+			PushConstant(pipeline.Layout, pipeline.Layout.PushConstantRanges[rangeIndex].stageFlags, obj, offset);
+		}
+		public void PushConstant(PipelineLayout pipelineLayout, VkShaderStageFlags stageFlags, uint size, Object data, uint offset = 0)
+		{
+			vkCmdPushConstants(handle, pipelineLayout.handle, stageFlags, offset, size, data.Pin());
+			data.Unpin();
+		}
+		public void SetMemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
+			VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkDependencyFlags dependencyFlags = VkDependencyFlags.ByRegion)
+		{
 			VkMemoryBarrier memoryBarrier = default;
 			memoryBarrier.srcAccessMask = srcAccessMask;
 			memoryBarrier.dstAccessMask = dstAccessMask;
-			Vk.vkCmdPipelineBarrier (Handle, srcStageMask, dstStageMask,
+			Vk.vkCmdPipelineBarrier(Handle, srcStageMask, dstStageMask,
 				dependencyFlags, 1, ref memoryBarrier, 0, IntPtr.Zero, 0, IntPtr.Zero);
 		}
-		public void BeginRegion (string name, float r = 1f, float g = 0.1f, float b=0.1f, float a = 1f) {
+		public void BeginRegion(string name, float r = 1f, float g = 0.1f, float b = 0.1f, float a = 1f)
+		{
 			if (!Device.debugUtilsEnabled)
 				return;
 			VkDebugMarkerMarkerInfoEXT info = default;
-			info.pMarkerName = name.Pin ();
+			info.pMarkerName = name.Pin();
 			info.color.X = r;
 			info.color.Y = g;
 			info.color.Z = b;
 			info.color.W = a;
-			vkCmdDebugMarkerBeginEXT (Handle, ref info);
-			name.Unpin ();
+			vkCmdDebugMarkerBeginEXT(Handle, ref info);
+			name.Unpin();
 		}
-		public void InsertDebugMarker (string name, float r = 1f, float g = 0.1f, float b=0.1f, float a = 1f) {
+		public void InsertDebugMarker(string name, float r = 1f, float g = 0.1f, float b = 0.1f, float a = 1f)
+		{
 			if (!Device.debugUtilsEnabled)
 				return;
 			VkDebugMarkerMarkerInfoEXT info = default;
-			info.pMarkerName = name.Pin ();
+			info.pMarkerName = name.Pin();
 			info.color.X = r;
 			info.color.Y = g;
 			info.color.Z = b;
 			info.color.W = a;
-			vkCmdDebugMarkerInsertEXT (Handle, ref info);
-			name.Unpin ();
+			vkCmdDebugMarkerInsertEXT(Handle, ref info);
+			name.Unpin();
 		}
-		public void EndRegion () {
+		public void EndRegion()
+		{
 			if (Device.debugUtilsEnabled)
-				vkCmdDebugMarkerEndEXT (Handle);
+				vkCmdDebugMarkerEndEXT(Handle);
 		}
 
-		public void Free () {
-            pool.FreeCommandBuffers (this);
-        }
-    }
+		public void Free()
+		{
+			pool.FreeCommandBuffers(this);
+		}
+		public void SetCullMode(VkCullModeFlags cullMode)
+		{
+			Vk.vkCmdSetCullMode(Handle, cullMode);
+		}
+		public void SetFrontFace(VkFrontFace frontFace)
+		{
+			Vk.vkCmdSetFrontFace(Handle, frontFace);
+		}
+		public void SetDepthTestEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetDepthTestEnable(Handle, enable);
+		}
+		public void SetPrimitiveTopology(VkPrimitiveTopology topology)
+		{
+			Vk.vkCmdSetPrimitiveTopology(Handle, topology);
+		}
+		public void SetPrimitiveRestartEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetPrimitiveRestartEnable(Handle, enable);
+		}
+		public void SetPolygonModeEXT(VkPolygonMode mode)
+		{
+			Vk.vkCmdSetPolygonModeEXT(Handle, mode);
+		}
+		public void SetStencilTestEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetStencilTestEnable(Handle, enable);
+		}
+		public void SetRasterizerDiscardEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetRasterizerDiscardEnable(Handle, enable);
+		}
+		public void SetDepthWriteEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetDepthWriteEnable(Handle, enable);
+		}
+		public void SetDepthBiasEnable(VkBool32 enable)
+		{
+			Vk.vkCmdSetDepthBiasEnable(Handle, enable);
+		}
+		public void SetRasterizationSamplesEXT(VkSampleCountFlags count)
+		{
+			Vk.vkCmdSetRasterizationSamplesEXT(Handle, count);
+		}
+		public void SetSampleMaskEXT(VkSampleCountFlags count, uint mask = 0xFF)
+		{
+			Vk.vkCmdSetSampleMaskEXT(Handle, count, mask);
+		}
+		public void SetAlphaToCoverageEnableEXT(VkBool32 enable)
+		{
+			Vk.vkCmdSetAlphaToCoverageEnableEXT(Handle, enable);
+		}
+		public void SetColorBlendEnableEXT(uint firstAttachment, params VkBool32[] enable)
+		{
+			Vk.vkCmdSetColorBlendEnableEXT(Handle, firstAttachment, (uint)enable.Length, enable.Pin());
+			enable.Unpin();
+		}
+		public void SetColorWriteMaskEXT(uint firstAttachment, params uint[] flags)
+		{
+			Vk.vkCmdSetColorWriteMaskEXT(Handle, firstAttachment, (uint)flags.Length, flags.Pin());
+			flags.Unpin();
+		}
+		public void SetColorWriteMaskEXT(uint firstAttachment, params VkColorComponentFlags[] flags)
+		{
+			Vk.vkCmdSetColorWriteMaskEXT(Handle, firstAttachment, (uint)flags.Length, flags.Pin());
+			flags.Unpin();
+		}
+		public void SetViewport(params VkViewport[] viewports)
+		{
+			Vk.vkCmdSetViewportWithCount(Handle, (uint)viewports.Length, viewports.Pin());
+			viewports.Unpin();
+		}
+		public void SetScissor(params VkRect2D[] scissors)
+		{
+			Vk.vkCmdSetScissorWithCount(Handle, (uint)scissors.Length, scissors.Pin());
+			scissors.Unpin();
+		}
+
+
+
+		public void SetLineWidth(float width) {
+			Vk.vkCmdSetLineWidth(Handle, width);
+		}
+	}
 }

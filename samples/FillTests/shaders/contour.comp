@@ -1,0 +1,29 @@
+#version 450
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
+layout (set = 0, binding = 0, r32ui) uniform uimage2D img;
+
+layout(push_constant) uniform PushConsts {
+    vec2 p0;
+    vec2 p1;
+    uint primID;
+    uint contourID;
+};
+
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+    float yDiff = p1.y - p0.y;
+    float xDiff = p1.y - p0.y;
+    float m = yDiff / xDiff;
+    float b = p0.y - p0.x * m;
+    float y = p0.y + gl_GlobalInvocationID.x;
+
+    float x = (y - b) / m;
+
+    imageAtomicAdd(img, ivec2(floor(x), floor(y)), primID);
+}

@@ -81,6 +81,8 @@ namespace vke {
 				deviceCreateInfo.enabledExtensionCount = (uint)deviceExtensions.Count;
 				deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.Pin ();
 			}
+			
+			deviceCreateInfo.pNext = pNext;
 
 			CheckResult (vkCreateDevice (phy.Handle, ref deviceCreateInfo, IntPtr.Zero, out dev));
 

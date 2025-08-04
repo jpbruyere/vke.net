@@ -330,7 +330,6 @@ namespace vke.glTF {
 
 				dev.WaitIdle ();
 				cmd.Free ();
-
 			}
 
 			return meshes.ToArray ();

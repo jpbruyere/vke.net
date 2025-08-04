@@ -17,7 +17,7 @@ namespace DistanceFieldFontTest {
 			SwapChain.PREFERED_FORMAT = VkFormat.B8g8r8a8Unorm;
 #if DEBUG
 			Instance.VALIDATION = true;
-			Instance.RENDER_DOC_CAPTURE = true;
+			//Instance.RENDER_DOC_CAPTURE = true;
 #endif
 			using (Program vke = new Program ()) {
 				vke.Run ();

@@ -14,14 +14,32 @@ namespace ShaderObjectSample {
 	class Program : SampleBase {
         public override string[] EnabledDeviceExtensions => new string[] {
 			Ext.D.VK_KHR_swapchain,
-			Ext.D.VK_EXT_shader_object
+			Ext.D.VK_EXT_shader_object,
+			Ext.D.VK_KHR_dynamic_rendering,
+			Ext.D.VK_EXT_extended_dynamic_state,
+			Ext.D.VK_EXT_vertex_input_dynamic_state,
+			Ext.D.VK_KHR_maintenance2,
+			Ext.D.VK_KHR_create_renderpass2,
+			Ext.D.VK_KHR_depth_stencil_resolve
 		};
-        static void Main (string[] args) {
+			public override string[] EnabledInstanceExtensions => new string[] {
+			Ext.I.VK_EXT_debug_utils,
+		};
+        protected override void configureEnabledFeatures(VkPhysicalDeviceFeatures available_features, ref VkPhysicalDeviceFeatures enabled_features)
+        {
+			enabled_features.fillModeNonSolid = available_features.fillModeNonSolid;
+        }
+
+
+        static void Main(string[] args)
+		{
+			Instance.VK_MINOR = 3;
 #if DEBUG
 			Instance.VALIDATION = true;
 #endif
-			using (Program vke = new Program ()) {
-				vke.Run ();
+			using (Program vke = new Program())
+			{
+				vke.Run();
 			}
 		}
 
@@ -46,9 +64,12 @@ namespace ShaderObjectSample {
 
 		DescriptorPool descriptorPool;
 		DescriptorSet descriptorSet;//descriptor set for the mvp matrice.
+		PipelineLayout pipelineLayout;
 
-		FrameBuffers frameBuffers;	//the frame buffer collection coupled to the swapchain images
-		GraphicPipeline pipeline;   //the triangle rendering pipeline
+		//FrameBuffers frameBuffers;	//the frame buffer collection coupled to the swapchain images
+		//GraphicPipeline pipeline;   //the triangle rendering pipeline
+
+		LinkedShaderObjects shaders;
 
 		//triangle vertices (position + color per vertex) and indices.
 		Vertex[] vertices = {
@@ -58,22 +79,70 @@ namespace ShaderObjectSample {
 		};
 		ushort[] indices = new ushort[] { 0, 1, 2 };
 
-		protected override void initVulkan () {
-			base.initVulkan ();
+		IntPtr deviceCreationPNext = IntPtr.Zero;
+        public override IntPtr DeviceCreationPNext => deviceCreationPNext;
 
-			DescriptorSetLayout dsLayout = new DescriptorSetLayout (dev, new VkDescriptorSetLayoutBinding (0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer));			
+		
+
+		protected override void selectPhysicalDevice()
+		{
+			base.selectPhysicalDevice();
+
+			VkPhysicalDeviceFeatures2 phyFeat2 = VkPhysicalDeviceFeatures2.New;
+			using (var dynRenderingFeat = new PNext<VkPhysicalDeviceDynamicRenderingFeatures>())
+			{
+				using (var shadObjFeat = new PNext<VkPhysicalDeviceShaderObjectFeaturesEXT>(dynRenderingFeat))
+				{
+					phyFeat2.pNext = shadObjFeat;
+					Vk.vkGetPhysicalDeviceFeatures2(phy.Handle, ref phyFeat2);
+
+					Console.WriteLine($"ShaderObject Support:\t{shadObjFeat.Val.shaderObject}");
+					Console.WriteLine($"Dynamic Rendering Support:\t{dynRenderingFeat.Val.dynamicRendering}");
+
+				}
+			}
+		}
+		vke.DebugUtils.Messenger dbgmsg;
+		
+        protected override void initVulkan()
+		{
+			using (PinnedObjects pctx = new PinnedObjects())
+			{
+				VkPhysicalDeviceShaderObjectFeaturesEXT shadObjFeat = new VkPhysicalDeviceShaderObjectFeaturesEXT(true);
+				VkPhysicalDeviceDynamicRenderingFeatures dynRenderFeat = new VkPhysicalDeviceDynamicRenderingFeatures(true);
+				shadObjFeat.shaderObject = VkBool32.True;
+				shadObjFeat.pNext = dynRenderFeat.Pin(pctx);
+				deviceCreationPNext = shadObjFeat.Pin(pctx);
+				base.initVulkan();
+			}
+			dbgmsg = new vke.DebugUtils.Messenger (instance, VkDebugUtilsMessageTypeFlagsEXT.PerformanceEXT | VkDebugUtilsMessageTypeFlagsEXT.ValidationEXT | VkDebugUtilsMessageTypeFlagsEXT.GeneralEXT,
+				VkDebugUtilsMessageSeverityFlagsEXT.InfoEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.WarningEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.ErrorEXT |
+				VkDebugUtilsMessageSeverityFlagsEXT.VerboseEXT);			
+
+
+			DescriptorSetLayout dsLayout = new DescriptorSetLayout(dev, new VkDescriptorSetLayoutBinding(0, VkShaderStageFlags.Vertex, VkDescriptorType.UniformBuffer));
+
 			ShaderObject vertexShader = new ShaderObject(dev, VkShaderStageFlags.Vertex, VkShaderStageFlags.Fragment, dsLayout);
 			vertexShader.FileName = "#shaders.main.vert.spv";
-			
-			vertexShader.Activate();
-			
-			
-			vbo = new HostBuffer<Vertex> (dev, VkBufferUsageFlags.VertexBuffer, vertices);
-			ibo = new HostBuffer<ushort> (dev, VkBufferUsageFlags.IndexBuffer, indices);
-			
-			uboMVPmatrix = new HostBuffer<Matrix4x4> (dev, VkBufferUsageFlags.UniformBuffer, 1, true);
-			
-			descriptorPool = new DescriptorPool (dev, 1, new VkDescriptorPoolSize (VkDescriptorType.UniformBuffer));
+
+			ShaderObject fragmentShader = new ShaderObject(dev, VkShaderStageFlags.Fragment, 0, dsLayout);
+			fragmentShader.FileName = "#shaders.main.frag.spv";
+
+			shaders = new LinkedShaderObjects(vertexShader, fragmentShader);
+			shaders.Activate();
+
+			pipelineLayout = new PipelineLayout(dev, dsLayout);
+			pipelineLayout.Activate();
+
+
+			vbo = new HostBuffer<Vertex>(dev, VkBufferUsageFlags.VertexBuffer, vertices);
+			ibo = new HostBuffer<ushort>(dev, VkBufferUsageFlags.IndexBuffer, indices);
+
+			uboMVPmatrix = new HostBuffer<Matrix4x4>(dev, VkBufferUsageFlags.UniformBuffer, 1, true);
+
+			descriptorPool = new DescriptorPool(dev, 1, new VkDescriptorPoolSize(VkDescriptorType.UniformBuffer));
 
 			/*
 				cfg.AddVertexBinding<Vertex> (0);
@@ -84,10 +153,10 @@ namespace ShaderObjectSample {
 				);
 			*/
 
-			descriptorSet = descriptorPool.Allocate (pipeline.Layout.DescriptorSetLayouts[0]);
-			DescriptorSetWrites uboUpdate = new DescriptorSetWrites (descriptorSet, pipeline.Layout.DescriptorSetLayouts[0]);
-			uboUpdate.Write (dev, uboMVPmatrix.Descriptor);
-			cmds = cmdPool.AllocateCommandBuffer (swapChain.ImageCount);
+			descriptorSet = descriptorPool.Allocate(dsLayout);
+			DescriptorSetWrites uboUpdate = new DescriptorSetWrites(descriptorSet, dsLayout);
+			uboUpdate.Write(dev, uboMVPmatrix.Descriptor);
+			cmds = cmdPool.AllocateCommandBuffer(swapChain.ImageCount);
 		}
 
 		//view update override, see base method for more informations.
@@ -113,40 +182,150 @@ namespace ShaderObjectSample {
 			}
 		}
 
-		void buildCommandBuffers() {
+
+		public static void GetDelegate(VkDevice dev, string name, ref IntPtr ptr)
+		{
+			GCHandle gCHandle = GCHandle.Alloc(System.Text.Encoding.UTF8.GetBytes(name + "\0"), GCHandleType.Pinned);
+			IntPtr intPtr = Vk.vkGetDeviceProcAddr(dev, gCHandle.AddrOfPinnedObject());
+			if (!(intPtr == IntPtr.Zero))
+			{
+				ptr = intPtr;
+			}
+
+			gCHandle.Free();
+		}
+		void buildCommandBuffers()
+		{
 			cmdPool.Reset (VkCommandPoolResetFlags.ReleaseResources);
 
-			for (int i = 0; i < swapChain.ImageCount; ++i) {
-				FrameBuffer fb = frameBuffers[i];
-				cmds[i].Start ();
-
-				pipeline.RenderPass.Begin (cmds[i], fb);
-
-				cmds[i].SetViewport (swapChain.Width, swapChain.Height);
-				cmds[i].SetScissor (swapChain.Width, swapChain.Height);
-
-				cmds[i].BindDescriptorSet (pipeline.Layout, descriptorSet);
-
-				cmds[i].BindPipeline (pipeline);
-
-				cmds[i].BindVertexBuffer (vbo);
-				cmds[i].BindIndexBuffer (ibo, VkIndexType.Uint16);
-				cmds[i].DrawIndexed ((uint)indices.Length);
-
-				pipeline.RenderPass.End (cmds[i]);
-
-				cmds[i].End ();
+			for (int i = 0; i < swapChain.ImageCount; ++i)
+				buildCommandBuffer(cmds[i], i);
+		}
+		public class RenderingInfo
+		{
+			List<VkRenderingAttachmentInfo> attachments = new List<VkRenderingAttachmentInfo>();
+			VkRenderingInfo info;
+			public RenderingInfo(VkRect2D renderArea)
+			{
+				info.renderArea = renderArea;
+				info.layerCount = 1;
 			}
+			public void AddAttachment (
+				VkImageView imageView,
+				VkAttachmentLoadOp loadOp = VkAttachmentLoadOp.Clear,
+				VkAttachmentStoreOp storeOp = VkAttachmentStoreOp.Store,
+				VkImageLayout imageLayout = VkImageLayout.ColorAttachmentOptimal,
+				VkClearValue clearValue = default
+				) {
+				attachments.Add (new VkRenderingAttachmentInfo {
+					imageView = imageView,
+					imageLayout = imageLayout,
+					loadOp = loadOp,
+					storeOp = storeOp,
+					clearValue = clearValue
+				});
+			}
+			public void Begin(CommandBuffer cmd)
+			{
+				VkRenderingInfo i = info;
+				i.pColorAttachments = attachments;
+				Vk.vkCmdBeginRendering(cmd.Handle, ref i);// ref renderingInfo);			
+			}
+		}
+
+		void buildCommandBuffer(PrimaryCommandBuffer cmd, int imageIndex) {
+			//FrameBuffer fb = frameBuffers[i];
+			cmd.Start ();
+			swapChain.images[imageIndex].SetLayout(cmd, VkImageAspectFlags.Color, VkImageLayout.ColorAttachmentOptimal);
+
+			/*VkRenderingAttachmentInfo colorAttachment = VkRenderingAttachmentInfo.New;
+			colorAttachment.clearValue = new VkClearValue(0, 0, 0);
+			colorAttachment.imageLayout = VkImageLayout.ColorAttachmentOptimal;
+			colorAttachment.loadOp = VkAttachmentLoadOp.Clear;
+			colorAttachment.storeOp = VkAttachmentStoreOp.Store;
+			colorAttachment.imageView = swapChain.images[imageIndex].Descriptor.imageView;
+
+			VkRenderingInfo renderingInfo = VkRenderingInfo.New;
+			renderingInfo.renderArea = new VkRect2D(swapChain.Width, swapChain.Height);
+			renderingInfo.pColorAttachments = colorAttachment;
+			renderingInfo.layerCount = 1;*/
+			
+			RenderingInfo ri = new RenderingInfo(new VkRect2D(swapChain.Width, swapChain.Height));
+			ri.AddAttachment(swapChain.images[imageIndex].Descriptor.imageView);
+			ri.Begin(cmd);
+
+				//colorAttachment.clearValue
+			// New structures are used to define the attachments used in dynamic rendering
+			/*	VkRenderingAttachmentInfo colorAttachment = new VkRenderingAttachmentInfo(VkImageLayout.ColorAttachmentOptimal, VkImageLayout.Undefined, VkAttachmentLoadOp.Clear,
+				VkAttachmentStoreOp.Store, new VkClearValue(0, 0, 0));
+			colorAttachment.imageView = swapChain.images[i].Descriptor.imageView;
+
+
+			VkRenderingInfo renderingInfo = VkRenderingInfo.New;
+			renderingInfo.renderArea = new VkRect2D(swapChain.Width, swapChain.Height);
+			renderingInfo.pColorAttachments = colorAttachment;
+			renderingInfo.layerCount = 1;*/
+			/*IntPtr test = IntPtr.Zero;
+			GetDelegate(dev.Handle, "vkCmdBeginRendering", ref test);
+
+			Vk.vkCmdBeginRendering(cmd.Handle, ref renderingInfo);*/
+
+			//cmd.SetViewport (swapChain.Width, swapChain.Height);
+			//cmd.SetScissor (swapChain.Width, swapChain.Height);
+
+			cmd.SetCullMode(VkCullModeFlags.None);
+			cmd.SetFrontFace(VkFrontFace.Clockwise);
+			cmd.SetDepthTestEnable(false);
+			cmd.SetPrimitiveTopology(VkPrimitiveTopology.TriangleList);
+			cmd.SetPrimitiveRestartEnable(false);
+			cmd.SetPolygonModeEXT(VkPolygonMode.Fill);
+			cmd.SetStencilTestEnable(false);
+			cmd.SetRasterizerDiscardEnable(false);
+
+			cmd.SetDepthWriteEnable(false);
+			cmd.SetDepthBiasEnable(false);
+			cmd.SetRasterizationSamplesEXT(VkSampleCountFlags.SampleCount1);
+			cmd.SetSampleMaskEXT(VkSampleCountFlags.SampleCount1, 0xFF);
+			cmd.SetAlphaToCoverageEnableEXT(false);
+			cmd.SetColorBlendEnableEXT(0, false);
+
+			cmd.SetColorWriteMaskEXT(0, 0xf);
+			cmd.SetViewport(new VkViewport { width = swapChain.Width, height = swapChain.Height });
+			cmd.SetScissor(new VkRect2D (swapChain.Width, swapChain.Height));
+
+			cmd.SetLineWidth(1.0f);
+
+			VkVertexInputBindingDescription2EXT vxBindingDesc = new VkVertexInputBindingDescription2EXT(
+				0, (uint)Marshal.SizeOf<Vertex>(), VkVertexInputRate.Vertex, 1);
+			
+			VkVertexInputAttributeDescription2EXT[] vxAttribDesc = {
+				new VkVertexInputAttributeDescription2EXT(0, 0, VkFormat.R32g32b32Sfloat, 0),
+				new VkVertexInputAttributeDescription2EXT(1, 0, VkFormat.R32g32b32Sfloat, 12)
+			};
+
+			using (PinnedObjects pctx = new PinnedObjects()) {
+				Vk.vkCmdSetVertexInputEXT(cmd.Handle, 1, vxBindingDesc.Pin(pctx), (uint)vxAttribDesc.Length, vxAttribDesc.Pin(pctx));
+			
+				cmd.BindDescriptorSet (pipelineLayout, descriptorSet);
+				cmd.BindVertexBuffer (vbo);
+				cmd.BindIndexBuffer (ibo, VkIndexType.Uint16);
+
+								
+				Vk.vkCmdBindShadersEXT(cmd.Handle, shaders.Count, shaders.Stages.Pin(pctx), shaders.ShaderHandles.Pin(pctx));
+			}
+
+			cmd.DrawIndexed ((uint)indices.Length);
+
+			Vk.vkCmdEndRendering(cmd.Handle);
+			swapChain.images[imageIndex].SetLayout(cmd, VkImageAspectFlags.Color, VkImageLayout.PresentSrcKHR);
+
+			cmd.End ();
+			
 		}
 
 		protected override void OnResize () {
 			base.OnResize ();
-
 			updateViewRequested = true;
-
-			frameBuffers?.Dispose();
-			frameBuffers = pipeline.RenderPass.CreateFrameBuffers(swapChain);
-
 			buildCommandBuffers ();
 		}
 		//clean up
@@ -155,15 +334,18 @@ namespace ShaderObjectSample {
 			if (disposing) {
 				if (!isDisposed) {
 					//pipeline clean up will dispose PipelineLayout, DescriptorSet layouts and render pass automatically. If their reference count is zero, their handles will be destroyed.
-					pipeline.Dispose ();
+					//pipeline.Dispose ();
 					//frame buffers are automatically activated on creation as for resources, so it requests an explicit call to dispose.
-					frameBuffers?.Dispose();
+					//frameBuffers?.Dispose();
+					shaders.Dispose();
+					pipelineLayout.Dispose();
 					//the descriptor pool
 					descriptorPool.Dispose ();
 					//resources have to be explicityly disposed.
 					vbo.Dispose ();
 					ibo.Dispose ();
 					uboMVPmatrix.Dispose ();
+					dbgmsg.Dispose();
 				}
 			}
 

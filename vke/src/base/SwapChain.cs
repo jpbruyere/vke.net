@@ -33,7 +33,7 @@ namespace vke {
 		PresentQueue presentQueue;
 
 		public Queue<VkSemaphore> semaphoresQueue = new Queue<VkSemaphore>();
-		public VkSemaphore nextImgAvail;
+		VkSemaphore nextImgAvail;
 		public Image[] images;
 
 		protected override VkDebugUtilsObjectNameInfoEXT DebugUtilsInfo
@@ -165,6 +165,14 @@ namespace vke {
 			}
 			CheckResult (res);
 			return (int)currentImageIndex;
+		}
+		/// <summary>
+		/// Return semaphore used for last call to vkAcquireNextImageKHR and requeue it for later use. May be call only once.
+		/// </summary>
+		/// <returns>semaphore used for last call to vkAcquireNextImageKHR</returns>
+		public VkSemaphore ConsumeNextImgSemaphore() {
+			semaphoresQueue.Enqueue(nextImgAvail);
+			return nextImgAvail;
 		}
 
 		void _destroy () {
